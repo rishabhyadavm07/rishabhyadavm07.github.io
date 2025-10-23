@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Blog Post | Rishabh Yadav</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="Rishabh Yadav">
+
+<link rel="apple-touch-icon" sizes="180x180" href="/favicon_io/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon_io/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon_io/favicon-16x16.png">
+<link rel="manifest" href="/favicon_io/site.webmanifest">
+
+<style>
+@font-face { font-family:"TopazPlus"; src: url(./topazplus500.ttf);}
+body { 
+    color: #dddddd;
+    background-color: #0c0d10; 
+    font-size: 16px;
+    line-height: 1.6;
+    margin: 0 auto;
+    padding: 2em;
+    max-width: 900px;
+}
+pre { font-family:"TopazPlus", "Lucida Console", monospace, Monaco; }
+a { color: #98f5ff; text-decoration: none; }
+a:hover { text-decoration: underline; }
+iky { color: #74ee15; }
+y { color: #ffa298; }
+gy { color: #f5ff98; }
+w { color: #ffffff; }
+gr { color: #b5bd68; }
+r { color: #f22e2e; }
+pnk { color: #f4b6e5; }
+bb { color: #5cc2ca; }
+prp { color: #7a80a2; }
+l { color: #c5c8c6; }
+lg { color: #9de9a9; }
+
+/* Blog content styling */
+#blog-content {
+    font-family: "Lucida Console", monospace, Monaco;
+    line-height: 1.8;
+}
+
+#blog-content h1 {
+    color: #f5ff98;
+    font-size: 1.8em;
+    border-bottom: 2px solid #ffa298;
+    padding-bottom: 0.3em;
+    margin-top: 1em;
+}
+
+#blog-content h2 {
+    color: #98f5ff;
+    font-size: 1.5em;
+    margin-top: 1.5em;
+}
+
+#blog-content h3 {
+    color: #f4b6e5;
+    font-size: 1.2em;
+    margin-top: 1.2em;
+}
+
+#blog-content p {
+    margin: 1em 0;
+    color: #dddddd;
+}
+
+#blog-content code {
+    background-color: #1a1b1e;
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+    color: #74ee15;
+    font-family: "TopazPlus", "Lucida Console", monospace, Monaco;
+}
+
+#blog-content pre {
+    background-color: #1a1b1e;
+    padding: 1em;
+    border-radius: 5px;
+    overflow-x: auto;
+    border-left: 3px solid #98f5ff;
+}
+
+#blog-content pre code {
+    background-color: transparent;
+    padding: 0;
+    color: #b5bd68;
+}
+
+#blog-content blockquote {
+    border-left: 4px solid #7a80a2;
+    padding-left: 1em;
+    margin-left: 0;
+    color: #9de9a9;
+    font-style: italic;
+}
+
+#blog-content ul, #blog-content ol {
+    margin: 1em 0;
+    padding-left: 2em;
+}
+
+#blog-content li {
+    margin: 0.5em 0;
+}
+
+#blog-content img {
+    max-width: 100%;
+    height: auto;
+    border: 2px solid #7a80a2;
+    border-radius: 5px;
+    margin: 1em 0;
+}
+
+#blog-content table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1em 0;
+}
+
+#blog-content th, #blog-content td {
+    border: 1px solid #7a80a2;
+    padding: 0.5em;
+    text-align: left;
+}
+
+#blog-content th {
+    background-color: #1a1b1e;
+    color: #f5ff98;
+}
+
+.blog-meta {
+    color: #7a80a2;
+    font-size: 0.9em;
+    margin-bottom: 2em;
+}
+
+.back-link {
+    display: inline-block;
+    margin-bottom: 2em;
+    color: #98f5ff;
+    font-size: 1.1em;
+    /* --- FIX: Apply the monospace font to match the terminal theme --- */
+    font-family: "TopazPlus", "Lucida Console", monospace, Monaco; 
+}
+
+.loading {
+    color: #9de9a9;
+    text-align: center;
+    padding: 2em;
+}
+
+.error {
+    color: #f22e2e;
+    text-align: center;
+    padding: 2em;
+}
+</style>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+<link rel="icon" href="/favicon.ico" type="image/x-icon">
+</head>
+<body>
+    <a href="blogs.html" class="back-link"><gy>←</gy> Back</a>
+    
+    <div id="blog-meta" class="blog-meta"></div>
+    
+    <div id="blog-content">
+        <div class="loading">Loading blog post...</div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
+    <script>
+    // Get blog post parameter from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const blogFolder = urlParams.get('post');
+    
+    async function loadBlogPost() {
+        const contentDiv = document.getElementById('blog-content');
+        const metaDiv = document.getElementById('blog-meta');
+        
+        if (!blogFolder) {
+            contentDiv.innerHTML = '<div class="error">Error: No blog post specified</div>';
+            return;
+        }
+        
+        try {
+            // Fetch the markdown file
+            const response = await fetch(`BLOGS/${blogFolder}/blog.md`);
+            
+            if (!response.ok) {
+                throw new Error('Blog post not found');
+            }
+            
+            const markdown = await response.text();
+            
+            // Configure marked to handle relative image paths
+            marked.setOptions({
+                breaks: true,
+                gfm: true
+            });
+            
+            // Convert markdown to HTML
+            let html = marked.parse(markdown);
+            
+            // Fix image paths to point to the src folder
+            html = html.replace(
+                /src="(?!http)([^"]+)"/g, 
+                `src="BLOGS/${blogFolder}/src/$1"`
+            );
+            html = html.replace(
+                /src='(?!http)([^']+)'/g, 
+                `src='BLOGS/${blogFolder}/src/$1'`
+            );
+            
+            contentDiv.innerHTML = html;
+            
+            // Update page title
+            const firstH1 = contentDiv.querySelector('h1');
+            if (firstH1) {
+                document.title = `${firstH1.textContent} | Rishabh Yadav`;
+            }
+            
+            // Try to load metadata from blogs.json
+            try {
+                const blogsResponse = await fetch('BLOGS/blogs.json');
+                if (blogsResponse.ok) {
+                    const blogs = await blogsResponse.json();
+                    const blogMeta = blogs.find(b => b.folder === blogFolder);
+                    if (blogMeta) {
+                        metaDiv.innerHTML = `<w>Published:</w> ${blogMeta.date}${blogMeta.author ? ` <w>by</w> ${blogMeta.author}` : ''}`;
+                    }
+                }
+            } catch (e) {
+                // Metadata loading is optional
+                console.log('Could not load metadata');
+            }
+            
+        } catch (error) {
+            console.error('Error loading blog post:', error);
+            contentDiv.innerHTML = '<div class="error">Error: Could not load blog post. Please check the URL and try again.</div>';
+        }
+    }
+    
+    // Load blog post when page loads
+    document.addEventListener('DOMContentLoaded', loadBlogPost);
+    </script>
+</body>
+</html>

@@ -1,0 +1,253 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Blog Posts | Rishabh Yadav</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Cybersecurity blog posts, CTF writeups, and security research by Rishabh Yadav">
+<meta name="author" content="Rishabh Yadav">
+<meta name="canonical" content="https://rishabhyadavm07.github.io/blogs.html">
+
+<link rel="apple-touch-icon" sizes="180x180" href="/favicon_io/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon_io/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon_io/favicon-16x16.png">
+<link rel="manifest" href="/favicon_io/site.webmanifest">
+
+<style>
+@font-face { font-family:"TopazPlus"; src: url(./topazplus500.ttf);}
+body { 
+    color: #dddddd;
+    background-color: #0c0d10; 
+    font-size: 16px;
+    line-height: 16px;
+    margin: 0 auto;
+    padding: 1em 0 1em 0;
+    /* cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewport='0 0 100 100' style='font-size:24px;'><text y='50%'>🔑</text></svg>") 16 16, auto; */
+}
+pre { 
+    font-family:"TopazPlus", "Lucida Console", monospace, Monaco; 
+    white-space: pre; 
+    overflow-x: auto;
+}
+a { color: #98f5ff; text-decoration: none; }
+a:hover { text-decoration: underline; }
+iky { color: #74ee15; }
+y { color: #ffa298; }
+gy { color: #f5ff98; }
+w { color: #ffffff; }
+gr { color: #b5bd68; }
+r { color: #f22e2e; }
+pnk { color: #f4b6e5; }
+bb { color: #5cc2ca; }
+prp { color: #7a80a2; }
+l { color: #c5c8c6; }
+lg { color: #9de9a9; }
+
+.blog-date { color: #7a80a2; font-size: 16px; }
+.blog-entry { 
+    margin: 1.5em 0;
+    padding: 0.5em 0;
+}
+.blog-title-link {
+    color: #98f5ff;
+    font-size: 16px;
+}
+.blog-title-link:hover {
+    color: #f5ff98;
+}
+
+
+/* Ensure consistent formatting for all content */
+#blog-list {
+    white-space: pre;
+    font-family: "TopazPlus", "Lucida Console", monospace, Monaco;
+    line-height: 16px;
+    font-size: 16px;
+}
+</style>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+<link rel="icon" href="/favicon.ico" type="image/x-icon">
+</head>
+<body>
+    <center>
+<div style="display: inline-block; text-align: left;"><pre>
+
+
+
+
+                      <gy>░█▀▀░█▀█░█▀█░█▀█░▀█▀░▀█▀░█▀▀░█▀█░█░░░█▀█░█▀▀░█▀▄░█▀▄</gy>
+.<y>___________________ <gy> ░█▀▀░█▀█░█░█░█▀█░░█░░░█░░█░░░█▀█░█░░░█░█░█▀▀░█▀▄░█░█</gy>  ___________________</y>.
+:<y>--------------------<gy> ░▀░░░▀░▀░▀░▀░▀░▀░░▀░░▀▀▀░▀▀▀░▀░▀░▀▀▀░▀░▀░▀▀▀░▀░▀░▀▀░</gy> --------------------</y>:</gy>
+|                                                                                              |
+| <a href="index.html"><gy>←</gy> Back to Home</a>                                                                               |
+|                                                                                              |
+| <y>-- <w>All Blog Posts</w> --------------------------------------------------------------------------</y> |
+|                                                                                              |
+<div id="blog-list">| <gy>::</gy> <lg>Loading blog posts...</lg>                                                                     |</div>|                                                                                              |
+|                                                                                              |
+|--------------------------------rishabhyadav.inbox@gmail.com----------------------------------|
+:<y>______________________________________________________________________________________________</y>:
+:<y>----------------------------------------------------------------------------------------------</y>:
+<gy></gy>
+</pre>
+</div>
+</center>
+
+<script>
+const BLOGS_PATH = 'BLOGS';
+const TOTAL_WIDTH = 94; // Total fixed width of the terminal box
+
+async function loadBlogs() {
+    const blogListElement = document.getElementById('blog-list');
+    
+    try {
+        const response = await fetch(`${BLOGS_PATH}/blogs.json`);
+        
+        if (!response.ok) {
+            const errorContent = '<gy>::</gy> <r>No blogs found yet. Check back soon!</r>';
+            blogListElement.innerHTML = createFormattedLine(errorContent) + '\n';
+            return;
+        }
+        
+        const blogs = await response.json();
+        
+        if (blogs.length === 0) {
+            const noBlogsContent = '<gy>::</gy> <r>No blogs found yet. Check back soon!</r>';
+            blogListElement.innerHTML = createFormattedLine(noBlogsContent) + '\n';
+            return;
+        }
+        
+        // Sort blogs by date (newest first)
+        blogs.sort((a, b) => new Date(b.date) - new Date(a.date));
+        
+        // Generate blog list HTML with proper formatting
+        let blogHTML = '';
+        blogs.forEach((blog, index) => {
+            const blogUrl = `blog.html?post=${encodeURIComponent(blog.folder)}`;
+            
+            // Perform border analysis and formatting after content is loaded
+            const formattedTitle = analyzeAndFormatTitle(blog.title, blog.date, blogUrl);
+            blogHTML += formattedTitle + '\n';
+            
+            // Add separator line between posts
+            blogHTML += createFormattedLine('') + '\n';
+        });
+        
+        blogListElement.innerHTML = blogHTML;
+        
+    } catch (error) {
+        console.error('Error loading blogs:', error);
+        const errorContent = `<gy>::</gy> <r>Error loading blogs: ${error.message}. Please try again later.</r>`;
+        blogListElement.innerHTML = createFormattedLine(errorContent) + '\n';
+    }
+}
+
+// Helper function to strip HTML tags for length calculation (Optimized)
+function stripTags(html) {
+    // Regex to strip any HTML tag (e.g., <gy>, <a>, </a>, <img ...>, <span class="...">)
+    return html.replace(/<[^>]*>/g, '').trim();
+}
+
+// Helper function to ensure proper line padding
+function padLine(line, totalWidth = TOTAL_WIDTH) {
+    const contentLength = stripTags(line).length;
+    const padding = totalWidth - contentLength;
+    return line + ' '.repeat(Math.max(0, padding)) + '|';
+}
+
+// Helper function to create a properly formatted line
+function createFormattedLine(content, totalWidth = TOTAL_WIDTH) {
+    const line = `| ${content}`;
+    const contentLength = stripTags(line).length;
+    const padding = totalWidth - contentLength;
+    return line + ' '.repeat(Math.max(0, padding)) + '|';
+}
+
+// Function to analyze and format title after JSON content is loaded
+function analyzeAndFormatTitle(title, date, url, totalWidth = TOTAL_WIDTH) {
+    console.log(`Analyzing title: "${title}" with date: "${date}"`);
+    
+    const maxContentWidth = totalWidth - 4; // Account for "| :: " and " |" = 90 chars for content
+    const titleWithDate = `${title} (${date})`;
+    const fullContent = `:: ${titleWithDate}`;
+    
+    // Calculate the actual character length (excluding HTML tags)
+    const contentLength = stripTags(fullContent).length;
+    console.log(`Content length: ${contentLength}, Max allowed: ${maxContentWidth}`);
+    
+    if (contentLength <= maxContentWidth) {
+        // Content fits on one line, add padding to reach exactly 94 characters
+        const titleLine = `| <gy>::</gy> <a href="${url}" class="blog-title-link">${title}</a> <span class="blog-date">(${date}) </span>`;
+        const actualLength = stripTags(titleLine).length;
+        const padding = totalWidth - actualLength;
+        console.log(`Single line - actual length: ${actualLength}, padding needed: ${padding}`);
+        
+        // Ensure we have exactly 94 characters total
+        const paddedLine = titleLine + ' '.repeat(Math.max(0, padding)) + '|';
+        console.log(`Final line length: ${stripTags(paddedLine).length}`);
+        return paddedLine;
+    } else {
+        // Content is too long, need to break it
+        console.log('Content too long, breaking into multiple lines');
+        const words = title.split(' ');
+        let currentLine = '| <gy>::</gy> ';
+        let lineLength = stripTags(currentLine).length;
+        let result = '';
+        
+        // Add words until we approach the 90 character limit
+        for (let i = 0; i < words.length; i++) {
+            const word = words[i];
+            const testLine = currentLine + word + ' ';
+            const testLength = stripTags(testLine).length;
+            
+            if (testLength > maxContentWidth && i > 0) {
+                // Current line is full, pad it to exactly 94 characters and start new line
+                const actualLineLength = stripTags(currentLine).length;
+                const padding = totalWidth - actualLineLength;
+                const paddedLine = currentLine + ' '.repeat(Math.max(0, padding)) + '|';
+                result += paddedLine + '\n';
+                console.log(`Line break at word: "${word}", line length: ${stripTags(paddedLine).length}`);
+                currentLine = '|    '; // Indent for continuation
+                lineLength = 4;
+            }
+            
+            currentLine += word + ' ';
+            lineLength += word.length + 1;
+        }
+        
+        // Add the date to the last line with a trailing space
+        const finalLine = currentLine + `(${date}) `;
+        const finalLength = stripTags(finalLine).length;
+        
+        if (finalLength > maxContentWidth) {
+            // Date doesn't fit, put it on a new line
+            const actualLineLength = stripTags(currentLine).length;
+            const padding = totalWidth - actualLineLength;
+            const paddedLine = currentLine + ' '.repeat(Math.max(0, padding)) + '|';
+            result += paddedLine + '\n';
+            console.log(`Title line length: ${stripTags(paddedLine).length}`);
+            
+            const dateLine = `|    (${date}) `;
+            const dateActualLength = stripTags(dateLine).length;
+            const datePadding = totalWidth - dateActualLength;
+            const paddedDateLine = dateLine + ' '.repeat(Math.max(0, datePadding)) + '|';
+            result += paddedDateLine;
+            console.log(`Date line length: ${stripTags(paddedDateLine).length}`);
+        } else {
+            // Date fits on the same line, pad to exactly 94 characters
+            const actualFinalLength = stripTags(finalLine).length;
+            const padding = totalWidth - actualFinalLength;
+            const paddedFinalLine = finalLine + ' '.repeat(Math.max(0, padding)) + '|';
+            result += paddedFinalLine;
+            console.log(`Final line length: ${stripTags(paddedFinalLine).length}`);
+        }
+        
+        return result;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', loadBlogs);
+</script>
+</body>
+</html>
