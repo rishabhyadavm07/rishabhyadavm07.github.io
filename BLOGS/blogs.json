@@ -3,7 +3,14 @@
     "title": "How to Beat the Warden in Minecraft",
     "folder": "how-to-roast-a-warden",
     "date": "2025-04-1", 
-    "author": "Rishabh Yadav",
+    "author": "Rishabh",
     "excerpt": "A completely serious and not-at-all chaotic guide to defeating the Warden using pure panic, questionable logic, and maybe some wool."
+  },
+  {
+    "title": "I Tried to Teach an AI Agent Security… Now It Corrects My Grammar",
+    "folder": "i-tried-to-teach-an-ai-agent-security-now-it-corrects-my-grammar",
+    "date": "2025-10-25", 
+    "author": "Rishabh",
+    "excerpt": "This is a living journal of my experiments with AI agents and security automation."
   }
 ]
