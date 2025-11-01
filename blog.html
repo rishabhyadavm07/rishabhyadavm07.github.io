@@ -231,6 +231,37 @@ lg { color: #9de9a9; }
                     const blogMeta = blogs.find(b => b.folder === blogFolder);
                     if (blogMeta) {
                         metaDiv.innerHTML = `<w>Published:</w> ${blogMeta.date}${blogMeta.author ? ` <w>by</w> ${blogMeta.author}` : ''}`;
+
+                        // Create/update Open Graph / Twitter meta tags so shared links include thumbnail, title and description
+                        const setMeta = (attrName, attrValue, isProperty = false) => {
+                            if (!attrValue) return;
+                            const selector = isProperty ? `meta[property="${attrName}"]` : `meta[name="${attrName}"]`;
+                            let tag = document.head.querySelector(selector);
+                            if (!tag) {
+                                tag = document.createElement('meta');
+                                if (isProperty) tag.setAttribute('property', attrName);
+                                else tag.setAttribute('name', attrName);
+                                document.head.appendChild(tag);
+                            }
+                            tag.setAttribute('content', attrValue);
+                        };
+
+                        // Use excerpt as description if explicit description isn't present
+                        const description = blogMeta.description || blogMeta.excerpt || '';
+                        const title = (document.title && document.title !== 'Blog Post | Rishabh Yadav') ? document.title.replace(' | Rishabh Yadav','') : blogMeta.title || document.title;
+                        const image = blogMeta.thumbnail || '';
+
+                        // Open Graph
+                        setMeta('og:title', title, true);
+                        setMeta('og:description', description, true);
+                        setMeta('og:image', image, true);
+                        setMeta('og:type', 'article', true);
+
+                        // Twitter
+                        setMeta('twitter:card', image ? 'summary_large_image' : 'summary');
+                        setMeta('twitter:title', title);
+                        setMeta('twitter:description', description);
+                        setMeta('twitter:image', image);
                     }
                 }
             } catch (e) {
