@@ -47,8 +47,50 @@ lg { color: #9de9a9; }
     color: #f5ff98;
     font-size: 1.8em;
     border-bottom: 2px solid #ffa298;
-    padding-bottom: 0.3em;
+    padding: 0.5em 0.8em;
+    padding-bottom: 0.5em;
     margin-top: 1em;
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.95),
+                 0 0 15px rgba(12, 13, 16, 0.9),
+                 3px 3px 12px rgba(0, 0, 0, 0.8);
+}
+
+#blog-content h1.has-thumbnail {
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+}
+
+#blog-content h1.has-thumbnail::before {
+    content: '';
+    position: absolute;
+    top: -20px;
+    left: -20px;
+    right: -20px;
+    bottom: -20px;
+    background: inherit;
+    filter: blur(20px) brightness(0.4);
+    opacity: 0.6;
+    z-index: -2;
+}
+
+#blog-content h1.has-thumbnail::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg,
+        rgba(12, 13, 16, 0.85) 0%,
+        rgba(12, 13, 16, 0.75) 30%,
+        rgba(12, 13, 16, 0.65) 50%,
+        rgba(12, 13, 16, 0.75) 70%,
+        rgba(12, 13, 16, 0.85) 100%);
+    z-index: -1;
 }
 
 #blog-content h2 {
@@ -338,8 +380,10 @@ lg { color: #9de9a9; }
             try {
                 const blogsResponse = await fetch('BLOGS/blogs.json');
                 if (blogsResponse.ok) {
-                    const blogs = await blogsResponse.json();
-                    const blogMeta = blogs.find(b => b.folder === blogFolder);
+                    const data = await blogsResponse.json();
+                    // Handle both old format (array) and new format (object with blogs/projects)
+                    const allItems = Array.isArray(data) ? data : [...(data.blogs || []), ...(data.projects || [])];
+                    const blogMeta = allItems.find(b => b.folder === blogFolder);
                     if (blogMeta) {
                         metaDiv.innerHTML = `<w>Published:</w> ${blogMeta.date}${blogMeta.author ? ` <w>by</w> ${blogMeta.author}` : ''}`;
 
@@ -379,6 +423,12 @@ lg { color: #9de9a9; }
                         setMeta('twitter:title', title);
                         setMeta('twitter:description', description);
                         setMeta('twitter:image', absoluteImage);
+
+                        // Set blurred thumbnail background on h1 title
+                        if (image && firstH1) {
+                            firstH1.style.backgroundImage = `url('${image}')`;
+                            firstH1.classList.add('has-thumbnail');
+                        }
                     }
                 }
             } catch (e) {

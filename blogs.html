@@ -183,22 +183,22 @@ function createFormattedLine(content, totalWidth = TOTAL_WIDTH) {
 // Function to analyze and format title after JSON content is loaded
 function analyzeAndFormatTitle(title, date, url, totalWidth = TOTAL_WIDTH) {
     console.log(`Analyzing title: "${title}" with date: "${date}"`);
-    
+
     const maxContentWidth = totalWidth - 4; // Account for "| :: " and " |" = 90 chars for content
     const titleWithDate = `${title} (${date})`;
     const fullContent = `:: ${titleWithDate}`;
-    
+
     // Calculate the actual character length (excluding HTML tags)
     const contentLength = stripTags(fullContent).length;
     console.log(`Content length: ${contentLength}, Max allowed: ${maxContentWidth}`);
-    
+
     if (contentLength <= maxContentWidth) {
         // Content fits on one line, add padding to reach exactly 94 characters
         const titleLine = `| <gy>::</gy> <a href="${url}" class="blog-title-link">${title}</a> <span class="blog-date">(${date}) </span>`;
         const actualLength = stripTags(titleLine).length;
         const padding = totalWidth - actualLength;
         console.log(`Single line - actual length: ${actualLength}, padding needed: ${padding}`);
-        
+
         // Ensure we have exactly 94 characters total
         const paddedLine = titleLine + ' '.repeat(Math.max(0, padding)) + '|';
         console.log(`Final line length: ${stripTags(paddedLine).length}`);
@@ -210,13 +210,13 @@ function analyzeAndFormatTitle(title, date, url, totalWidth = TOTAL_WIDTH) {
         let currentLine = '| <gy>::</gy> ';
         let lineLength = stripTags(currentLine).length;
         let result = '';
-        
+
         // Add words until we approach the 90 character limit
         for (let i = 0; i < words.length; i++) {
             const word = words[i];
             const testLine = currentLine + word + ' ';
             const testLength = stripTags(testLine).length;
-            
+
             if (testLength > maxContentWidth && i > 0) {
                 // Current line is full, pad it to exactly 94 characters and start new line
                 const actualLineLength = stripTags(currentLine).length;
@@ -227,15 +227,15 @@ function analyzeAndFormatTitle(title, date, url, totalWidth = TOTAL_WIDTH) {
                 currentLine = '|    '; // Indent for continuation
                 lineLength = 4;
             }
-            
+
             currentLine += word + ' ';
             lineLength += word.length + 1;
         }
-        
+
         // Add the date to the last line with a trailing space
         const finalLine = currentLine + `(${date}) `;
         const finalLength = stripTags(finalLine).length;
-        
+
         if (finalLength > maxContentWidth) {
             // Date doesn't fit, put it on a new line
             const actualLineLength = stripTags(currentLine).length;
@@ -243,7 +243,7 @@ function analyzeAndFormatTitle(title, date, url, totalWidth = TOTAL_WIDTH) {
             const paddedLine = currentLine + ' '.repeat(Math.max(0, padding)) + '|';
             result += paddedLine + '\n';
             console.log(`Title line length: ${stripTags(paddedLine).length}`);
-            
+
             const dateLine = `|    (${date}) `;
             const dateActualLength = stripTags(dateLine).length;
             const datePadding = totalWidth - dateActualLength;
@@ -258,7 +258,7 @@ function analyzeAndFormatTitle(title, date, url, totalWidth = TOTAL_WIDTH) {
             result += paddedFinalLine;
             console.log(`Final line length: ${stripTags(paddedFinalLine).length}`);
         }
-        
+
         return result;
     }
 }
