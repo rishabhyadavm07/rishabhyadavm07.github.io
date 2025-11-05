@@ -113,6 +113,68 @@ lg { color: #9de9a9; }
     border: 2px solid #7a80a2;
     border-radius: 5px;
     margin: 1em 0;
+    cursor: pointer;
+    transition: transform 0.2s, border-color 0.2s;
+}
+
+#blog-content img:hover {
+    transform: scale(1.02);
+    border-color: #98f5ff;
+}
+
+/* Lightbox styles */
+.lightbox {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.95);
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 0.3s;
+}
+
+.lightbox.active {
+    display: flex;
+}
+
+.lightbox-content {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+    border: 3px solid #98f5ff;
+    border-radius: 8px;
+    box-shadow: 0 0 30px rgba(152, 245, 255, 0.5);
+    animation: zoomIn 0.3s;
+}
+
+.lightbox-close {
+    position: absolute;
+    top: 20px;
+    right: 40px;
+    font-size: 40px;
+    color: #98f5ff;
+    cursor: pointer;
+    font-weight: bold;
+    transition: color 0.2s;
+    user-select: none;
+}
+
+.lightbox-close:hover {
+    color: #f5ff98;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes zoomIn {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
 }
 
 #blog-content table {
@@ -164,11 +226,17 @@ lg { color: #9de9a9; }
 </head>
 <body>
     <a href="blogs.html" class="back-link"><gy>←</gy> Back</a>
-    
+
     <div id="blog-meta" class="blog-meta"></div>
-    
+
     <div id="blog-content">
         <div class="loading">Loading blog post...</div>
+    </div>
+
+    <!-- Lightbox for image viewing -->
+    <div id="lightbox" class="lightbox">
+        <span class="lightbox-close" id="lightbox-close">&times;</span>
+        <img class="lightbox-content" id="lightbox-img" src="" alt="">
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
@@ -176,7 +244,47 @@ lg { color: #9de9a9; }
     // Get blog post parameter from URL
     const urlParams = new URLSearchParams(window.location.search);
     const blogFolder = urlParams.get('post');
-    
+
+    // Lightbox functionality
+    function setupImageLightbox() {
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightbox-img');
+        const lightboxClose = document.getElementById('lightbox-close');
+        const images = document.querySelectorAll('#blog-content img');
+
+        // Add click handler to all images
+        images.forEach(img => {
+            img.addEventListener('click', function() {
+                lightbox.classList.add('active');
+                lightboxImg.src = this.src;
+                lightboxImg.alt = this.alt;
+                document.body.style.overflow = 'hidden'; // Prevent background scrolling
+            });
+        });
+
+        // Close lightbox when clicking the X
+        lightboxClose.addEventListener('click', closeLightbox);
+
+        // Close lightbox when clicking the background
+        lightbox.addEventListener('click', function(e) {
+            if (e.target === lightbox) {
+                closeLightbox();
+            }
+        });
+
+        // Close lightbox with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && lightbox.classList.contains('active')) {
+                closeLightbox();
+            }
+        });
+
+        function closeLightbox() {
+            lightbox.classList.remove('active');
+            document.body.style.overflow = ''; // Restore scrolling
+        }
+    }
+
     async function loadBlogPost() {
         const contentDiv = document.getElementById('blog-content');
         const metaDiv = document.getElementById('blog-meta');
@@ -216,7 +324,10 @@ lg { color: #9de9a9; }
             );
             
             contentDiv.innerHTML = html;
-            
+
+            // Setup lightbox for all images
+            setupImageLightbox();
+
             // Update page title
             const firstH1 = contentDiv.querySelector('h1');
             if (firstH1) {
@@ -251,17 +362,23 @@ lg { color: #9de9a9; }
                         const title = (document.title && document.title !== 'Blog Post | Rishabh Yadav') ? document.title.replace(' | Rishabh Yadav','') : blogMeta.title || document.title;
                         const image = blogMeta.thumbnail || '';
 
+                        // Convert relative URLs to absolute URLs for social media
+                        const baseUrl = window.location.origin;
+                        const absoluteImage = image ? (image.startsWith('http') ? image : `${baseUrl}${image}`) : '';
+                        const absoluteUrl = `${baseUrl}${window.location.pathname}${window.location.search}`;
+
                         // Open Graph
                         setMeta('og:title', title, true);
                         setMeta('og:description', description, true);
-                        setMeta('og:image', image, true);
+                        setMeta('og:image', absoluteImage, true);
+                        setMeta('og:url', absoluteUrl, true);
                         setMeta('og:type', 'article', true);
 
                         // Twitter
-                        setMeta('twitter:card', image ? 'summary_large_image' : 'summary');
+                        setMeta('twitter:card', absoluteImage ? 'summary_large_image' : 'summary');
                         setMeta('twitter:title', title);
                         setMeta('twitter:description', description);
-                        setMeta('twitter:image', image);
+                        setMeta('twitter:image', absoluteImage);
                     }
                 }
             } catch (e) {
