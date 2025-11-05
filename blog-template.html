@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>{{TITLE}} | Rishabh Yadav</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="{{AUTHOR}}">
+<meta name="description" content="{{DESCRIPTION}}">
+
+<!-- Open Graph Meta Tags for Social Media -->
+<meta property="og:title" content="{{TITLE}}">
+<meta property="og:description" content="{{DESCRIPTION}}">
+<meta property="og:image" content="{{THUMBNAIL}}">
+<meta property="og:url" content="{{URL}}">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Rishabh Yadav">
+
+<!-- Twitter Card Meta Tags -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{TITLE}}">
+<meta name="twitter:description" content="{{DESCRIPTION}}">
+<meta name="twitter:image" content="{{THUMBNAIL}}">
+<meta name="twitter:creator" content="@fanaticalnerd">
+
+<!-- Favicons -->
+<link rel="apple-touch-icon" sizes="180x180" href="/favicon_io/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon_io/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon_io/favicon-16x16.png">
+<link rel="manifest" href="/favicon_io/site.webmanifest">
+
+<style>
+@font-face { font-family:"TopazPlus"; src: url(../topazplus500.ttf);}
+body {
+    color: #dddddd;
+    background-color: #0c0d10;
+    font-size: 16px;
+    line-height: 1.6;
+    margin: 0 auto;
+    padding: 2em;
+    max-width: 900px;
+}
+pre { font-family:"TopazPlus", "Lucida Console", monospace, Monaco; }
+a { color: #98f5ff; text-decoration: none; }
+a:hover { text-decoration: underline; }
+iky { color: #74ee15; }
+y { color: #ffa298; }
+gy { color: #f5ff98; }
+w { color: #ffffff; }
+gr { color: #b5bd68; }
+r { color: #f22e2e; }
+pnk { color: #f4b6e5; }
+bb { color: #5cc2ca; }
+prp { color: #7a80a2; }
+l { color: #c5c8c6; }
+lg { color: #9de9a9; }
+
+/* Blog content styling */
+#blog-content {
+    font-family: "Lucida Console", monospace, Monaco;
+    line-height: 1.8;
+}
+
+#blog-content h1 {
+    color: #f5ff98;
+    font-size: 1.8em;
+    border-bottom: 2px solid #ffa298;
+    padding-bottom: 0.3em;
+    margin-top: 1em;
+}
+
+#blog-content h2 {
+    color: #98f5ff;
+    font-size: 1.5em;
+    margin-top: 1.5em;
+}
+
+#blog-content h3 {
+    color: #f4b6e5;
+    font-size: 1.2em;
+    margin-top: 1.2em;
+}
+
+#blog-content p {
+    margin: 1em 0;
+    color: #dddddd;
+}
+
+#blog-content code {
+    background-color: #1a1b1e;
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+    color: #74ee15;
+    font-family: "TopazPlus", "Lucida Console", monospace, Monaco;
+}
+
+#blog-content pre {
+    background-color: #1a1b1e;
+    padding: 1em;
+    border-radius: 5px;
+    overflow-x: auto;
+    border-left: 3px solid #98f5ff;
+}
+
+#blog-content pre code {
+    background-color: transparent;
+    padding: 0;
+    color: #b5bd68;
+}
+
+#blog-content blockquote {
+    border-left: 4px solid #7a80a2;
+    padding-left: 1em;
+    margin-left: 0;
+    color: #9de9a9;
+    font-style: italic;
+}
+
+#blog-content ul, #blog-content ol {
+    margin: 1em 0;
+    padding-left: 2em;
+}
+
+#blog-content li {
+    margin: 0.5em 0;
+}
+
+#blog-content img {
+    max-width: 100%;
+    height: auto;
+    border: 2px solid #7a80a2;
+    border-radius: 5px;
+    margin: 1em 0;
+    cursor: pointer;
+    transition: transform 0.2s, border-color 0.2s;
+}
+
+#blog-content img:hover {
+    transform: scale(1.02);
+    border-color: #98f5ff;
+}
+
+/* Lightbox styles */
+.lightbox {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.95);
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 0.3s;
+}
+
+.lightbox.active {
+    display: flex;
+}
+
+.lightbox-content {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+    border: 3px solid #98f5ff;
+    border-radius: 8px;
+    box-shadow: 0 0 30px rgba(152, 245, 255, 0.5);
+    animation: zoomIn 0.3s;
+}
+
+.lightbox-close {
+    position: absolute;
+    top: 20px;
+    right: 40px;
+    font-size: 40px;
+    color: #98f5ff;
+    cursor: pointer;
+    font-weight: bold;
+    transition: color 0.2s;
+    user-select: none;
+}
+
+.lightbox-close:hover {
+    color: #f5ff98;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes zoomIn {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+#blog-content table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1em 0;
+}
+
+#blog-content th, #blog-content td {
+    border: 1px solid #7a80a2;
+    padding: 0.5em;
+    text-align: left;
+}
+
+#blog-content th {
+    background-color: #1a1b1e;
+    color: #f5ff98;
+}
+
+.blog-meta {
+    color: #7a80a2;
+    font-size: 0.9em;
+    margin-bottom: 2em;
+}
+
+.back-link {
+    display: inline-block;
+    margin-bottom: 2em;
+    color: #98f5ff;
+    font-size: 1.1em;
+    font-family: "TopazPlus", "Lucida Console", monospace, Monaco;
+}
+
+.loading {
+    color: #9de9a9;
+    text-align: center;
+    padding: 2em;
+}
+
+.error {
+    color: #f22e2e;
+    text-align: center;
+    padding: 2em;
+}
+</style>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+<link rel="icon" href="/favicon.ico" type="image/x-icon">
+</head>
+<body>
+    <a href="../blogs.html" class="back-link"><gy>←</gy> Back</a>
+
+    <div id="blog-meta" class="blog-meta">
+        <w>Published:</w> {{DATE}} <w>by</w> {{AUTHOR}}
+    </div>
+
+    <div id="blog-content">
+        <div class="loading">Loading blog post...</div>
+    </div>
+
+    <!-- Lightbox for image viewing -->
+    <div id="lightbox" class="lightbox">
+        <span class="lightbox-close" id="lightbox-close">&times;</span>
+        <img class="lightbox-content" id="lightbox-img" src="" alt="">
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
+    <script>
+    const blogFolder = '{{FOLDER}}';
+
+    // Lightbox functionality
+    function setupImageLightbox() {
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightbox-img');
+        const lightboxClose = document.getElementById('lightbox-close');
+        const images = document.querySelectorAll('#blog-content img');
+
+        // Add click handler to all images
+        images.forEach(img => {
+            img.addEventListener('click', function() {
+                lightbox.classList.add('active');
+                lightboxImg.src = this.src;
+                lightboxImg.alt = this.alt;
+                document.body.style.overflow = 'hidden';
+            });
+        });
+
+        // Close lightbox when clicking the X
+        lightboxClose.addEventListener('click', closeLightbox);
+
+        // Close lightbox when clicking the background
+        lightbox.addEventListener('click', function(e) {
+            if (e.target === lightbox) {
+                closeLightbox();
+            }
+        });
+
+        // Close lightbox with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && lightbox.classList.contains('active')) {
+                closeLightbox();
+            }
+        });
+
+        function closeLightbox() {
+            lightbox.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    }
+
+    async function loadBlogPost() {
+        const contentDiv = document.getElementById('blog-content');
+        const metaDiv = document.getElementById('blog-meta');
+
+        if (!blogFolder) {
+            contentDiv.innerHTML = '<div class="error">Error: No blog post specified</div>';
+            return;
+        }
+
+        try {
+            // Fetch the markdown file
+            const response = await fetch(`../BLOGS/${blogFolder}/blog.md`);
+
+            if (!response.ok) {
+                throw new Error('Blog post not found');
+            }
+
+            const markdown = await response.text();
+
+            // Configure marked
+            marked.setOptions({
+                breaks: true,
+                gfm: true
+            });
+
+            // Convert markdown to HTML
+            let html = marked.parse(markdown);
+
+            // Fix image paths
+            html = html.replace(
+                /src="(?!http)([^"]+)"/g,
+                `src="../BLOGS/${blogFolder}/src/$1"`
+            );
+            html = html.replace(
+                /src='(?!http)([^']+)'/g,
+                `src='../BLOGS/${blogFolder}/src/$1'`
+            );
+
+            contentDiv.innerHTML = html;
+
+            // Setup lightbox for all images
+            setupImageLightbox();
+
+        } catch (error) {
+            console.error('Error loading blog post:', error);
+            contentDiv.innerHTML = '<div class="error">Error: Could not load blog post. Please check the URL and try again.</div>';
+        }
+    }
+
+    // Load blog post when page loads
+    document.addEventListener('DOMContentLoaded', loadBlogPost);
+    </script>
+</body>
+</html>

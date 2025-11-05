@@ -57,6 +57,9 @@
 | <y>-- <w>All Blog Posts</w> --------------------------------------------------------------------------</y> |
 |                                                                                              |
 <div id="blog-list">| <gy>::</gy> <lg>Loading blog posts...</lg>                                                                     |</div>|                                                                                              |
+| <y>-- <w>Project Continuum</w> -----------------------------------------------------------------------</y> |
+|                                                                                              |
+<div id="project-list">| <gy>::</gy> <lg>Loading projects....</lg>                                                                         |</div>|                                                                                              |
 |                                                                                              |
 |--------------------------------rishabhyadav.inbox@gmail.com----------------------------------|
 :<y>______________________________________________________________________________________________</y>:
@@ -72,46 +75,87 @@ const TOTAL_WIDTH = 94; // Total fixed width of the terminal box
 
 async function loadBlogs() {
     const blogListElement = document.getElementById('blog-list');
-    
+    const projectListElement = document.getElementById('project-list');
+
     try {
         const response = await fetch(`${BLOGS_PATH}/blogs.json`);
-        
+
         if (!response.ok) {
             const errorContent = '<gy>::</gy> <r>No blogs found yet. Check back soon!</r>';
             blogListElement.innerHTML = createFormattedLine(errorContent) + '\n';
+            const projectLine = '| <gy>::</gy> <prp>To be added soon</prp>';
+            const projectActualLength = stripTags(projectLine).length;
+            const projectPadding = TOTAL_WIDTH - projectActualLength;
+            projectListElement.innerHTML = projectLine + ' '.repeat(Math.max(0, projectPadding)) + '|';
             return;
         }
-        
-        const blogs = await response.json();
-        
+
+        const data = await response.json();
+
+        // Handle both old format (array) and new format (object with blogs/projects)
+        const blogs = Array.isArray(data) ? data : (data.blogs || []);
+        const projects = Array.isArray(data) ? [] : (data.projects || []);
+
+        // Load blogs
         if (blogs.length === 0) {
             const noBlogsContent = '<gy>::</gy> <r>No blogs found yet. Check back soon!</r>';
             blogListElement.innerHTML = createFormattedLine(noBlogsContent) + '\n';
-            return;
+        } else {
+            // Sort blogs by date (newest first)
+            blogs.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            // Generate blog list HTML with proper formatting
+            let blogHTML = '';
+            blogs.forEach((blog, index) => {
+                // Link to static pages for proper social media sharing
+                const blogUrl = `posts/${blog.folder}.html`;
+
+                // Perform border analysis and formatting after content is loaded
+                const formattedTitle = analyzeAndFormatTitle(blog.title, blog.date, blogUrl);
+                blogHTML += formattedTitle + '\n';
+
+                // Add separator line between posts
+                blogHTML += createFormattedLine('') + '\n';
+            });
+
+            blogListElement.innerHTML = blogHTML;
         }
-        
-        // Sort blogs by date (newest first)
-        blogs.sort((a, b) => new Date(b.date) - new Date(a.date));
-        
-        // Generate blog list HTML with proper formatting
-        let blogHTML = '';
-        blogs.forEach((blog, index) => {
-            const blogUrl = `blog.html?post=${encodeURIComponent(blog.folder)}`;
-            
-            // Perform border analysis and formatting after content is loaded
-            const formattedTitle = analyzeAndFormatTitle(blog.title, blog.date, blogUrl);
-            blogHTML += formattedTitle + '\n';
-            
-            // Add separator line between posts
-            blogHTML += createFormattedLine('') + '\n';
-        });
-        
-        blogListElement.innerHTML = blogHTML;
-        
+
+        // Load projects
+        if (projects.length === 0) {
+            const projectLine = '| <gy>::</gy> <prp>To be added soon</prp>';
+            const projectActualLength = stripTags(projectLine).length;
+            const projectPadding = TOTAL_WIDTH - projectActualLength;
+            projectListElement.innerHTML = projectLine + ' '.repeat(Math.max(0, projectPadding)) + ' |';
+        } else {
+            // Sort projects by date (newest first)
+            projects.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            // Generate project list HTML with proper formatting
+            let projectHTML = '';
+            projects.forEach((project, index) => {
+                // Projects can have a URL or link to posts
+                const projectUrl = project.url || `posts/${project.folder}.html`;
+
+                // Perform border analysis and formatting after content is loaded
+                const formattedTitle = analyzeAndFormatTitle(project.title, project.date, projectUrl);
+                projectHTML += formattedTitle + '\n';
+
+                // Add separator line between projects
+                projectHTML += createFormattedLine('') + '\n';
+            });
+
+            projectListElement.innerHTML = projectHTML;
+        }
+
     } catch (error) {
         console.error('Error loading blogs:', error);
         const errorContent = `<gy>::</gy> <r>Error loading blogs: ${error.message}. Please try again later.</r>`;
         blogListElement.innerHTML = createFormattedLine(errorContent) + '\n';
+        const projectLine = '| <gy>::</gy> <prp>To be added soon</prp>';
+        const projectActualLength = stripTags(projectLine).length;
+        const projectPadding = TOTAL_WIDTH - projectActualLength;
+        projectListElement.innerHTML = projectLine + ' '.repeat(Math.max(0, projectPadding)) + '|';
     }
 }
 
