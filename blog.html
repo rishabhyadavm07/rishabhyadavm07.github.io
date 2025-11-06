@@ -3,7 +3,7 @@
 <head>
 <title>Blog Post | Rishabh Yadav</title>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.1">
 <meta name="author" content="Rishabh Yadav">
 
 <link rel="apple-touch-icon" sizes="180x180" href="/favicon_io/apple-touch-icon.png">
@@ -11,9 +11,13 @@
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon_io/favicon-16x16.png">
 <link rel="manifest" href="/favicon_io/site.webmanifest">
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
 <style>
-@font-face { font-family:"TopazPlus"; src: url(./topazplus500.ttf);}
-body { 
+body {
+    font-family: "JetBrains Mono", monospace; 
     color: #dddddd;
     background-color: #0c0d10; 
     font-size: 16px;
@@ -22,7 +26,7 @@ body {
     padding: 2em;
     max-width: 900px;
 }
-pre { font-family:"TopazPlus", "Lucida Console", monospace, Monaco; }
+pre { font-family: "JetBrains Mono", monospace; }
 a { color: #98f5ff; text-decoration: none; }
 a:hover { text-decoration: underline; }
 iky { color: #74ee15; }
@@ -39,7 +43,7 @@ lg { color: #9de9a9; }
 
 /* Blog content styling */
 #blog-content {
-    font-family: "Lucida Console", monospace, Monaco;
+    font-family: "JetBrains Mono", monospace;
     line-height: 1.8;
 }
 
@@ -115,7 +119,7 @@ lg { color: #9de9a9; }
     padding: 0.2em 0.4em;
     border-radius: 3px;
     color: #74ee15;
-    font-family: "TopazPlus", "Lucida Console", monospace, Monaco;
+    font-family: "JetBrains Mono", monospace;
 }
 
 #blog-content pre {
@@ -247,8 +251,7 @@ lg { color: #9de9a9; }
     margin-bottom: 2em;
     color: #98f5ff;
     font-size: 1.1em;
-    /* --- FIX: Apply the monospace font to match the terminal theme --- */
-    font-family: "TopazPlus", "Lucida Console", monospace, Monaco; 
+    font-family: "JetBrains Mono", monospace;
 }
 
 .loading {
@@ -385,7 +388,7 @@ lg { color: #9de9a9; }
                     const allItems = Array.isArray(data) ? data : [...(data.blogs || []), ...(data.projects || [])];
                     const blogMeta = allItems.find(b => b.folder === blogFolder);
                     if (blogMeta) {
-                        metaDiv.innerHTML = `<w>Published:</w> ${blogMeta.date}${blogMeta.author ? ` <w>by</w> ${blogMeta.author}` : ''}`;
+                        metaDiv.innerHTML = `<w>Published:</w> ${blogMeta.date}${blogMeta.author ? ` <w>by</w> ${blogMeta.author}` : ''}${blogMeta.AI_generated ? ` <w>|</w> ${blogMeta.AI_generated}` : ''}`;
 
                         // Create/update Open Graph / Twitter meta tags so shared links include thumbnail, title and description
                         const setMeta = (attrName, attrValue, isProperty = false) => {

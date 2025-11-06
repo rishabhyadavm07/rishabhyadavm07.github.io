@@ -5,6 +5,7 @@
       "folder": "how-to-roast-a-warden",
       "date": "2025-04-1",
       "author": "Rishabh",
+      "AI_generated": "Human Written, AI Edited",
       "excerpt": "A completely serious and not-at-all chaotic guide to defeating the Warden using pure panic, questionable logic, and maybe some wool.",
       "thumbnail": "/BLOGS/how-to-roast-a-warden/src/win.png"
     },
@@ -13,6 +14,7 @@
       "folder": "My-Adventures-in-AI-Red-Teaming-What-I-Learned-This-Week",
       "date": "2025-10-31",
       "author": "Rishabh",
+      "AI_generated": "Human Written, AI Edited",
       "excerpt": "AI Red Teaming: Uncovering AI's sneaky flaws, from prompt injection to hidden attacks. Learn how!",
       "thumbnail": "/BLOGS/My-Adventures-in-AI-Red-Teaming-What-I-Learned-This-Week/src/Thumbnail2.png"
     },
@@ -21,6 +23,7 @@
       "folder": "i-tried-to-teach-an-ai-agent-security-now-it-corrects-my-grammar",
       "date": "2025-10-25",
       "author": "Rishabh",
+      "AI_generated": "Human Written, AI Edited",
       "excerpt": "This is a living journal of my experiments with AI agents and security automation.",
       "thumbnail": "/assets/1.png"
     }
