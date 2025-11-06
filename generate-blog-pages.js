@@ -56,6 +56,7 @@ function generateBlogPage(blog, template) {
     const date = blog.date || '';
     const thumbnail = blog.thumbnail || '';
     const folder = blog.folder || '';
+    const aiGenerated = blog.AI_generated || '';
 
     // Convert relative thumbnail URL to absolute
     const absoluteThumbnail = thumbnail.startsWith('http') ? thumbnail : `${BASE_URL}${thumbnail}`;
@@ -70,6 +71,7 @@ function generateBlogPage(blog, template) {
     html = html.replace(/\{\{THUMBNAIL\}\}/g, absoluteThumbnail);
     html = html.replace(/\{\{URL\}\}/g, absoluteUrl);
     html = html.replace(/\{\{FOLDER\}\}/g, folder);
+    html = html.replace(/\{\{AI_GENERATED\}\}/g, aiGenerated);
 
     return html;
 }
