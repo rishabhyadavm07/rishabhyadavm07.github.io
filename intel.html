@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intel_Feed</title>
+    
+    <!-- Import JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-color: #050505;
+            --card-bg: #09090b;
+            --border-color: #27272a;
+            --text-primary: #f4f4f5;
+            --text-secondary: #71717a;
+            --accent: #facc15; /* High Voltage Yellow */
+            --accent-dim: #854d0e;
+            --alert: #ef4444;
+            --grid-line: rgba(255, 255, 255, 0.04);
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background-color: var(--bg-color);
+            background-image: 
+                linear-gradient(var(--grid-line) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+            background-size: 40px 40px;
+            color: var(--text-primary);
+            margin: 0;
+            padding: 40px 20px;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        header {
+            margin-bottom: 40px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            text-transform: uppercase;
+            letter-spacing: -2px;
+            font-weight: 700;
+        }
+
+        h1 span { 
+            color: var(--accent);
+            text-shadow: 0 0 15px rgba(250, 204, 21, 0.3);
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .status-text {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .btn {
+            background: rgba(250, 204, 21, 0.05);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            padding: 8px 20px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.2s;
+            box-shadow: 0 0 10px rgba(250, 204, 21, 0.05);
+        }
+
+        .btn:hover {
+            background: var(--accent);
+            color: #000;
+            box-shadow: 0 0 20px rgba(250, 204, 21, 0.4);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px; /* Increased gap for cleaner look */
+        }
+
+        .column {
+            background-color: var(--card-bg);
+            display: flex;
+            flex-direction: column;
+            height: 80vh; 
+            border: 1px solid var(--border-color);
+            transition: border-color 0.3s;
+        }
+
+        .column:hover {
+            border-color: var(--text-secondary);
+        }
+
+        .col-header {
+            padding: 15px 20px;
+            background: #000;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Decorative square in header */
+        .col-header::before {
+            content: '';
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent);
+            margin-right: 10px;
+            box-shadow: 0 0 8px var(--accent);
+        }
+
+        .col-header h2 {
+            margin: 0;
+            font-size: 0.85rem;
+            color: var(--text-primary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+        }
+
+        .feed-container {
+            padding: 0;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        /* Custom Scrollbar */
+        .feed-container::-webkit-scrollbar { width: 6px; }
+        .feed-container::-webkit-scrollbar-track { background: #000; }
+        .feed-container::-webkit-scrollbar-thumb { background: var(--border-color); }
+        .feed-container::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+        .news-item {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            transition: background 0.2s;
+        }
+
+        .news-item:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .news-item:last-child { border-bottom: none; }
+
+        .news-title {
+            display: block;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 400;
+            margin-bottom: 10px;
+            transition: color 0.2s;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .news-title:hover {
+            color: var(--accent);
+        }
+
+        .news-meta {
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: space-between;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .loading {
+            padding: 20px;
+            color: var(--accent);
+            font-size: 0.8rem;
+            animation: blink 1.5s infinite;
+        }
+
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0.4; }
+            100% { opacity: 1; }
+        }
+
+        .error { color: var(--alert); padding: 20px; font-size: 0.8rem; }
+
+        @media (max-width: 768px) {
+            .column { height: auto; margin-bottom: 20px; }
+            h1 { font-size: 1.5rem; }
+            header { flex-direction: column; align-items: flex-start; gap: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div>
+            <h1>Global_Intel<span>_V1</span></h1>
+            <div id="last-update" class="status-text">LAST SYNC: ...</div>
+        </div>
+        <div class="controls">
+            <button class="btn" onclick="forceRefresh()">[FORCE_REFRESH]</button>
+        </div>
+    </header>
+
+    <div class="grid">
+        <!-- Column 1: Global Cyber -->
+        <div class="column">
+            <div class="col-header">
+                <h2>01 // Global_Cyber_Threats</h2>
+            </div>
+            <div id="feed-global-cyber" class="feed-container">
+                <div class="loading">Initializing uplink...</div>
+            </div>
+        </div>
+
+        <!-- Column 2: Indian Cyber -->
+        <div class="column">
+            <div class="col-header">
+                <h2>02 // India_Cyber_Landscape</h2>
+            </div>
+            <div id="feed-india-cyber" class="feed-container">
+                <div class="loading">Scanning local networks...</div>
+            </div>
+        </div>
+
+        <!-- Column 3: Global General -->
+        <div class="column">
+            <div class="col-header">
+                <h2>03 // World_News</h2>
+            </div>
+            <div id="feed-global-news" class="feed-container">
+                <div class="loading">Fetching satellite feed...</div>
+            </div>
+        </div>
+
+        <!-- Column 4: Indian General -->
+        <div class="column">
+            <div class="col-header">
+                <h2>04 // India_Briefing</h2>
+            </div>
+            <div id="feed-india-news" class="feed-container">
+                <div class="loading">Accessing wire...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Configuration: Feed URLs (Using RSS2JSON to bypass CORS)
+    const RSS_API = "https://api.rss2json.com/v1/api.json?rss_url=";
+    
+    const FEEDS = {
+        globalCyber: "https://feeds.feedburner.com/TheHackersNews", // The Hacker News
+        indiaCyber: "https://news.google.com/rss/search?q=cybersecurity+india&hl=en-IN&gl=IN&ceid=IN:en", // Google News Custom Topic
+        globalNews: "http://feeds.bbci.co.uk/news/world/rss.xml", // BBC World
+        indiaNews: "https://timesofindia.indiatimes.com/rssfeedstopstories.cms" // TOI Top Stories
+    };
+
+    const CACHE_KEY = "news_dashboard_data";
+    const CACHE_TIME_KEY = "news_dashboard_time";
+    const UPDATE_INTERVAL = 6 * 60 * 60 * 1000; // 6 Hours in Milliseconds
+
+    async function fetchFeed(url, elementId) {
+        try {
+            const res = await fetch(RSS_API + encodeURIComponent(url));
+            const data = await res.json();
+            
+            if(data.status === 'ok') {
+                let html = '';
+                // Take first 10 items
+                data.items.slice(0, 15).forEach(item => {
+                    // Clean up date
+                    const date = new Date(item.pubDate).toLocaleDateString('en-GB', {
+                        day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
+                    });
+
+                    html += `
+                        <div class="news-item">
+                            <a href="${item.link}" target="_blank" class="news-title">${item.title}</a>
+                            <div class="news-meta">
+                                <span>${date}</span>
+                                <span>SOURCE: ${data.feed.title}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                document.getElementById(elementId).innerHTML = html;
+                return { id: elementId, html: html }; // Return data for caching
+            } else {
+                throw new Error("Feed parsing failed");
+            }
+        } catch (e) {
+            document.getElementById(elementId).innerHTML = `<div class="error">CONNECTION_LOST: ${e.message}</div>`;
+            return null;
+        }
+    }
+
+    async function loadNews(force = false) {
+        const lastUpdate = localStorage.getItem(CACHE_TIME_KEY);
+        const cachedData = localStorage.getItem(CACHE_KEY);
+        const now = Date.now();
+
+        // CHECK: Is Cache Valid? (Exists AND is less than 6 hours old)
+        if (!force && lastUpdate && cachedData && (now - lastUpdate < UPDATE_INTERVAL)) {
+            console.log("Loading from Cache...");
+            const parsedData = JSON.parse(cachedData);
+            
+            // Render Cache
+            Object.keys(parsedData).forEach(key => {
+                document.getElementById(key).innerHTML = parsedData[key];
+            });
+            
+            updateStatus(parseInt(lastUpdate));
+            return;
+        }
+
+        // FETCH: New Data
+        console.log("Fetching Fresh Data...");
+        updateStatus(now, "SYNCING...");
+
+        const promises = [
+            fetchFeed(FEEDS.globalCyber, 'feed-global-cyber'),
+            fetchFeed(FEEDS.indiaCyber, 'feed-india-cyber'),
+            fetchFeed(FEEDS.globalNews, 'feed-global-news'),
+            fetchFeed(FEEDS.indiaNews, 'feed-india-news')
+        ];
+
+        const results = await Promise.all(promises);
+        
+        // Save to Cache
+        const cacheObj = {};
+        results.forEach(res => {
+            if(res) cacheObj[res.id] = res.html;
+        });
+
+        localStorage.setItem(CACHE_KEY, JSON.stringify(cacheObj));
+        localStorage.setItem(CACHE_TIME_KEY, now.toString());
+        updateStatus(now);
+    }
+
+    function updateStatus(timestamp, overrideText = null) {
+        const date = new Date(timestamp);
+        const dateStr = date.toLocaleString();
+        document.getElementById('last-update').innerText = overrideText || `LAST SYNC: ${dateStr}`;
+        
+        // Calculate next update
+        const nextUpdate = new Date(timestamp + UPDATE_INTERVAL);
+        document.getElementById('last-update').title = `Next Auto-Sync: ${nextUpdate.toLocaleTimeString()}`;
+    }
+
+    function forceRefresh() {
+        localStorage.removeItem(CACHE_TIME_KEY); // Clear time to force update
+        loadNews(true);
+    }
+
+    // Initialize
+    loadNews();
+
+</script>
+
+</body>
+</html>
