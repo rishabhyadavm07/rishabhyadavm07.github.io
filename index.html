@@ -58,7 +58,140 @@
           white-space: nowrap;
           border: 0;
       }
-      
+
+      /* Bottom Automations Bar */
+      #bottom-nav {
+          position: fixed;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          height: 48px;
+          background: linear-gradient(0deg, #1e1f23 0%, #15161a 50%, #0c0d10 100%);
+          border-top: 1px solid rgba(122, 128, 162, 0.3);
+          padding: 0;
+          overflow: hidden;
+          transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+          z-index: 1000;
+          box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.4);
+          backdrop-filter: blur(10px);
+      }
+
+      #bottom-nav:hover,
+      #bottom-nav:focus-within {
+          height: 120px;
+          background: linear-gradient(135deg, #1a1b1e 0%, #0c0d10 100%);
+          box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+          border-top: 2px solid #7a80a2;
+      }
+
+      .bottom-nav-label {
+          position: absolute;
+          bottom: 12px;
+          left: 50%;
+          transform: translateX(-50%);
+          font-size: 0.85em;
+          font-weight: 600;
+          letter-spacing: 4px;
+          color: #7a80a2;
+          text-transform: uppercase;
+          white-space: nowrap;
+          opacity: 1;
+          transition: opacity 0.3s, color 0.3s;
+          pointer-events: none;
+      }
+
+      #bottom-nav:hover .bottom-nav-label,
+      #bottom-nav:focus-within .bottom-nav-label {
+          opacity: 0;
+      }
+
+      .bottom-nav-content {
+          opacity: 0;
+          transform: translateY(10px);
+          transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+          padding: 1em 2em;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          height: 100%;
+      }
+
+      #bottom-nav:hover .bottom-nav-content,
+      #bottom-nav:focus-within .bottom-nav-content {
+          opacity: 1;
+          transform: translateY(0);
+      }
+
+      .bottom-nav-header {
+          color: #f5ff98;
+          font-size: 0.85em;
+          font-weight: 700;
+          margin-bottom: 0.5em;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+          text-align: center;
+      }
+
+      .bottom-nav-links {
+          display: flex;
+          gap: 2em;
+          justify-content: center;
+          align-items: center;
+          flex-wrap: wrap;
+      }
+
+      .bottom-nav-links a {
+          display: inline-block;
+          padding: 0.6em 1.2em;
+          color: #c5c8c6;
+          text-decoration: none;
+          border-bottom: 3px solid transparent;
+          transition: all 0.2s;
+          white-space: nowrap;
+          font-size: 0.9em;
+          background: rgba(122, 128, 162, 0.1);
+          border-radius: 4px;
+      }
+
+      .bottom-nav-links a:hover {
+          color: #98f5ff;
+          background: rgba(152, 245, 255, 0.15);
+          border-bottom-color: #98f5ff;
+          transform: translateY(-2px);
+      }
+
+      /* Mobile responsive */
+      @media (max-width: 768px) {
+          #bottom-nav {
+              height: 42px;
+          }
+
+          #bottom-nav:hover,
+          #bottom-nav:focus-within {
+              height: 110px;
+          }
+
+          .bottom-nav-label {
+              font-size: 0.7em;
+              letter-spacing: 3px;
+              bottom: 10px;
+          }
+
+          .bottom-nav-content {
+              padding: 1em;
+          }
+
+          .bottom-nav-links {
+              gap: 1em;
+          }
+
+          .bottom-nav-links a {
+              font-size: 0.8em;
+              padding: 0.5em 0.8em;
+          }
+      }
+
 </style>
 <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
 <link rel="icon" href="/favicon.ico" type="image/x-icon">
@@ -108,6 +241,18 @@
 </pre>
 </div>
 </center>
+
+<!-- Bottom Automations Navigation -->
+<nav id="bottom-nav">
+    <div class="bottom-nav-label">AUTOMATIONS</div>
+    <div class="bottom-nav-content">
+        <div class="bottom-nav-header">Quick Links</div>
+        <div class="bottom-nav-links">
+            <a href="jobs.html">Job Search Dashboard</a>
+        </div>
+    </div>
+</nav>
+
 </body>
 <!-- Thanks @netspooky for the dope layout!!  -->
 <!-- Thank you @corg_e for a great idea for a portfolio website  -->
