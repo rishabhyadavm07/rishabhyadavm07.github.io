@@ -6,7 +6,7 @@
     <title>//////</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Custom Base Styles for Deep Dark Theme */
+        
         body { 
             background-color: #050505; 
             color: #d4d4d4; 
@@ -14,7 +14,7 @@
         }
         .hidden { display: none !important; }
         
-        /* Smooth Fade In */
+        
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(5px); }
             to { opacity: 1; transform: translateY(0); }
@@ -23,7 +23,7 @@
             animation: fadeIn 0.4s ease-out forwards;
         }
 
-        /* Custom Scrollbar */
+       
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #0a0a0a; }
         ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
@@ -31,12 +31,12 @@
 
         .modal-backdrop { background: rgba(0,0,0,0.8); }
         
-        /* Calendar Styles */
+        
         .calendar-day { transition: all 0.2s; position: relative; }
         
-        /* --- STATUS STYLES --- */
+      
         
-        /* 1. PERFECT State (All 3 Habits) - GREEN */
+       
         .calendar-day.perfect { 
             background-color: #064e3b; /* Deep Green */
             color: #a7f3d0; 
@@ -44,36 +44,36 @@
             box-shadow: 0 0 10px rgba(5, 150, 105, 0.2);
         }
         
-        /* 2. PARTIAL State (1 or 2 Habits) - ORANGE/BROWN */
+       
         .calendar-day.partial { 
             background-color: #451a03; /* Deep Orange/Brown */
             color: #fdba74; 
             border: 1px solid #d97706; 
         }
 
-        /* 3. SELECTED State (Currently editing) */
+       
         .calendar-day.selected { 
             border: 1px dashed white !important; 
             background-color: rgba(255,255,255,0.1);
         }
 
-        /* Today's Border */
+       
         .calendar-day.today::after {
             content: ''; position: absolute; bottom: 2px; right: 2px;
             width: 4px; height: 4px; background: white; border-radius: 50%;
         }
         
-        /* Hover Effects */
+     
         .calendar-day.valid:hover { background-color: rgba(255, 255, 255, 0.1); cursor: pointer; border-color: #999; }
         
-        /* Future Day (Disabled) */
+       
         .calendar-day.future { 
             opacity: 0.15; 
             cursor: not-allowed; 
             background: repeating-linear-gradient(45deg, transparent, transparent 2px, #222 2px, #222 4px);
         }
 
-        /* --- HABIT BUTTONS --- */
+        
         .habit-btn {
             transition: all 0.2s;
             opacity: 0.4;
@@ -187,6 +187,14 @@
                             </button>
                         </div>
 
+                        <div class="mb-4 pt-2 border-t border-neutral-900">
+                            <label class="block text-[10px] text-neutral-500 uppercase tracking-widest mb-1">Daily Count</label>
+                            <div class="flex items-center">
+                                <input type="number" id="counter-input" min="0" placeholder="0" 
+                                class="w-full bg-neutral-900 border border-neutral-800 text-white p-2 text-center font-mono text-sm focus:border-red-900 focus:outline-none focus:bg-neutral-800 transition">
+                            </div>
+                        </div>
+
                         <button id="confirm-log-btn" class="w-full bg-neutral-800 hover:bg-white hover:text-black text-white font-bold py-2 text-xs uppercase tracking-widest transition shadow-[0_0_10px_rgba(255,255,255,0.1)]">
                             Update Log
                         </button>
@@ -235,7 +243,6 @@
         serverTimestamp, where, deleteDoc, doc, updateDoc, getDocs, setDoc, getDoc, arrayUnion, arrayRemove
     } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
-    // ====== CONFIGURATION ======
     const firebaseConfig = {
         apiKey: "AIzaSyCy8XWCEYJ4aOSPn-XTxox8v0QTgMDbX_w",
         authDomain: "my-portfolio-notes.firebaseapp.com",
@@ -252,7 +259,7 @@
     let currentUser = null;
     let unsubscribeNotes = null;
 
-    // --- DOM Elements ---
+   
     const authSection = document.getElementById('auth-section');
     const dashboardSection = document.getElementById('dashboard-section');
     const loginForm = document.getElementById('login-form');
@@ -278,11 +285,13 @@
     const btnPhysical = document.getElementById('btn-physical');
     const btnNoNut = document.getElementById('btn-nonut');
     const btnCloud = document.getElementById('btn-cloud');
+    const counterInput = document.getElementById('counter-input'); 
 
-    let calendarDate = new Date(); // Navigation
-    let userLogs = {}; // Map of "YYYY-MM-DD" -> ["physical", "cloud", etc]
-    let selectedDateKey = null;     // Currently clicked date
-    let currentSelection = new Set(); // Habits currently selected for that date
+    let calendarDate = new Date(); 
+    let userLogs = {}; 
+    let userCounts = {}; 
+    let selectedDateKey = null;     
+    let currentSelection = new Set(); 
 
     // --- AUTHENTICATION ---
     loginForm.addEventListener('submit', async (e) => {
@@ -330,8 +339,7 @@
     });
 
     // ==========================================
-    // === HABIT TRACKER / CALENDAR SYSTEM ===
-    // ==========================================
+  
 
     async function initHabitSystem() {
         const docRef = doc(db, "user_habits_v2", currentUser.uid);
@@ -340,8 +348,10 @@
             if (docSnap.exists()) {
                 const data = docSnap.data();
                 userLogs = data.logs || {}; 
+                userCounts = data.counts || {}; 
             } else {
                 userLogs = {};
+                userCounts = {};
             }
             renderCalendar();
             calculateStreak();
@@ -437,6 +447,10 @@
         const loggedHabits = userLogs[dateKey] || [];
         currentSelection = new Set(loggedHabits);
 
+        // Set existing count if available
+        const currentCount = userCounts[dateKey] || ""; 
+        counterInput.value = currentCount;
+
         updateBtnState(btnPhysical, 'physical');
         updateBtnState(btnNoNut, 'nonut');
         updateBtnState(btnCloud, 'cloud');
@@ -455,11 +469,15 @@
         
         const docRef = doc(db, "user_habits_v2", currentUser.uid);
         const habitsArray = Array.from(currentSelection);
+        const countValue = counterInput.value; 
         
         try {
             await setDoc(docRef, {
                 logs: {
                     [selectedDateKey]: habitsArray
+                },
+                counts: {
+                    [selectedDateKey]: countValue 
                 }
             }, { merge: true });
             
@@ -507,8 +525,6 @@
         return `${y}-${m}-${d}`;
     }
 
-    // ==========================================
-    // === NOTES SYSTEM ===
     // ==========================================
     
     const editModal = document.getElementById('edit-modal');
