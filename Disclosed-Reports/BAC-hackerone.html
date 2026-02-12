@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BAC | Archive</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #000000;
+            --card-bg: #000000;
+            --border: #1a1a1a;
+            --text-main: #f1f5f9;
+            --text-dim: #64748b;
+            --accent-blue: #3b82f6;
+            --accent-maroon: #991b1b;
+            --accent-gold: #d97706;
+        }
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background-color: var(--bg);
+            color: var(--text-main);
+        }
+        .report-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+        .report-card:hover {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.1);
+            transform: translateY(-2px);
+        }
+        .search-input {
+            background: #000;
+            border: 1px solid var(--border);
+            color: #fff;
+        }
+        .search-input:focus {
+            border-color: var(--accent-blue);
+            outline: none;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.15);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #000;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #1e293b;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-blue);
+        }
+        
+        /* Loading Animation */
+        .loader {
+            border: 2px solid #1e293b;
+            border-top: 2px solid var(--accent-blue);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Full Screen Transition Overlay */
+        #redirectOverlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background-color: var(--bg);
+            overflow: hidden;
+        }
+
+        .transition-bar {
+            position: absolute;
+            left: 0;
+            width: 100%;
+            height: 0%;
+            background-color: #111827;
+            z-index: 10000;
+        }
+
+        .terminal-content {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10001;
+            opacity: 0;
+        }
+
+        /* Animations */
+        @keyframes fullWipe {
+            0% { top: 100%; height: 0%; }
+            50% { top: 0%; height: 100%; }
+            100% { top: 0%; height: 100%; }
+        }
+
+        @keyframes contentFade {
+            0% { opacity: 0; transform: translateY(10px); }
+            10% { opacity: 1; transform: translateY(0px); }
+            90% { opacity: 1; transform: translateY(0px); }
+            100% { opacity: 0; }
+        }
+
+        .anim-wipe {
+            animation: fullWipe 0.6s cubic-bezier(0.77, 0, 0.175, 1) forwards;
+        }
+
+        .anim-content {
+            animation: contentFade 0.6s ease forwards;
+        }
+
+        .glitch-text {
+            color: var(--accent-blue);
+            font-weight: 800;
+            font-size: 1.2rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body class="custom-scrollbar min-h-screen">
+
+    <!-- Redirect Overlay -->
+    <div id="redirectOverlay">
+        <div id="transitionBar" class="transition-bar"></div>
+        <div id="terminalContent" class="terminal-content">
+            <span class="glitch-text">Redirecting</span>
+            <p id="redirectTarget" class="text-[10px] text-zinc-500 mt-2 uppercase font-bold tracking-widest"></p>
+        </div>
+    </div>
+
+    <!-- Technical Header -->
+    <header class="border-b border-zinc-900 bg-black/80 backdrop-blur-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 py-6">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h1 class="text-xl font-bold tracking-tighter text-white flex items-center gap-2">
+                        <span class="text-[var(--accent-blue)]">&gt;</span> 
+                        Broken Access Control Archive
+                    </h1>
+                </div>
+                <div class="flex items-center gap-4 text-xs">
+                    <div id="statusIndicator" class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-[var(--accent-gold)] animate-pulse"></span>
+                        <span class="text-zinc-500 font-bold uppercase tracking-tighter">Syncing_Source...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-6 py-10 relative z-10">
+        
+        <!-- Controls -->
+        <div class="flex flex-col lg:flex-row gap-4 mb-10">
+            <div class="relative flex-grow">
+                <input type="text" id="searchInput" placeholder="Search reports..." 
+                    class="search-input w-full px-5 py-3 rounded text-zinc-300 placeholder-zinc-800 transition-all">
+                <span class="absolute right-4 top-3.5 text-zinc-800 text-xs font-bold">TERM</span>
+            </div>
+            
+            <div class="flex gap-4">
+                <select id="companyFilter" class="search-input px-4 py-3 rounded text-zinc-400 text-sm bg-black cursor-pointer uppercase tracking-tighter">
+                    <option value="all">filter --all-companies</option>
+                </select>
+                
+                <div class="flex items-center px-4 py-3 border border-zinc-900 rounded bg-black min-w-[120px]">
+                    <span class="text-xs text-zinc-600 mr-2">INDEX:</span>
+                    <span id="reportCount" class="text-[var(--accent-blue)] font-bold">000</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Terminal Grid -->
+        <div id="reportsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div class="col-span-full flex items-center justify-center py-20 text-zinc-500 text-sm italic">
+                <div class="loader mr-3"></div> Fetching data ...
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="hidden text-center py-40 border border-dashed border-zinc-900 rounded-lg">
+            <h3 class="text-[var(--accent-maroon)] font-bold text-lg mb-2 uppercase">Result: Null</h3>
+            <p class="text-zinc-600 text-sm tracking-tight">Query returned zero matches in the dataset.</p>
+        </div>
+    </main>
+
+    <footer class="py-12 border-t border-zinc-900 text-center relative z-10 bg-black/40">
+        <p class="text-[9px] text-zinc-700 uppercase tracking-[0.4em]">Archive</p>
+    </footer>
+
+    <script>
+        let reports = [];
+
+        async function fetchReports() {
+            const statusIndicator = document.getElementById('statusIndicator');
+            try {
+                const response = await fetch('BAC-Hackerone.txt');
+                if (!response.ok) throw new Error('Source failure');
+                
+                const text = await response.text();
+                parseReports(text);
+                
+                populateCompanyFilter();
+                renderReports();
+                
+                statusIndicator.innerHTML = `
+                    <span class="w-2 h-2 rounded-full bg-[var(--accent-blue)]"></span>
+                    <span class="text-white font-bold uppercase tracking-tighter">SYNCED</span>
+                `;
+            } catch (error) {
+                console.error('Fetch error:', error);
+                document.getElementById('reportsGrid').innerHTML = `
+                    <div class="col-span-full text-center py-20">
+                        <p class="text-[var(--accent-maroon)] font-bold uppercase">Critical: Source_Missing</p>
+                        <p class="text-zinc-600 text-xs mt-2 uppercase">Node connection failed.</p>
+                    </div>
+                `;
+                statusIndicator.innerHTML = `
+                    <span class="w-2 h-2 rounded-full bg-[var(--accent-maroon)]"></span>
+                    <span class="text-zinc-600 uppercase tracking-tighter">Offline</span>
+                `;
+            }
+        }
+
+        function parseReports(data) {
+            const lines = data.split('\n');
+            reports = [];
+            lines.forEach(line => {
+                if (!line.trim()) return;
+                const match = line.match(/(\d+)\.\s+\[(.*)\]\((.*)\)\s+to\s+(.*?)\s+-\s+(\d+)\s+upvotes,\s+\$(.*)/);
+                if (match) {
+                    reports.push({
+                        id: parseInt(match[1]),
+                        title: match[2],
+                        url: match[3],
+                        company: match[4].trim(),
+                        upvotes: parseInt(match[5]),
+                        bounty: match[6].trim()
+                    });
+                }
+            });
+        }
+
+        function populateCompanyFilter() {
+            const companies = [...new Set(reports.map(r => r.company))].sort();
+            const filter = document.getElementById('companyFilter');
+            filter.innerHTML = '<option value="all">filter --all-companies</option>';
+            companies.forEach(company => {
+                const opt = document.createElement('option');
+                opt.value = company;
+                opt.textContent = `filter --${company.toLowerCase().replace(/\s+/g, '-')}`;
+                filter.appendChild(opt);
+            });
+        }
+
+        function handleRedirect(event, url, company) {
+            event.preventDefault();
+            const overlay = document.getElementById('redirectOverlay');
+            const bar = document.getElementById('transitionBar');
+            const content = document.getElementById('terminalContent');
+            const targetLabel = document.getElementById('redirectTarget');
+            
+            // targetLabel.innerText = `Redirecting to ${company}...`;
+            overlay.style.display = 'block';
+            bar.classList.add('anim-wipe');
+            content.classList.add('anim-content');
+
+            setTimeout(() => {
+                window.location.href = url;
+            }, 550);
+        }
+
+        function createReportCard(report) {
+            const bountyValue = parseInt(report.bounty.replace(/,/g, '')) || 0;
+            
+            let bountyColor = 'text-[var(--accent-blue)]';
+            if (bountyValue >= 10000) {
+                bountyColor = 'text-[var(--accent-maroon)]';
+            } else if (bountyValue >= 3000) {
+                bountyColor = 'text-[var(--accent-gold)]';
+            }
+
+            return `
+                <div onclick="handleRedirect(event, '${report.url}', '${report.company}')" class="report-card p-6 flex flex-col justify-between h-full relative overflow-hidden group">
+                    <div class="absolute top-0 left-0 w-1 h-full bg-transparent group-hover:bg-[var(--accent-blue)] transition-all"></div>
+                    <div>
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="text-[10px] font-bold text-blue-400/40 bg-zinc-900 px-2 py-0.5 rounded border border-zinc-800 uppercase tracking-tighter">
+                                ${report.company}
+                            </span>
+                            <span class="text-xs font-bold ${bountyColor}">
+                                $${report.bounty}
+                            </span>
+                        </div>
+                        <h3 class="text-sm font-medium text-slate-400 leading-relaxed mb-6 group-hover:text-white transition-colors">
+                            ${report.title}
+                        </h3>
+                    </div>
+                    <div class="mt-auto pt-4 flex items-center justify-between opacity-30 text-[9px] font-bold tracking-tighter uppercase">
+                        <div class="flex items-center gap-2 group-hover:text-white group-hover:opacity-100 transition-all">
+                            <span>Upv:</span>
+                            <span>${report.upvotes}</span>
+                        </div>
+                        <div class="group-hover:text-white group-hover:opacity-100 transition-all">
+                            REF:${report.id.toString().padStart(4, '0')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderReports() {
+            const searchVal = document.getElementById('searchInput').value.toLowerCase();
+            const companyVal = document.getElementById('companyFilter').value;
+            const grid = document.getElementById('reportsGrid');
+            const emptyState = document.getElementById('emptyState');
+
+            const filtered = reports.filter(r => {
+                const matchesSearch = r.title.toLowerCase().includes(searchVal) || 
+                                     r.company.toLowerCase().includes(searchVal);
+                const matchesCompany = companyVal === 'all' || r.company === companyVal;
+                return matchesSearch && matchesCompany;
+            });
+
+            grid.innerHTML = filtered.map(createReportCard).join('');
+            document.getElementById('reportCount').innerText = filtered.length.toString().padStart(3, '0');
+
+            if (filtered.length === 0) {
+                grid.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+            } else {
+                grid.classList.remove('hidden');
+                emptyState.classList.add('hidden');
+            }
+        }
+
+        function init() {
+            fetchReports();
+            document.getElementById('searchInput').addEventListener('input', renderReports);
+            document.getElementById('companyFilter').addEventListener('change', renderReports);
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
