@@ -3,388 +3,293 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Intel_Feed</title>
+    <title>Intel Feed | fanaticalnerd</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React and ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
     
-    <!-- Import JetBrains Mono -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-
     <style>
-        :root {
-            --bg-color: #050505;
-            --card-bg: #09090b;
-            --border-color: #27272a;
-            --text-primary: #f4f4f5;
-            --text-secondary: #71717a;
-            --accent: #facc15; /* High Voltage Yellow */
-            --accent-dim: #854d0e;
-            --alert: #ef4444;
-            --grid-line: rgba(255, 255, 255, 0.04);
-        }
-
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700;800&display=swap');
+        
         body {
-            font-family: 'JetBrains Mono', monospace;
-            background-color: var(--bg-color);
-            background-image: 
-                linear-gradient(var(--grid-line) 1px, transparent 1px),
-                linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
-            background-size: 40px 40px;
-            color: var(--text-primary);
+            font-family: 'JetBrains+Mono', monospace;
+            background-color: #050505;
+            color: #dddddd;
             margin: 0;
-            padding: 40px 20px;
-            line-height: 1.5;
+            overflow-x: hidden;
         }
 
-        .container {
-            max-width: 1600px;
-            margin: 0 auto;
+        .scanline {
+            width: 100%;
+            height: 2px;
+            background: #dc2626;
+            opacity: 0.1;
+            position: fixed;
+            z-index: 50;
+            pointer-events: none;
+            animation: scan 10s linear infinite;
         }
 
-        header {
-            margin-bottom: 40px;
-            border-bottom: 2px solid var(--border-color);
-            padding-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
+        @keyframes scan {
+            0% { top: -10%; }
+            100% { top: 110%; }
         }
 
-        h1 {
-            margin: 0;
-            font-size: 2.5rem;
-            text-transform: uppercase;
-            letter-spacing: -2px;
-            font-weight: 700;
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #0a0a0a;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #dc2626;
         }
 
-        h1 span { 
-            color: var(--accent);
-            text-shadow: 0 0 15px rgba(250, 204, 21, 0.3);
+        /* Nav Entrance Animation */
+        @keyframes nav-slide-up {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .controls {
-            display: flex;
-            gap: 15px;
-            align-items: center;
+        .animate-nav-item {
+            animation: nav-slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
-        .status-text {
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-            font-weight: bold;
-            letter-spacing: 1px;
+        .tactical-card {
+            background: rgba(17, 17, 17, 0.9);
+            border: 1px solid rgba(31, 41, 55, 1);
+            transition: all 0.3s ease;
         }
-
-        .btn {
-            background: rgba(250, 204, 21, 0.05);
-            border: 1px solid var(--accent);
-            color: var(--accent);
-            padding: 8px 20px;
-            cursor: pointer;
-            font-family: inherit;
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: all 0.2s;
-            box-shadow: 0 0 10px rgba(250, 204, 21, 0.05);
+        .tactical-card:hover {
+            border-color: rgba(220, 38, 38, 0.3);
         }
-
-        .btn:hover {
-            background: var(--accent);
-            color: #000;
-            box-shadow: 0 0 20px rgba(250, 204, 21, 0.4);
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 20px; /* Increased gap for cleaner look */
-        }
-
-        .column {
-            background-color: var(--card-bg);
-            display: flex;
-            flex-direction: column;
-            height: 80vh; 
-            border: 1px solid var(--border-color);
-            transition: border-color 0.3s;
-        }
-
-        .column:hover {
-            border-color: var(--text-secondary);
-        }
-
-        .col-header {
-            padding: 15px 20px;
-            background: #000;
-            border-bottom: 1px solid var(--border-color);
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            display: flex;
-            align-items: center;
-        }
-
-        /* Decorative square in header */
-        .col-header::before {
-            content: '';
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            background-color: var(--accent);
-            margin-right: 10px;
-            box-shadow: 0 0 8px var(--accent);
-        }
-
-        .col-header h2 {
-            margin: 0;
-            font-size: 0.85rem;
-            color: var(--text-primary);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-weight: 700;
-        }
-
-        .feed-container {
-            padding: 0;
-            overflow-y: auto;
-            flex-grow: 1;
-        }
-
-        /* Custom Scrollbar */
-        .feed-container::-webkit-scrollbar { width: 6px; }
-        .feed-container::-webkit-scrollbar-track { background: #000; }
-        .feed-container::-webkit-scrollbar-thumb { background: var(--border-color); }
-        .feed-container::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 
         .news-item {
-            padding: 20px;
-            border-bottom: 1px solid var(--border-color);
-            transition: background 0.2s;
+            border-left: 2px solid #1f2937;
+            transition: all 0.2s ease;
         }
-
         .news-item:hover {
-            background: rgba(255, 255, 255, 0.02);
-        }
-
-        .news-item:last-child { border-bottom: none; }
-
-        .news-title {
-            display: block;
-            color: var(--text-primary);
-            text-decoration: none;
-            font-weight: 400;
-            margin-bottom: 10px;
-            transition: color 0.2s;
-            font-size: 0.9rem;
-            line-height: 1.4;
-        }
-
-        .news-title:hover {
-            color: var(--accent);
-        }
-
-        .news-meta {
-            font-size: 0.65rem;
-            color: var(--text-secondary);
-            display: flex;
-            justify-content: space-between;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .loading {
-            padding: 20px;
-            color: var(--accent);
-            font-size: 0.8rem;
-            animation: blink 1.5s infinite;
-        }
-
-        @keyframes blink {
-            0% { opacity: 1; }
-            50% { opacity: 0.4; }
-            100% { opacity: 1; }
-        }
-
-        .error { color: var(--alert); padding: 20px; font-size: 0.8rem; }
-
-        @media (max-width: 768px) {
-            .column { height: auto; margin-bottom: 20px; }
-            h1 { font-size: 1.5rem; }
-            header { flex-direction: column; align-items: flex-start; gap: 10px; }
+            border-left-color: #dc2626;
+            background: rgba(220, 38, 38, 0.05);
         }
     </style>
 </head>
-<body>
+<body class="custom-scrollbar">
+    <div id="root"></div>
 
-<div class="container">
-    <header>
-        <div>
-            <h1>Global_Intel<span>_V1</span></h1>
-            <div id="last-update" class="status-text">LAST SYNC: ...</div>
-        </div>
-        <div class="controls">
-            <button class="btn" onclick="forceRefresh()">[FORCE_REFRESH]</button>
-        </div>
-    </header>
+    <script type="text/babel">
+        const { useState, useEffect } = React;
 
-    <div class="grid">
-        <!-- Column 1: Global Cyber -->
-        <div class="column">
-            <div class="col-header">
-                <h2>01 // Global_Cyber_Threats</h2>
-            </div>
-            <div id="feed-global-cyber" class="feed-container">
-                <div class="loading">Initializing uplink...</div>
-            </div>
-        </div>
+        const FEEDS = {
+            globalCyber: "https://feeds.feedburner.com/TheHackersNews",
+            indiaCyber: "https://news.google.com/rss/search?q=cybersecurity+india&hl=en-IN&gl=IN&ceid=IN:en",
+            globalNews: "http://feeds.bbci.co.uk/news/world/rss.xml",
+            indiaNews: "https://timesofindia.indiatimes.com/rssfeedstopstories.cms"
+        };
 
-        <!-- Column 2: Indian Cyber -->
-        <div class="column">
-            <div class="col-header">
-                <h2>02 // India_Cyber_Landscape</h2>
-            </div>
-            <div id="feed-india-cyber" class="feed-container">
-                <div class="loading">Scanning local networks...</div>
-            </div>
-        </div>
+        const RSS_API = "https://api.rss2json.com/v1/api.json?rss_url=";
+        const CACHE_KEY = "intel_feed_data";
+        const CACHE_TIME_KEY = "intel_feed_timestamp";
+        const UPDATE_INTERVAL = 6 * 60 * 60 * 1000; // 6 Hours
 
-        <!-- Column 3: Global General -->
-        <div class="column">
-            <div class="col-header">
-                <h2>03 // World_News</h2>
-            </div>
-            <div id="feed-global-news" class="feed-container">
-                <div class="loading">Fetching satellite feed...</div>
-            </div>
-        </div>
+        const App = () => {
+            const [isMenuOpen, setIsMenuOpen] = useState(false);
+            const [news, setNews] = useState({
+                globalCyber: [],
+                indiaCyber: [],
+                globalNews: [],
+                indiaNews: []
+            });
+            const [status, setStatus] = useState("INITIALIZING...");
+            const [loading, setLoading] = useState(true);
 
-        <!-- Column 4: Indian General -->
-        <div class="column">
-            <div class="col-header">
-                <h2>04 // India_Briefing</h2>
-            </div>
-            <div id="feed-india-news" class="feed-container">
-                <div class="loading">Accessing wire...</div>
-            </div>
-        </div>
-    </div>
-</div>
+            useEffect(() => {
+                lucide.createIcons();
+                loadIntel();
+            }, []);
 
-<script>
-    // Configuration: Feed URLs (Using RSS2JSON to bypass CORS)
-    const RSS_API = "https://api.rss2json.com/v1/api.json?rss_url=";
-    
-    const FEEDS = {
-        globalCyber: "https://feeds.feedburner.com/TheHackersNews", // The Hacker News
-        indiaCyber: "https://news.google.com/rss/search?q=cybersecurity+india&hl=en-IN&gl=IN&ceid=IN:en", // Google News Custom Topic
-        globalNews: "http://feeds.bbci.co.uk/news/world/rss.xml", // BBC World
-        indiaNews: "https://timesofindia.indiatimes.com/rssfeedstopstories.cms" // TOI Top Stories
-    };
+            useEffect(() => {
+                lucide.createIcons();
+            }, [isMenuOpen, loading, news]);
 
-    const CACHE_KEY = "news_dashboard_data";
-    const CACHE_TIME_KEY = "news_dashboard_time";
-    const UPDATE_INTERVAL = 6 * 60 * 60 * 1000; // 6 Hours in Milliseconds
+            const fetchSingleFeed = async (url) => {
+                try {
+                    const res = await fetch(RSS_API + encodeURIComponent(url));
+                    const data = await res.json();
+                    return data.status === 'ok' ? data.items.slice(0, 12) : [];
+                } catch (e) {
+                    return [];
+                }
+            };
 
-    async function fetchFeed(url, elementId) {
-        try {
-            const res = await fetch(RSS_API + encodeURIComponent(url));
-            const data = await res.json();
-            
-            if(data.status === 'ok') {
-                let html = '';
-                // Take first 10 items
-                data.items.slice(0, 15).forEach(item => {
-                    // Clean up date
-                    const date = new Date(item.pubDate).toLocaleDateString('en-GB', {
-                        day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
-                    });
+            const loadIntel = async (force = false) => {
+                setLoading(true);
+                const lastUpdate = localStorage.getItem(CACHE_TIME_KEY);
+                const cachedData = localStorage.getItem(CACHE_KEY);
+                const now = Date.now();
 
-                    html += `
-                        <div class="news-item">
-                            <a href="${item.link}" target="_blank" class="news-title">${item.title}</a>
-                            <div class="news-meta">
-                                <span>${date}</span>
-                                <span>SOURCE: ${data.feed.title}</span>
+                if (!force && lastUpdate && cachedData && (now - lastUpdate < UPDATE_INTERVAL)) {
+                    setNews(JSON.parse(cachedData));
+                    setStatus(`LAST_SYNC: ${new Date(parseInt(lastUpdate)).toLocaleTimeString()}`);
+                    setLoading(false);
+                    return;
+                }
+
+                setStatus("SYNCING_SATELLITE_FEED...");
+                
+                const [gc, ic, gn, inews] = await Promise.all([
+                    fetchSingleFeed(FEEDS.globalCyber),
+                    fetchSingleFeed(FEEDS.indiaCyber),
+                    fetchSingleFeed(FEEDS.globalNews),
+                    fetchSingleFeed(FEEDS.indiaNews)
+                ]);
+
+                const freshNews = {
+                    globalCyber: gc,
+                    indiaCyber: ic,
+                    globalNews: gn,
+                    indiaNews: inews
+                };
+
+                setNews(freshNews);
+                localStorage.setItem(CACHE_KEY, JSON.stringify(freshNews));
+                localStorage.setItem(CACHE_TIME_KEY, now.toString());
+                setStatus(`LAST_SYNC: ${new Date(now).toLocaleTimeString()}`);
+                setLoading(false);
+            };
+
+            const FeedColumn = ({ title, items, id, icon }) => (
+                <div className="tactical-card p-6 rounded-sm flex flex-col h-[600px]">
+                    <div className="flex items-center justify-between mb-6">
+                        <div className="text-red-600 text-[10px] font-black tracking-widest uppercase">{id} // {title}</div>
+                        <i data-lucide={icon} className="text-zinc-700" style={{width: '16px', height: '16px'}}></i>
+                    </div>
+                    
+                    <div className="space-y-4 overflow-y-auto custom-scrollbar pr-2 flex-grow">
+                        {loading ? (
+                            Array(5).fill(0).map((_, i) => (
+                                <div key={i} className="animate-pulse space-y-2">
+                                    <div className="h-4 bg-zinc-800 rounded w-3/4"></div>
+                                    <div className="h-3 bg-zinc-900 rounded w-1/2"></div>
+                                </div>
+                            ))
+                        ) : items.length > 0 ? (
+                            items.map((item, idx) => (
+                                <a 
+                                    key={idx} 
+                                    href={item.link} 
+                                    target="_blank" 
+                                    className="news-item block p-3 bg-zinc-900/30 group"
+                                >
+                                    <h4 className="text-xs font-bold text-zinc-300 group-hover:text-red-500 transition-colors line-clamp-2">
+                                        {item.title}
+                                    </h4>
+                                    <div className="text-[9px] text-zinc-600 mt-2 font-mono">
+                                        {new Date(item.pubDate).toLocaleDateString()}
+                                    </div>
+                                </a>
+                            ))
+                        ) : (
+                            <div className="text-zinc-700 text-[10px] italic">NO_DATA_RETRIEVED</div>
+                        )}
+                    </div>
+                </div>
+            );
+
+            const navLinks = [
+                { name: "HOME", icon: "home", url: "index.html" },
+                { name: "JOB DASHBOARD", icon: "activity", url: "jobs.html" },
+                // { name: "INTEL", icon: "radar", url: "intel.html" },
+                { name: "BLOGS", icon: "book-open", url: "blogs.html" },
+                { name: "REPORTS", icon: "file-text", url: "Disclosed-Reports/reports_index.html" },
+                { name: "JOURNAL", icon: "book", url: "journal.html" },
+                { name: "PRIVATE", icon: "lock", url: "private.html" }
+            ];
+
+            return (
+                <div className="min-h-screen selection:bg-red-600 selection:text-white p-4 md:p-12">
+                    <div className="scanline"></div>
+                    
+                    {/* Background Glow */}
+                    <div className="fixed inset-0 pointer-events-none overflow-hidden">
+                        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-red-600/5 blur-[120px] rounded-full"></div>
+                    </div>
+
+                    <main className="max-w-7xl mx-auto relative z-10 p-6 md:p-12 mb-28">
+                        
+                        {/* Header */}
+                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-16 border-b border-zinc-800 pb-12">
+                            <div className="space-y-4">
+                                <a href="index.html" className="flex items-center gap-2 text-[10px] font-black tracking-[0.2em] text-zinc-500 hover:text-red-600 transition-all bg-zinc-900/30 px-4 py-2 border border-zinc-800 hover:border-red-600/40 w-max">
+                                    <i data-lucide="arrow-left" style={{width: '14px', height: '14px'}}></i> BACK TO INTERFACE
+                                </a>
+                                <h1 className="text-white text-4xl md:text-6xl font-black tracking-tighter uppercase">Intel_Feed</h1>
+                                <div className="text-zinc-500 text-[10px] font-mono tracking-widest">
+                                    <span className="text-red-600">>></span> {status}
+                                </div>
+                            </div>
+                            <button 
+                                onClick={() => loadIntel(true)}
+                                className="text-[9px] font-bold text-zinc-600 hover:text-red-600 transition-all border border-zinc-800 px-4 py-2 bg-zinc-950 flex items-center gap-2 hover:bg-zinc-900 active:translate-y-0.5"
+                            >
+                                [FORCE_REFRESH] <i data-lucide="refresh-cw" style={{width: '12px'}}></i>
+                            </button>
+                        </div>
+
+                        {/* Grid */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                            <FeedColumn title="GLOBAL CYBER THREATS" items={news.globalCyber} id="01" icon="shield-alert" />
+                            <FeedColumn title="INDIA CYBER LANDSCAPE" items={news.indiaCyber} id="02" icon="map" />
+                            <FeedColumn title="WORLD NEWS" items={news.globalNews} id="03" icon="globe" />
+                            <FeedColumn title="INDIA BRIEFING" items={news.indiaNews} id="04" icon="zap" />
+                        </div>
+
+                        {/* Footer */}
+                        <div className="mt-24 pt-10 border-t border-zinc-900 text-center opacity-40">
+                            <div className="text-[9px] font-bold tracking-[0.6em] uppercase">
+                                # h4ppy_h4cking | rishabhyadav.inbox@gmail.com
                             </div>
                         </div>
-                    `;
-                });
-                document.getElementById(elementId).innerHTML = html;
-                return { id: elementId, html: html }; // Return data for caching
-            } else {
-                throw new Error("Feed parsing failed");
-            }
-        } catch (e) {
-            document.getElementById(elementId).innerHTML = `<div class="error">CONNECTION_LOST: ${e.message}</div>`;
-            return null;
-        }
-    }
+                    </main>
 
-    async function loadNews(force = false) {
-        const lastUpdate = localStorage.getItem(CACHE_TIME_KEY);
-        const cachedData = localStorage.getItem(CACHE_KEY);
-        const now = Date.now();
+                    {/* Bottom Nav - Synchronized */}
+                    <div 
+                        className="fixed bottom-0 left-0 w-full z-[100] flex flex-col items-center"
+                        onMouseEnter={() => setIsMenuOpen(true)}
+                        onMouseLeave={() => setIsMenuOpen(false)}
+                    >
+                        {isMenuOpen && (
+                            <nav className="w-full max-w-5xl bg-[#0a0a0a] border border-red-600/30 border-b-0 rounded-t-[2rem] flex flex-wrap justify-evenly items-center p-10 gap-6 shadow-2xl animate-in slide-in-from-bottom-10">
+                                {navLinks.map((link, i) => (
+                                    <a 
+                                        key={i} 
+                                        href={link.url}
+                                        style={{ animationDelay: `${i * 50}ms` }}
+                                        className="animate-nav-item opacity-0 flex items-center gap-4 px-6 py-4 rounded-xl bg-zinc-900 border border-zinc-800 hover:border-red-600 hover:bg-red-600/5 transition-all group font-black text-[10px] uppercase tracking-widest w-full md:w-auto text-center hover:scale-105 active:scale-95"
+                                    >
+                                        <i data-lucide={link.icon} className="text-zinc-600 group-hover:text-red-600" style={{width: '14px', height: '14px'}}></i>
+                                        {link.name}
+                                    </a>
+                                ))}
+                            </nav>
+                        )}
 
-        // CHECK: Is Cache Valid? (Exists AND is less than 6 hours old)
-        if (!force && lastUpdate && cachedData && (now - lastUpdate < UPDATE_INTERVAL)) {
-            console.log("Loading from Cache...");
-            const parsedData = JSON.parse(cachedData);
-            
-            // Render Cache
-            Object.keys(parsedData).forEach(key => {
-                document.getElementById(key).innerHTML = parsedData[key];
-            });
-            
-            updateStatus(parseInt(lastUpdate));
-            return;
-        }
+                        <div className={`w-full py-5 text-center font-black tracking-[0.8em] text-[10px] transition-all duration-700 cursor-pointer ${isMenuOpen ? 'bg-white text-black' : 'bg-red-600 text-white shadow-lg'}`}>
+                            NAV [^]
+                        </div>
+                    </div>
+                </div>
+            );
+        };
 
-        // FETCH: New Data
-        console.log("Fetching Fresh Data...");
-        updateStatus(now, "SYNCING...");
-
-        const promises = [
-            fetchFeed(FEEDS.globalCyber, 'feed-global-cyber'),
-            fetchFeed(FEEDS.indiaCyber, 'feed-india-cyber'),
-            fetchFeed(FEEDS.globalNews, 'feed-global-news'),
-            fetchFeed(FEEDS.indiaNews, 'feed-india-news')
-        ];
-
-        const results = await Promise.all(promises);
-        
-        // Save to Cache
-        const cacheObj = {};
-        results.forEach(res => {
-            if(res) cacheObj[res.id] = res.html;
-        });
-
-        localStorage.setItem(CACHE_KEY, JSON.stringify(cacheObj));
-        localStorage.setItem(CACHE_TIME_KEY, now.toString());
-        updateStatus(now);
-    }
-
-    function updateStatus(timestamp, overrideText = null) {
-        const date = new Date(timestamp);
-        const dateStr = date.toLocaleString();
-        document.getElementById('last-update').innerText = overrideText || `LAST SYNC: ${dateStr}`;
-        
-        // Calculate next update
-        const nextUpdate = new Date(timestamp + UPDATE_INTERVAL);
-        document.getElementById('last-update').title = `Next Auto-Sync: ${nextUpdate.toLocaleTimeString()}`;
-    }
-
-    function forceRefresh() {
-        localStorage.removeItem(CACHE_TIME_KEY); // Clear time to force update
-        loadNews(true);
-    }
-
-    // Initialize
-    loadNews();
-
-</script>
-
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
 </body>
 </html>

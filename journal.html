@@ -3,18 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Journal</title>
+    <title>Journal Archive | fanaticalnerd</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        /* Custom Base Styles for Deep Dark Theme */
-        body { 
-            background-color: #050505; 
-            color: #d4d4d4; 
-            font-family: 'Courier New', Courier, monospace; 
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700;800&display=swap');
+
+        body {
+            background-color: #050505;
+            color: #d4d4d4;
+            font-family: 'JetBrains+Mono', monospace;
+            margin: 0;
+            overflow-x: hidden;
         }
+
+        .scanline {
+            width: 100%;
+            height: 2px;
+            background: #dc2626;
+            opacity: 0.1;
+            position: fixed;
+            z-index: 50;
+            pointer-events: none;
+            animation: scan 10s linear infinite;
+        }
+
+        @keyframes scan {
+            0% { top: -10%; }
+            100% { top: 110%; }
+        }
+
         .hidden { display: none !important; }
-        
-        /* Smooth Fade In */
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(5px); }
             to { opacity: 1; transform: translateY(0); }
@@ -23,519 +44,478 @@
             animation: fadeIn 0.4s ease-out forwards;
         }
 
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: #0a0a0a; }
-        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #dc2626; }
         ::-webkit-scrollbar-thumb:hover { background: #7f1d1d; }
 
-        .modal-backdrop { background: rgba(0,0,0,0.85); backdrop-filter: blur(2px); }
+        .modal-backdrop { background: rgba(0,0,0,0.85); backdrop-filter: blur(4px); }
         
-        /* Calendar Styles */
-        .calendar-day { transition: all 0.3s; position: relative; }
-        
-        /* --- STATUS STYLES --- */
-        
-        /* JOURNALED State (Green) */
+        .calendar-day { transition: all 0.2s; position: relative; cursor: pointer; }
         .calendar-day.journaled { 
             background-color: #064e3b; /* Deep Green */
             color: #a7f3d0; 
             border: 1px solid #059669; 
             box-shadow: 0 0 10px rgba(5, 150, 105, 0.2);
         }
-        
-        /* Today's Border */
         .calendar-day.today::after {
             content: ''; position: absolute; bottom: 2px; right: 2px;
             width: 4px; height: 4px; background: white; border-radius: 50%;
         }
-        
-        /* Future Day (Disabled) */
+        .calendar-day.valid:hover { background-color: rgba(220, 38, 38, 0.1); border-color: #dc2626; }
         .calendar-day.future { 
             opacity: 0.15; 
             cursor: not-allowed; 
             background: repeating-linear-gradient(45deg, transparent, transparent 2px, #222 2px, #222 4px);
         }
+
+        /* Bottom Nav Entrance Animation */
+        @keyframes nav-slide-up {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-nav-item {
+            animation: nav-slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .tactical-panel {
+            background: rgba(10, 10, 10, 0.95);
+            border: 1px solid #1f2937;
+            backdrop-filter: blur(10px);
+        }
     </style>
 </head>
-<body class="flex flex-col items-center justify-center min-h-screen p-6 selection:bg-red-900 selection:text-white">
+<body class="flex flex-col items-center min-h-screen p-6 selection:bg-red-900 selection:text-white">
+    <div class="scanline"></div>
+    
+    <!-- Background Glow -->
+    <div class="fixed inset-0 pointer-events-none overflow-hidden -z-10">
+        <div class="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-red-600/5 blur-[120px] rounded-full"></div>
+        <div class="absolute bottom-[-5%] right-[-5%] w-[40%] h-[40%] bg-slate-800/10 blur-[100px] rounded-full"></div>
+    </div>
 
-    <div id="auth-section" class="w-full max-w-sm p-10 bg-neutral-950 border border-neutral-800 relative shadow-2xl">
+    <!-- AUTH SECTION -->
+    <div id="auth-section" class="w-full max-w-sm p-10 bg-neutral-950 border border-neutral-800 relative mt-20 shadow-2xl">
         <div class="absolute top-0 left-0 w-full h-1 bg-red-800"></div>
-        <h2 class="text-xl font-bold mb-8 text-white tracking-widest uppercase text-center">Journal Access</h2>
-        
+        <div class="text-center mb-8">
+            <i data-lucide="lock" class="mx-auto text-red-600 mb-4" style="width: 32px; height: 32px;"></i>
+            <h2 class="text-xl font-bold text-white tracking-[0.3em] uppercase">Journal Access</h2>
+            <p class="text-zinc-600 text-[10px] mt-2 tracking-widest uppercase italic">Authentication_Required</p>
+        </div>
+                
         <form id="login-form" class="flex flex-col gap-6">
             <div class="relative group">
                 <input type="email" id="email" autocomplete="username" required placeholder=" " 
-                    class="block w-full px-4 py-3 bg-[#0a0a0a] border border-neutral-800 text-white focus:outline-none focus:border-red-700 focus:ring-1 focus:ring-red-900 transition-all peer">
+                    class="block w-full px-4 py-3 bg-[#0a0a0a] border border-neutral-800 text-white focus:outline-none focus:border-red-700 transition-all peer">
                 <label class="absolute text-sm text-neutral-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-neutral-950 px-2 peer-focus:px-2 peer-focus:text-red-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-3">
                     IDENTITY
                 </label>
             </div>
-            
+                        
             <div class="relative group">
                 <input type="password" id="password" autocomplete="current-password" required placeholder=" " 
-                    class="block w-full px-4 py-3 bg-[#0a0a0a] border border-neutral-800 text-white focus:outline-none focus:border-red-700 focus:ring-1 focus:ring-red-900 transition-all peer">
+                    class="block w-full px-4 py-3 bg-[#0a0a0a] border border-neutral-800 text-white focus:outline-none focus:border-red-700 transition-all peer">
                 <label class="absolute text-sm text-neutral-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-neutral-950 px-2 peer-focus:px-2 peer-focus:text-red-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-3">
                     KEY
                 </label>
             </div>
-            
-            <button type="submit" id="submit-btn" class="relative w-full bg-neutral-900 hover:bg-red-900 border border-neutral-700 hover:border-red-600 text-neutral-300 hover:text-white font-bold py-3 uppercase tracking-wider transition-all duration-300 mt-2 shadow-[0_0_10px_rgba(255,0,0,0.1)] hover:shadow-[0_0_20px_rgba(255,0,0,0.4)]">
+                        
+            <button type="submit" id="submit-btn" class="w-full bg-neutral-900 hover:bg-red-900 border border-neutral-700 hover:border-red-600 text-neutral-300 hover:text-white font-bold py-3 uppercase tracking-wider transition-all duration-300 mt-2">
                 Initialize
             </button>
         </form>
-        <p id="error-message" class="text-red-500 text-xs mt-6 text-center hidden border-l-2 border-red-600 pl-2 bg-red-900/10 py-2"></p>
+        <p id="error-message" class="text-red-500 text-xs mt-6 text-center hidden border-l-2 border-red-600 pl-2 bg-red-900/10 py-2 font-mono uppercase"></p>
     </div>
 
-    <div id="dashboard-section" class="w-full max-w-6xl hidden animate-fade-in">
-        
-        <div class="flex flex-col md:flex-row justify-between items-end mb-10 border-b border-neutral-800 pb-4">
-            <div>
-                <h1 class="text-3xl font-bold text-white tracking-tight">PERSONAL ARCHIVE</h1>
-                <div class="flex items-center gap-2 mt-2">
-                    <div class="w-2 h-2 bg-green-600 rounded-full animate-pulse"></div>
-                    <p class="text-xs text-neutral-500 uppercase tracking-widest" id="user-email-display">Connecting...</p>
+    <!-- DASHBOARD SECTION -->
+    <div id="dashboard-section" class="w-full max-w-6xl hidden animate-fade-in mb-32">
+        <div class="flex flex-col md:flex-row justify-between items-end mb-10 border-b border-neutral-800 pb-6">
+            <div class="space-y-2">
+                <h1 class="text-3xl font-bold text-white tracking-tight uppercase">Personal Archive</h1>
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-2">
+                        <div class="w-2 h-2 bg-green-600 rounded-full animate-pulse"></div>
+                        <p class="text-[10px] text-neutral-500 uppercase tracking-widest font-mono" id="user-email-display">Connecting...</p>
+                    </div>
+                    <div class="text-green-600 text-[10px] font-black tracking-[0.2em] uppercase bg-green-600/5 px-3 py-1 border border-green-600/20">
+                        CONSISTENCY_PROTOCOL: <span id="streak-counter">0 DAYS</span>
+                    </div>
                 </div>
             </div>
-            <div class="flex gap-6 items-center">
-                <div class="flex flex-col items-end border-r border-neutral-800 pr-6">
-                    <span class="text-[10px] text-neutral-600 uppercase tracking-widest">Consistency Protocol</span>
-                    <span id="streak-counter" class="text-xl font-bold text-green-600 font-mono">0 DAYS</span>
-                </div>
-                
-                <div class="flex gap-4">
-                    <button id="logout-btn" class="text-xs text-neutral-500 hover:text-red-500 hover:underline tracking-widest uppercase transition">Terminate Session</button>
-                </div>
+            <div class="flex gap-4 items-center mt-6 md:mt-0">
+                <button id="logout-btn" class="text-[10px] font-bold text-red-900 hover:text-red-500 uppercase tracking-widest transition">[ TERMINATE SESSION ]</button>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+            <!-- Sidebar: Timeline -->
             <div class="lg:col-span-1 space-y-8">
-                
-                <div class="bg-neutral-950 border border-neutral-800 p-6 sticky top-6">
-                    <h3 class="text-sm font-bold text-neutral-400 mb-4 uppercase tracking-wider border-l-2 border-green-700 pl-3 flex justify-between">
-                        <span>Timeline</span>
-                        <span id="current-month-display" class="text-neutral-600 font-mono"></span>
-                    </h3>
-                    
-                    <div class="grid grid-cols-7 gap-1 mb-2 text-center text-[10px] text-neutral-600 font-mono">
+                <div class="bg-neutral-950 border border-neutral-800 p-8 shadow-xl sticky top-6">
+                    <div class="flex items-center justify-between mb-8 border-b border-neutral-900 pb-4">
+                        <h3 class="text-red-600 text-[10px] font-black tracking-widest uppercase">01 // Timeline</h3>
+                        <span id="current-month-display" class="text-neutral-600 font-mono text-[10px] font-bold"></span>
+                    </div>
+                                        
+                    <div class="grid grid-cols-7 gap-1 mb-4 text-center text-[10px] text-neutral-700 font-bold">
                         <div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div>
                     </div>
-                    <div id="calendar-grid" class="grid grid-cols-7 gap-1 font-mono text-xs">
-                        </div>
-                    
-                    <div class="mt-4 flex justify-between items-center text-[10px] text-neutral-500">
-                        <button id="prev-month" class="hover:text-white">&lt; PREV</button>
-                        <button id="next-month" class="hover:text-white">NEXT &gt;</button>
+                    <div id="calendar-grid" class="grid grid-cols-7 gap-1 font-mono"></div>
+                                        
+                    <div class="mt-6 flex justify-between items-center text-[10px] font-bold text-neutral-500 mb-8">
+                        <button id="prev-month" class="hover:text-red-600 transition-colors">&lt; PREV</button>
+                        <button id="next-month" class="hover:text-red-600 transition-colors">NEXT &gt;</button>
                     </div>
 
-                    <div class="mt-6 pt-6 border-t border-neutral-800">
-                        <p class="text-[10px] text-neutral-500 uppercase tracking-widest mb-2">System Status</p>
-                        <div class="flex items-center gap-2 text-xs text-neutral-400 font-mono">
+                    <div class="pt-6 border-t border-neutral-900">
+                        <p class="text-[10px] text-neutral-500 uppercase tracking-widest mb-3">System Status</p>
+                        <div class="flex items-center gap-3 text-[10px] text-neutral-400 font-bold uppercase">
                             <div class="w-3 h-3 bg-[#064e3b] border border-[#059669]"></div>
                             <span>Entry Logged</span>
                         </div>
                     </div>
                 </div>
-
             </div>
 
-            <div class="lg:col-span-2">
-                
-                <div class="bg-neutral-950 border border-neutral-800 p-6 mb-8 relative group">
-                    <div class="absolute top-0 right-0 p-2 opacity-30 group-hover:opacity-100 transition">
-                        <span class="text-[10px] text-red-900 font-mono">REC</span>
+            <!-- Main: Daily Log -->
+            <div class="lg:col-span-2 space-y-10">
+                <div class="bg-neutral-950 border border-neutral-800 p-8 shadow-xl relative group">
+                    <div class="absolute top-0 right-0 p-4 opacity-30 group-hover:opacity-100 transition">
+                        <span class="text-[10px] text-red-900 font-bold uppercase tracking-widest">REC ●</span>
                     </div>
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-sm font-bold text-neutral-400 uppercase tracking-wider border-l-2 border-red-700 pl-3">Daily Log</h3>
-                        <span id="date-display-today" class="text-xs text-neutral-600 font-mono"></span>
+                    <div class="flex justify-between items-center mb-8 border-l-2 border-red-600 pl-4">
+                        <h3 class="text-red-600 text-[10px] font-black uppercase tracking-widest">Daily Log</h3>
+                        <span id="date-display-today" class="text-[10px] text-neutral-600 font-bold uppercase tracking-widest"></span>
                     </div>
-                    
-                    <textarea id="journal-content" placeholder="Tell me everything that happened today, I am listening !" class="w-full mb-4 p-4 bg-[#0a0a0a] border border-neutral-800 text-white placeholder-neutral-700 h-48 focus:outline-none focus:border-red-800 transition text-sm font-mono resize-y shadow-inner leading-relaxed"></textarea>
-                    
-                    <button id="save-journal-btn" class="w-full bg-neutral-900 hover:bg-red-900/40 border border-neutral-800 hover:border-red-600 text-neutral-400 hover:text-white font-bold py-3 text-xs uppercase tracking-widest transition-all duration-300">
+                                        
+                    <textarea id="journal-content" placeholder="TELL ME EVERYTHING THAT HAPPENED TODAY, I AM LISTENING !" 
+                        class="w-full mb-6 p-5 bg-[#0a0a0a] border border-neutral-800 text-white placeholder-neutral-800 h-48 focus:outline-none focus:border-red-800 transition text-sm font-mono resize-y leading-relaxed custom-scrollbar shadow-inner"></textarea>
+                                        
+                    <button id="save-journal-btn" class="w-full bg-neutral-900 hover:bg-red-900/20 border border-neutral-800 hover:border-red-600 text-neutral-400 hover:text-white font-black py-4 text-[10px] uppercase tracking-[0.3em] transition-all duration-300">
                         Commit Entry to Archive
                     </button>
                 </div>
 
-                <h3 class="text-sm font-bold text-neutral-600 mb-6 uppercase tracking-wider flex items-center justify-between">
-                    <span>Recent Logs</span>
-                    <span class="text-[10px] text-neutral-700">ENCRYPTED STORAGE</span>
-                </h3>
-                <div id="journal-container" class="space-y-4"></div>
+                <div class="space-y-6">
+                    <h3 class="text-[10px] font-black text-neutral-600 uppercase tracking-[0.3em] flex items-center justify-between px-2">
+                        <span>Recent Logs</span>
+                        <span class="text-red-900 animate-pulse uppercase font-mono">Encrypted Storage</span>
+                    </h3>
+                    <div id="journal-container" class="space-y-4"></div>
+                </div>
             </div>
         </div>
     </div>
 
-    <div id="edit-modal" class="fixed inset-0 hidden items-center justify-center modal-backdrop z-50">
-        <div class="bg-neutral-950 border border-neutral-800 p-6 w-full max-w-2xl shadow-[0_0_50px_rgba(0,0,0,1)]">
-            <h4 id="edit-modal-date" class="text-white text-lg font-bold mb-4 border-b border-neutral-800 pb-2">Modify Log</h4>
-            <textarea id="edit-content" class="w-full mb-3 p-3 bg-[#0a0a0a] border border-neutral-800 text-white h-64 font-mono text-sm resize-none"></textarea>
-            <div class="flex justify-end gap-3">
-                <button id="cancel-edit" class="px-4 py-2 text-xs uppercase tracking-wider text-neutral-400 hover:text-white border border-transparent hover:border-neutral-700 transition">Discard</button>
-                <button id="save-edit" class="px-4 py-2 bg-red-900/80 hover:bg-red-800 text-white text-xs uppercase tracking-wider border border-red-700 transition">Overwrite</button>
+    <!-- Edit Modal -->
+    <div id="edit-modal" class="fixed inset-0 hidden items-center justify-center modal-backdrop z-50 p-6">
+        <div class="bg-neutral-950 border border-neutral-800 p-10 w-full max-w-2xl shadow-2xl relative">
+            <div class="absolute top-0 left-0 w-full h-1 bg-red-800"></div>
+            <h4 id="edit-modal-date" class="text-white text-sm font-black mb-8 uppercase tracking-widest border-l-2 border-red-600 pl-4">Modify Log</h4>
+            <textarea id="edit-content" class="w-full mb-8 p-5 bg-[#0a0a0a] border border-neutral-800 text-white h-64 font-mono text-sm focus:border-red-800 outline-none custom-scrollbar resize-none"></textarea>
+            <div class="flex justify-end gap-8">
+                <button id="cancel-edit" class="text-[10px] font-bold uppercase tracking-widest text-neutral-600 hover:text-white transition">Discard</button>
+                <button id="save-edit" class="bg-red-800 hover:bg-red-600 text-white px-10 py-3 text-[10px] font-black uppercase tracking-widest transition">Overwrite</button>
             </div>
+        </div>
+    </div>
+
+    <!-- AUTOMATIONS BOTTOM BAR -->
+    <div id="bottom-nav" class="fixed bottom-0 left-0 w-full z-[100] flex flex-col items-center">
+        <nav id="nav-menu" class="hidden w-full max-w-5xl bg-[#0a0a0a] border border-red-600/30 border-b-0 rounded-t-[2rem] flex flex-wrap justify-evenly items-center p-10 gap-6 shadow-2xl">
+            <!-- Nav links populated via script to ensure synchronization -->
+        </nav>
+        <div id="nav-trigger" class="w-full py-5 text-center font-black tracking-[0.8em] text-[10px] transition-all duration-700 cursor-pointer bg-red-600 text-white shadow-lg">
+            NAV [^]
         </div>
     </div>
 
     <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
-    import { 
-        getFirestore, collection, addDoc, query, orderBy, onSnapshot, 
-        serverTimestamp, where, deleteDoc, doc, updateDoc, setDoc, arrayUnion 
-    } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+        import { 
+            getFirestore, collection, addDoc, query, orderBy, onSnapshot, 
+            serverTimestamp, where, deleteDoc, doc, updateDoc, setDoc, arrayUnion 
+        } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
-    // ====== FIREBASE CONFIG ======
-    // REPLACE WITH YOUR FIREBASE CONFIG
-    const firebaseConfig = {
-        apiKey: "AIzaSyCy8XWCEYJ4aOSPn-XTxox8v0QTgMDbX_w",
-        authDomain: "my-portfolio-notes.firebaseapp.com",
-        projectId: "my-portfolio-notes",
-        storageBucket: "my-portfolio-notes.firebasestorage.app",
-        messagingSenderId: "372485530630",
-        appId: "1:372485530630:web:d53f7c955e5010b9390f87"
-    };
+        // ====== FIREBASE CONFIG ======
+        const firebaseConfig = {
+            apiKey: "AIzaSyCy8XWCEYJ4aOSPn-XTxox8v0QTgMDbX_w",
+            authDomain: "my-portfolio-notes.firebaseapp.com",
+            projectId: "my-portfolio-notes",
+            storageBucket: "my-portfolio-notes.firebasestorage.app",
+            messagingSenderId: "372485530630",
+            appId: "1:372485530630:web:d53f7c955e5010b9390f87"
+        };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
-    let currentUser = null;
-    let unsubscribeJournal = null;
-    let unsubscribeStats = null;
+        let currentUser = null;
+        let unsubscribeJournal = null;
+        let unsubscribeStats = null;
 
-    // --- DOM Elements ---
-    const authSection = document.getElementById('auth-section');
-    const dashboardSection = document.getElementById('dashboard-section');
-    const loginForm = document.getElementById('login-form');
-    const submitBtn = document.getElementById('submit-btn');
-    const errorMessage = document.getElementById('error-message');
-    const logoutBtn = document.getElementById('logout-btn');
-    
-    // Journal Elements
-    const saveJournalBtn = document.getElementById('save-journal-btn');
-    const journalContainer = document.getElementById('journal-container');
-    const userEmailDisplay = document.getElementById('user-email-display');
-    const streakCounter = document.getElementById('streak-counter');
-    const journalContentInput = document.getElementById('journal-content');
-    const dateDisplayToday = document.getElementById('date-display-today');
+        const authSection = document.getElementById('auth-section');
+        const dashboardSection = document.getElementById('dashboard-section');
+        const loginForm = document.getElementById('login-form');
+        const submitBtn = document.getElementById('submit-btn');
+        const errorMessage = document.getElementById('error-message');
+        const logoutBtn = document.getElementById('logout-btn');
+        const saveJournalBtn = document.getElementById('save-journal-btn');
+        const journalContainer = document.getElementById('journal-container');
+        const userEmailDisplay = document.getElementById('user-email-display');
+        const streakCounter = document.getElementById('streak-counter');
+        const journalContentInput = document.getElementById('journal-content');
+        const dateDisplayToday = document.getElementById('date-display-today');
 
-    // Calendar Elements
-    const calendarGrid = document.getElementById('calendar-grid');
-    const currentMonthDisplay = document.getElementById('current-month-display');
-    const prevMonthBtn = document.getElementById('prev-month');
-    const nextMonthBtn = document.getElementById('next-month');
+        const calendarGrid = document.getElementById('calendar-grid');
+        const currentMonthDisplay = document.getElementById('current-month-display');
+        const prevMonthBtn = document.getElementById('prev-month');
+        const nextMonthBtn = document.getElementById('next-month');
 
-    // Edit Modal Elements
-    const editModal = document.getElementById('edit-modal');
-    const editModalDate = document.getElementById('edit-modal-date');
-    const editContent = document.getElementById('edit-content');
-    const cancelEditBtn = document.getElementById('cancel-edit');
-    const saveEditBtn = document.getElementById('save-edit');
-    let editingDocId = null;
+        const editModal = document.getElementById('edit-modal');
+        const editModalDate = document.getElementById('edit-modal-date');
+        const editContent = document.getElementById('edit-content');
+        const cancelEditBtn = document.getElementById('cancel-edit');
+        const saveEditBtn = document.getElementById('save-edit');
+        let editingDocId = null;
 
-    // State
-    let calendarDate = new Date(); 
-    let journaledDates = new Set(); // Stores "YYYY-MM-DD" strings
+        let calendarDate = new Date(); 
+        let journaledDates = new Set(); 
 
-    // Update today's date display
-    const today = new Date();
-    dateDisplayToday.textContent = today.toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).toUpperCase();
+        // Synchronized Nav Links
+        const navLinks = [
+            { name: "HOME", icon: "home", url: "index.html" },
+            { name: "JOB DASHBOARD", icon: "activity", url: "jobs.html" },
+            { name: "INTEL", icon: "radar", url: "intel.html" },
+            { name: "BLOGS", icon: "book-open", url: "blogs.html" },
+            { name: "REPORTS", icon: "file-text", url: "Disclosed-Reports/reports_index.html" },
+            // { name: "JOURNAL", icon: "book", url: "journal.html" },
+            { name: "PRIVATE", icon: "lock", url: "private.html" }
+        ];
 
-    // --- AUTHENTICATION ---
-    loginForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
+        // --- BOTTOM NAV LOGIC ---
+        const bottomNavTrigger = document.getElementById('nav-trigger');
+        const navMenu = document.getElementById('nav-menu');
+        const bottomNavContainer = document.getElementById('bottom-nav');
         
-        errorMessage.classList.add('hidden');
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = "<span class='animate-pulse'>AUTHENTICATING...</span>";
+        const populateNav = () => {
+            navMenu.innerHTML = navLinks.map((link, i) => `
+                <a href="${link.url}" style="animation-delay: ${i * 50}ms" class="animate-nav-item opacity-0 flex items-center gap-4 px-6 py-4 rounded-xl bg-zinc-900 border border-zinc-800 hover:border-red-600 hover:bg-red-600/5 transition-all group font-black text-[10px] uppercase tracking-widest w-full md:w-auto text-center hover:scale-105 active:scale-95">
+                    <i data-lucide="${link.icon}" class="text-zinc-600 group-hover:text-red-600" style="width:14px; height: 14px"></i>
+                    ${link.name}
+                </a>
+            `).join('');
+            lucide.createIcons();
+        };
 
-        try {
-            await signInWithEmailAndPassword(auth, email, password);
-        } catch (error) {
-            errorMessage.textContent = "ACCESS DENIED: " + error.message;
-            errorMessage.classList.remove('hidden');
-        } finally {
-            submitBtn.disabled = false;
-            submitBtn.textContent = "Initialize";
-        }
-    });
-
-    logoutBtn.addEventListener('click', () => signOut(auth));
-
-    onAuthStateChanged(auth, async (user) => {
-        currentUser = user;
-        if (user) {
-            authSection.classList.add('hidden');
-            dashboardSection.classList.remove('hidden');
-            userEmailDisplay.textContent = "OPERATOR: " + user.email;
-            
-            initJournalFeed();
-            initStatsSystem();
-        } else {
-            authSection.classList.remove('hidden');
-            dashboardSection.classList.add('hidden');
-            journalContainer.innerHTML = '';
-            unsubscribeListeners();
-        }
-    });
-
-    function unsubscribeListeners() {
-        if(unsubscribeJournal) unsubscribeJournal();
-        if(unsubscribeStats) unsubscribeStats();
-    }
-
-    // ==========================================
-    // === CALENDAR & STREAK SYSTEM ===
-    // ==========================================
-
-    async function initStatsSystem() {
-        const statsRef = doc(db, "user_journal_stats", currentUser.uid);
-        
-        unsubscribeStats = onSnapshot(statsRef, (docSnap) => {
-            if (docSnap.exists()) {
-                const data = docSnap.data();
-                // We expect data.dates to be an array of "YYYY-MM-DD"
-                journaledDates = new Set(data.dates || []);
+        const toggleMenu = (open) => {
+            if (open) {
+                navMenu.classList.remove('hidden');
+                bottomNavTrigger.classList.add('bg-white', 'text-black');
+                bottomNavTrigger.classList.remove('bg-red-600', 'text-white');
             } else {
-                journaledDates = new Set();
+                navMenu.classList.add('hidden');
+                bottomNavTrigger.classList.remove('bg-white', 'text-black');
+                bottomNavTrigger.classList.add('bg-red-600', 'text-white');
             }
-            renderCalendar();
-            calculateStreak();
+        };
+
+        bottomNavContainer.addEventListener('mouseenter', () => toggleMenu(true));
+        bottomNavContainer.addEventListener('mouseleave', () => toggleMenu(false));
+
+        // Initialize today's date
+        const today = new Date();
+        dateDisplayToday.textContent = today.toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).toUpperCase();
+
+        // --- AUTHENTICATION ---
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            errorMessage.classList.add('hidden');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = "<span class='animate-pulse'>AUTHENTICATING...</span>";
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+            } catch (error) {
+                errorMessage.textContent = "ACCESS DENIED: UNAUTHORIZED_IDENTITY";
+                errorMessage.classList.remove('hidden');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = "Initialize";
+            }
         });
 
-        prevMonthBtn.onclick = () => { calendarDate.setMonth(calendarDate.getMonth() - 1); renderCalendar(); };
-        nextMonthBtn.onclick = () => { calendarDate.setMonth(calendarDate.getMonth() + 1); renderCalendar(); };
-    }
+        logoutBtn.addEventListener('click', () => signOut(auth));
 
-    function renderCalendar() {
-        calendarGrid.innerHTML = "";
-        const year = calendarDate.getFullYear();
-        const month = calendarDate.getMonth();
-        const monthNames = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
-        currentMonthDisplay.textContent = `${monthNames[month]} ${year}`;
-
-        const firstDay = new Date(year, month, 1).getDay();
-        const daysInMonth = new Date(year, month + 1, 0).getDate();
-        const today = new Date();
-        today.setHours(0,0,0,0);
-
-        // Empty slots for previous month
-        for (let i = 0; i < firstDay; i++) {
-            const emptyCell = document.createElement("div");
-            emptyCell.className = "p-3 border border-transparent"; 
-            calendarGrid.appendChild(emptyCell);
-        }
-
-        // Days
-        for (let day = 1; day <= daysInMonth; day++) {
-            const cellDate = new Date(year, month, day);
-            cellDate.setHours(0,0,0,0);
-            const dateKey = toDateKey(cellDate);
-
-            const cell = document.createElement("div");
-            cell.className = "calendar-day p-3 border border-neutral-900 bg-neutral-900/30 text-neutral-500 flex items-center justify-center font-mono text-sm rounded-sm";
-            cell.textContent = day;
-
-            if (cellDate.getTime() > today.getTime()) {
-                cell.classList.add("future");
+        onAuthStateChanged(auth, async (user) => {
+            populateNav();
+            currentUser = user;
+            if (user) {
+                authSection.classList.add('hidden');
+                dashboardSection.classList.remove('hidden');
+                userEmailDisplay.textContent = "OPERATOR: " + user.email;
+                initJournalFeed();
+                initStatsSystem();
             } else {
-                // If entry exists for this date, make it green
-                if (journaledDates.has(dateKey)) {
-                    cell.classList.add("journaled");
-                }
-                
-                if (cellDate.getTime() === today.getTime()) {
-                    cell.classList.add("today");
-                }
+                authSection.classList.remove('hidden');
+                dashboardSection.classList.add('hidden');
+                journalContainer.innerHTML = '';
+                if(unsubscribeJournal) unsubscribeJournal();
+                if(unsubscribeStats) unsubscribeStats();
             }
-            calendarGrid.appendChild(cell);
-        }
-    }
+        });
 
-    function calculateStreak() {
-        const today = new Date();
-        const todayStr = toDateKey(today);
-        let checkDate = new Date();
-        
-        // If we haven't journaled today yet, don't break the streak from yesterday
-        if (!journaledDates.has(todayStr)) {
-            checkDate.setDate(checkDate.getDate() - 1);
+        // --- CALENDAR & STREAK ---
+        async function initStatsSystem() {
+            const statsRef = doc(db, "user_journal_stats", currentUser.uid);
+            unsubscribeStats = onSnapshot(statsRef, (docSnap) => {
+                journaledDates = docSnap.exists() ? new Set(docSnap.data().dates || []) : new Set();
+                renderCalendar();
+                calculateStreak();
+            });
+            prevMonthBtn.onclick = () => { calendarDate.setMonth(calendarDate.getMonth() - 1); renderCalendar(); };
+            nextMonthBtn.onclick = () => { calendarDate.setMonth(calendarDate.getMonth() + 1); renderCalendar(); };
         }
 
-        let streak = 0;
-        while (true) {
-            const key = toDateKey(checkDate);
-            if (journaledDates.has(key)) {
-                streak++;
-                checkDate.setDate(checkDate.getDate() - 1);
-            } else {
-                break;
+        function renderCalendar() {
+            calendarGrid.innerHTML = "";
+            const year = calendarDate.getFullYear();
+            const month = calendarDate.getMonth();
+            const monthNames = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+            currentMonthDisplay.textContent = `${monthNames[month]} ${year}`;
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const todayObj = new Date();
+            todayObj.setHours(0,0,0,0);
+
+            for (let i = 0; i < firstDay; i++) {
+                const emptyCell = document.createElement("div");
+                emptyCell.className = "p-3";
+                calendarGrid.appendChild(emptyCell);
+            }
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const cellDate = new Date(year, month, day);
+                cellDate.setHours(0,0,0,0);
+                const dateKey = toDateKey(cellDate);
+                const cell = document.createElement("div");
+                cell.className = "calendar-day p-3 border border-neutral-900 bg-neutral-900/30 text-neutral-500 flex items-center justify-center font-mono text-sm rounded-sm";
+                cell.textContent = day;
+                if (cellDate.getTime() > todayObj.getTime()) cell.classList.add("future");
+                else {
+                    cell.classList.add("valid");
+                    if (journaledDates.has(dateKey)) cell.classList.add("journaled");
+                    if (cellDate.getTime() === todayObj.getTime()) cell.classList.add("today");
+                }
+                calendarGrid.appendChild(cell);
             }
         }
-        streakCounter.textContent = `${streak} DAYS`;
-    }
 
-    function toDateKey(dateObj) {
-        const y = dateObj.getFullYear();
-        const m = String(dateObj.getMonth() + 1).padStart(2, '0');
-        const d = String(dateObj.getDate()).padStart(2, '0');
-        return `${y}-${m}-${d}`;
-    }
+        function calculateStreak() {
+            const todayObj = new Date();
+            const todayStr = toDateKey(todayObj);
+            let checkDate = new Date();
+            if (!journaledDates.has(todayStr)) checkDate.setDate(checkDate.getDate() - 1);
+            let streak = 0;
+            while (true) {
+                const key = toDateKey(checkDate);
+                if (journaledDates.has(key)) {
+                    streak++;
+                    checkDate.setDate(checkDate.getDate() - 1);
+                } else break;
+            }
+            streakCounter.textContent = `${streak} DAYS`;
+        }
 
-    // ==========================================
-    // === JOURNAL FEED SYSTEM ===
-    // ==========================================
+        function toDateKey(dateObj) {
+            const y = dateObj.getFullYear();
+            const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+            const d = String(dateObj.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        }
 
-    function initJournalFeed() {
-        const q = query(
-            collection(db, "journal_entries"),
-            where("uid", "==", currentUser.uid),
-            orderBy("createdAt", "desc")
-        );
+        // --- JOURNAL FEED ---
+        function initJournalFeed() {
+            const q = query(collection(db, "journal_entries"), where("uid", "==", currentUser.uid), orderBy("createdAt", "desc"));
+            unsubscribeJournal = onSnapshot(q, (snapshot) => {
+                if (snapshot.empty) {
+                    journalContainer.innerHTML = '<div class="p-12 text-center border border-dashed border-neutral-800 text-neutral-700 text-[10px] tracking-widest uppercase">Archive Empty</div>';
+                    return;
+                }
+                journalContainer.innerHTML = '';
+                snapshot.forEach(docSnap => renderJournalCard(docSnap.id, docSnap.data()));
+            });
+        }
 
-        unsubscribeJournal = onSnapshot(q, (snapshot) => {
-            if (snapshot.empty) {
-                journalContainer.innerHTML = `
-                    <div class="p-8 text-center border border-dashed border-neutral-800 text-neutral-600 text-xs tracking-widest uppercase">
-                        Archive Empty
+        saveJournalBtn.addEventListener('click', async () => {
+            const content = journalContentInput.value.trim();
+            if (!content) return;
+            saveJournalBtn.disabled = true;
+            saveJournalBtn.innerHTML = "<span class='animate-pulse'>COMMITING...</span>";
+            const now = new Date();
+            const todayKey = toDateKey(now);
+            const autoTitle = now.toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            try {
+                await addDoc(collection(db, "journal_entries"), {
+                    title: autoTitle, content: content, createdAt: serverTimestamp(), uid: currentUser.uid, dateKey: todayKey
+                });
+                await setDoc(doc(db, "user_journal_stats", currentUser.uid), { dates: arrayUnion(todayKey) }, { merge: true });
+                journalContentInput.value = '';
+            } catch (e) { console.error(e); }
+            finally {
+                saveJournalBtn.disabled = false;
+                saveJournalBtn.innerText = "COMMIT ENTRY TO ARCHIVE";
+            }
+        });
+
+        function renderJournalCard(id, data) {
+            const timeStr = data.createdAt?.toDate ? data.createdAt.toDate().toLocaleString('en-GB', { hour: '2-digit', minute: '2-digit' }) : "SYNCING...";
+            const el = document.createElement('div');
+            el.className = 'group relative bg-neutral-950 border border-neutral-800 hover:border-red-900/50 transition duration-500 animate-fade-in';
+            el.innerHTML = `
+                <div class="absolute top-0 right-0 w-2 h-2 border-t border-r border-red-800 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <h4 class="font-bold text-white text-lg tracking-tight group-hover:text-red-500 transition-colors uppercase">${escapeHtml(data.title)}</h4>
+                        <span class="text-[10px] text-neutral-600 font-mono border border-neutral-900 px-2 py-1">${timeStr}</span>
                     </div>
-                `;
-                return;
+                    <p class="text-neutral-400 text-sm font-mono whitespace-pre-wrap leading-relaxed">${escapeHtml(data.content)}</p>
+                    <div class="mt-6 pt-4 border-t border-neutral-900 flex justify-end gap-6 opacity-0 group-hover:opacity-100 transition">
+                        <button data-id="${id}" data-action="edit" class="text-[10px] text-neutral-500 hover:text-white font-bold uppercase tracking-widest">Modify</button>
+                        <button data-id="${id}" data-action="delete" class="text-[10px] text-red-900 hover:text-red-500 font-bold uppercase tracking-widest">Purge</button>
+                    </div>
+                </div>
+            `;
+            journalContainer.appendChild(el);
+        }
+
+        document.addEventListener('click', async (e) => {
+            const btn = e.target.closest('button[data-id]');
+            if (!btn) return;
+            const id = btn.dataset.id;
+            const action = btn.dataset.action;
+            if (action === 'delete') {
+                if (confirm('PURGE DATA?')) await deleteDoc(doc(db, 'journal_entries', id));
+            } else if (action === 'edit') {
+                editingDocId = id;
+                const card = btn.closest('.group');
+                editModalDate.textContent = card.querySelector('h4').textContent;
+                editContent.value = card.querySelector('p').textContent;
+                editModal.classList.remove('hidden');
+                editModal.classList.add('flex');
             }
-            journalContainer.innerHTML = '';
-            snapshot.forEach((docSnap) => {
-                renderJournalCard(docSnap.id, docSnap.data());
-            });
-        });
-    }
-
-    // SAVE ENTRY LOGIC
-    saveJournalBtn.addEventListener('click', async () => {
-        const content = journalContentInput.value.trim();
-        if (!content) return alert("ERROR: EMPTY DATA STREAM");
-
-        saveJournalBtn.disabled = true;
-        saveJournalBtn.innerHTML = "<span class='animate-pulse'>ENCRYPTING & UPLOADING...</span>";
-        
-        const now = new Date();
-        const todayKey = toDateKey(now);
-        // Automatically generate title from current date
-        const autoTitle = now.toLocaleDateString('en-GB', { 
-            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
         });
 
-        try {
-            // 1. Add the actual text entry
-            await addDoc(collection(db, "journal_entries"), {
-                title: autoTitle, 
-                content: content,
-                createdAt: serverTimestamp(),
-                uid: currentUser.uid,
-                dateKey: todayKey // Store simple date string for reference
-            });
+        cancelEditBtn.onclick = () => { editModal.classList.add('hidden'); editModal.classList.remove('flex'); };
+        saveEditBtn.onclick = async () => {
+            if (!editingDocId) return;
+            await updateDoc(doc(db, 'journal_entries', editingDocId), { content: editContent.value.trim() });
+            editModal.classList.add('hidden'); editModal.classList.remove('flex');
+        };
 
-            // 2. Update the calendar stats (Mark today as green)
-            await setDoc(doc(db, "user_journal_stats", currentUser.uid), {
-                dates: arrayUnion(todayKey)
-            }, { merge: true });
-
-            journalContentInput.value = '';
-            
-        } catch (e) {
-            alert("UPLOAD FAILED: " + e.message);
-        } finally {
-            saveJournalBtn.disabled = false;
-            saveJournalBtn.innerText = "COMMIT ENTRY TO ARCHIVE";
-        }
-    });
-
-    function renderJournalCard(id, data) {
-        let timeStr = "";
-        if (data.createdAt && typeof data.createdAt.toDate === 'function') {
-            timeStr = data.createdAt.toDate().toLocaleString('en-GB', { 
-                hour: '2-digit', minute: '2-digit'
-            });
-        }
-
-        const el = document.createElement('div');
-        el.className = 'group relative bg-neutral-950 border border-neutral-800 hover:border-neutral-700 transition duration-500 animate-fade-in';
-        
-        el.innerHTML = `
-            <div class="absolute top-0 right-0 w-2 h-2 border-t border-r border-red-800 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <div class="p-6">
-                <div class="flex justify-between items-start mb-4">
-                    <h4 class="font-sans font-bold text-white text-lg tracking-tight group-hover:text-red-500 transition-colors">${escapeHtml(data.title)}</h4>
-                    <span class="text-[10px] text-neutral-600 font-mono border border-neutral-900 px-2 py-1">${timeStr}</span>
-                </div>
-
-                <p class="text-neutral-400 text-sm font-mono whitespace-pre-wrap leading-relaxed">${escapeHtml(data.content)}</p>
-                
-                <div class="mt-4 pt-4 border-t border-neutral-900 flex justify-end gap-3 opacity-50 group-hover:opacity-100 transition">
-                     <button data-id="${id}" data-action="edit" class="text-[10px] text-neutral-400 hover:text-white font-mono uppercase tracking-wider">Modify</button>
-                     <button data-id="${id}" data-action="delete" class="text-[10px] text-red-900 hover:text-red-500 font-mono uppercase tracking-wider">Purge</button>
-                </div>
-            </div>
-        `;
-        journalContainer.appendChild(el);
-    }
-
-    // --- EDIT & DELETE LOGIC ---
-    document.addEventListener('click', async (e) => {
-        const btn = e.target.closest('button[data-id]');
-        if (!btn) return;
-
-        const id = btn.getAttribute('data-id');
-        const action = btn.getAttribute('data-action');
-
-        if (action === 'delete') {
-            if (!confirm('CONFIRM PURGE? THIS CANNOT BE UNDONE.')) return;
-            // Note: We deliberately DO NOT remove the date from journal_stats when deleting an entry.
-            // You did journal that day, even if you delete the text later.
-            await deleteDoc(doc(db, 'journal_entries', id));
-        }
-
-        if (action === 'edit') {
-            const card = btn.closest('.group');
-            editingDocId = id;
-            // Get current title from the card h4
-            const currentTitle = card.querySelector('h4').textContent;
-            
-            editModalDate.textContent = currentTitle;
-            editContent.value = card.querySelector('p').textContent;
-            editModal.classList.remove('hidden');
-            editModal.classList.add('flex');
-        }
-    });
-
-    cancelEditBtn.addEventListener('click', () => {
-        editingDocId = null;
-        editModal.classList.add('hidden');
-        editModal.classList.remove('flex');
-    });
-
-    saveEditBtn.addEventListener('click', async () => {
-        if (!editingDocId) return;
-        const content = editContent.value.trim();
-        if(!content) return;
-
-        await updateDoc(doc(db, 'journal_entries', editingDocId), { 
-            content 
-        });
-        
-        editingDocId = null;
-        editModal.classList.add('hidden');
-        editModal.classList.remove('flex');
-    });
-
-    function escapeHtml(str = '') {
-        return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-    }
+        function escapeHtml(str = '') { return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
     </script>
 </body>
 </html>

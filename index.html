@@ -1,271 +1,307 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>Rishabh Yadav | Cybersecurity Student & Ethical Hacker</title>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.1">
-<meta name="description" content="Rishabh Yadav (Fanaticalnerd) is a dedicated cybersecurity student focusing on penetration testing and Incident Response. Follow my learning journey in CTF achievements, and security research projects.">
-<meta name="keywords" content="Rishabh Yadav Infosec, Fanaticalnerd Infosec, Rishabh Yadav Cybersecurity, Rishabh Yadav Ethical Hacker, Rishabh Yadav Security , Fanaticalnerd, Penetration Testing, Fanaticalnerd CTF, Cybersecurity Research, Network Defense">
-<meta name="author" content="Rishabh Yadav">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>fanaticalnerd | Portfolio</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React and ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700;800&display=swap');
+        
+        body {
+            font-family: 'JetBrains+Mono', monospace;
+            background-color: #050505;
+            color: #dddddd;
+            margin: 0;
+            overflow-x: hidden;
+        }
 
-<!-- Additional SEO Meta Tags -->
-<meta property="og:title" content="Rishabh Yadav | Cybersecurity Student & Ethical Hacker">
-<meta property="og:description" content="Join the journey of a passionate cybersecurity student specializing in penetration testing, incident response, and network defense. Follow my progress in ethical hacking and security research.">
-<meta property="og:type" content="website">
-<meta name="robots" content="index, follow">
-<meta name="canonical" content="https://rishabhyadavm07.github.io">
+        .scanline {
+            width: 100%;
+            height: 2px;
+            background: #dc2626;
+            opacity: 0.1;
+            position: fixed;
+            z-index: 50;
+            pointer-events: none;
+            animation: scan 10s linear infinite;
+        }
 
-<link rel="apple-touch-icon" sizes="180x180" href="/favicon_io/apple-touch-icon.png">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon_io/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="/favicon_io/favicon-16x16.png">
-<link rel="manifest" href="/favicon_io/site.webmanifest">
+        @keyframes scan {
+            0% { top: -10%; }
+            100% { top: 110%; }
+        }
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #0a0a0a;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #dc2626;
+        }
 
-<style>
-      body { color: #dddddd;
-             font-family: "JetBrains Mono", monospace;
-             background-color: #0c0d10; 
-             font-size: 16px;
-             line-height: 16px;
-             margin: 0 auto;
-             padding: 1em 0 1em 0;
-             /* cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewport='0 0 100 100' style='font-size:24px;'><text y='50%'>🔑</text></svg>") 16 16, auto; */
-           }
-       pre { font-family: "JetBrains Mono", monospace; }
-         a { color: #98f5ff; text-decoration: none; }
-       iky { color: #74ee15; }
-         y { color: #ffa298; }
-        gy { color: #f5ff98; }
-         w { color: #ffffff; }
-        gr { color: #b5bd68; }
-         r { color: #f22e2e; }
-       pnk { color: #f4b6e5; }
-        bb { color: #5cc2ca; }
-       prp { color: #7a80a2; }
-         l { color: #c5c8c6; }
-        lg { color: #9de9a9; }
-        .visually-hidden {
-          position: absolute;
-          width: 1px;
-          height: 1px;
-          padding: 0;
-          margin: -1px;
-          overflow: hidden;
-          clip: rect(0, 0, 0, 0);
-          white-space: nowrap;
-          border: 0;
-      }
+        pre {
+            white-space: pre;
+            word-wrap: normal;
+        }
 
-      /* Bottom Automations Bar */
-      #bottom-nav {
-          position: fixed;
-          bottom: 0;
-          left: 0;
-          right: 0;
-          height: 48px;
-          background: linear-gradient(0deg, #1e1f23 0%, #15161a 50%, #0c0d10 100%);
-          border-top: 1px solid rgba(122, 128, 162, 0.3);
-          padding: 0;
-          overflow: hidden;
-          transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-          z-index: 1000;
-          box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.4);
-          backdrop-filter: blur(10px);
-      }
+        /* Custom Skill Tag Animations */
+        @keyframes tag-entrance {
+            from {
+                opacity: 0;
+                transform: translateY(10px) scale(0.9);
+                filter: blur(5px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+                filter: blur(0);
+            }
+        }
 
-      #bottom-nav:hover,
-      #bottom-nav:focus-within {
-          height: 120px;
-          background: linear-gradient(135deg, #1a1b1e 0%, #0c0d10 100%);
-          box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
-          border-top: 2px solid #7a80a2;
-      }
+        /* Bottom Nav Entrance Animation */
+        @keyframes nav-slide-up {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
-      .bottom-nav-label {
-          position: absolute;
-          bottom: 12px;
-          left: 50%;
-          transform: translateX(-50%);
-          font-size: 0.85em;
-          font-weight: 600;
-          letter-spacing: 4px;
-          color: #7a80a2;
-          text-transform: uppercase;
-          white-space: nowrap;
-          opacity: 1;
-          transition: opacity 0.3s, color 0.3s;
-          pointer-events: none;
-      }
+        .animate-tag {
+            animation: tag-entrance 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
 
-      #bottom-nav:hover .bottom-nav-label,
-      #bottom-nav:focus-within .bottom-nav-label {
-          opacity: 0;
-      }
+        .animate-nav-item {
+            animation: nav-slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
 
-      .bottom-nav-content {
-          opacity: 0;
-          transform: translateY(10px);
-          transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-          padding: 1em 2em;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-          height: 100%;
-      }
-
-      #bottom-nav:hover .bottom-nav-content,
-      #bottom-nav:focus-within .bottom-nav-content {
-          opacity: 1;
-          transform: translateY(0);
-      }
-
-      .bottom-nav-header {
-          color: #f5ff98;
-          font-size: 0.85em;
-          font-weight: 700;
-          margin-bottom: 0.5em;
-          text-transform: uppercase;
-          letter-spacing: 1px;
-          text-align: center;
-      }
-
-      .bottom-nav-links {
-          display: flex;
-          gap: 2em;
-          justify-content: center;
-          align-items: center;
-          flex-wrap: wrap;
-      }
-
-      .bottom-nav-links a {
-          display: inline-block;
-          padding: 0.6em 1.2em;
-          color: #c5c8c6;
-          text-decoration: none;
-          border-bottom: 3px solid transparent;
-          transition: all 0.2s;
-          white-space: nowrap;
-          font-size: 0.9em;
-          background: rgba(122, 128, 162, 0.1);
-          border-radius: 4px;
-      }
-
-      .bottom-nav-links a:hover {
-          color: #f22e2e;
-          background: rgba(242, 46, 46, 0.15);
-          border-bottom-color: #f22e2e;
-          transform: translateY(-2px);
-      }
-
-      /* Mobile responsive */
-      @media (max-width: 768px) {
-          #bottom-nav {
-              height: 42px;
-          }
-
-          #bottom-nav:hover,
-          #bottom-nav:focus-within {
-              height: 110px;
-          }
-
-          .bottom-nav-label {
-              font-size: 0.7em;
-              letter-spacing: 3px;
-              bottom: 10px;
-          }
-
-          .bottom-nav-content {
-              padding: 1em;
-          }
-
-          .bottom-nav-links {
-              gap: 1em;
-          }
-
-          .bottom-nav-links a {
-              font-size: 0.8em;
-              padding: 0.5em 0.8em;
-          }
-      }
-
-</style>
-<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
-<link rel="icon" href="/favicon.ico" type="image/x-icon">
+        @media (max-width: 768px) {
+            pre {
+                font-size: 4px !important;
+                line-height: 1 !important;
+            }
+        }
+    </style>
 </head>
-<body>
-    <h1 class="visually-hidden">Rishabh Yadav - Infosec Student</h1>
+<body class="custom-scrollbar">
+    <div id="root"></div>
 
-<div style="position: fixed; top: 1em; right: 1em; z-index: 9999;">
-    <a href="private.html" title="Private Area" style="font-size: 1.5rem; color: #98f5ff; text-decoration: none;">&#x2317;</a>
-</div>
+    <script type="text/babel">
+        const { useState, useEffect, useMemo } = React;
 
-    <center>
-<div style="display: inline-block; text-align: left;"><pre>
-<r></r>
+        const DATA = {
+            username: "rishabhyadavm07",
+            alias: "fanaticalnerd",
+            name: "RISHABH YADAV",
+            fullBio: [
+                "I’m Rishabh Yadav, a cybersecurity professional with a strong focus on cloud security, application security, and building resilient systems at scale. My work centres on understanding how modern environments behave in practice, where they fail, and how to secure them without overengineering or slowing teams down.",
+                "I work across both defensive and adversarial perspectives — analysing attack paths, validating real risks, and translating security findings into actionable improvements. My experience spans cloud security assessments, security automation, compliance-driven controls, and hands-on testing, with an emphasis on clarity, repeatability, and measurable outcomes.",
+                "Most incidents don’t start with advanced exploits; they start with “this should be fine.”",
+                "Outside of work, I spend time trekking and intentionally disconnecting from screens. Both activities reinforce the same lesson: preparation matters, and shortcuts are rarely efficient.",
+                "- Happy Hacking !"
+            ],
+            prioritySkills: [
+                "Cloud Security", "API Security", "AppSec", "Attack Path Analysis", 
+                "Pentesting", "Security Automation", "GCP Hardening", "OSINT", 
+                "Risk Evaluation", "Threat Detection"
+            ],
+            fullArsenal: [
+                "Burp Suite", "Postman", "Nmap", "Wireshark", "MITRE ATT&CK", 
+                "IAM", "VPC Service Controls", "Regulatory Compliance (GDPR/SOC2/PCI-DSS)", 
+                "Secure CI/CD Pipelines", "Container Security (Docker/K8s)", 
+                "Cloud Logging & Monitoring", "Vulnerability Assessment", 
+                "Incident Response", "Active Directory Security", "Thick App Testing",
+                "Python", "Flask", "React.js", "Terraform", "YARA", "Selenium"
+            ],
+            links: [
+                { name: "GITHUB", url: "https://github.com/rishabhyadavm07", icon: "github" },
+                { name: "LINKEDIN", url: "https://www.linkedin.com/in/rishabhyadavm07", icon: "linkedin" },
+                { name: "TRYHACKME", url: "https://tryhackme.com/p/fanaticalnerd", icon: "target" },
+                { name: "TWITTER", url: "https://twitter.com/fanaticalnerd", icon: "twitter" }
+            ],
+            quickLinks: [
+                // { name: "HOME", url: "index.html", icon: "home" },
+                { name: "JOB DASHBOARD", url: "jobs.html", icon: "activity" },
+                { name: "INTEL", url: "intel.html", icon: "radar" },
+                { name: "BLOGS", url: "blogs.html", icon: "book-open" },
+                { name: "REPORTS", url: "Disclosed-Reports/reports_index.html", icon: "file-text" },
+                { name: "JOURNAL", url: "journal.html", icon: "book" },
+                { name: "PRIVATE", url: "private.html", icon: "lock" }
+            ],
+            email: "rishabhyadav.inbox@gmail.com"
+        };
 
-.<y>______________________________________________________________________________________________</y>.
-|               ____ ____ _  _ ____ ___ _ ____ ____ _    _  _ ____ ____ ___                    |
-|               |___ |__| |\ | |__|  |  | |    |__| |    |\ | |___ |__/ |  \                   |
-|               |    |  | | \| |  |  |  | |___ |  | |___ | \| |___ |  \ |__/                   |
-:<y>______________________________________________________________________________________________</y>:
-:<y>----------------------------------------------------------------------------------------------</y>:</gy>
-|                                                                                              |
-| Links: <a href="https://www.linkedin.com/in/rishabhyadavm07">LinkedIn</a> | <a href="https://tryhackme.com/p/fanaticalnerd">TryHackMe</a> | <a href="https://twitter.com/fanaticalnerd">Twitter</a>                                                        |      
-|                                                                                              |
-|                                                                                              |
-| I’m Rishabh Yadav, a cybersecurity professional with a strong focus on cloud security,       |
-| application security, and building resilient systems at scale. My work centres on            |
-| understanding how modern environments behave in practice, where they fail, and how           |
-| to secure them without overengineering or slowing teams down.                                |
-|                                                                                              |
-| I work across both defensive and adversarial perspectives — analysing attack paths,          |
-| validating real risks, and translating security findings into actionable improvements.       |
-| My experience spans cloud security assessments, security automation, compliance-driven       |
-| controls, and hands-on testing, with an emphasis on clarity, repeatability, and              |
-| measurable outcomes.                                                                         |
-|                                                                                              |
-| Most incidents don’t start with advanced exploits; they start with “this should be fine.”    |
-|                                                                                              |
-| Outside of work, I spend time trekking and intentionally disconnecting from screens.         |
-| Both activities reinforce the same lesson: preparation matters, and shortcuts are            |
-| rarely efficient.                                                                            |
-|                                                                                              |
-|                                                                                              |
-| - Happy Hacking !                                                                            |
-|                                                                                              |
-|                                                                                              |
-| <y>-- <w>Digital Content ( Projects, Blogs, Online appearances )</w> ---------------------------------</y> |
-|                                                                                              |
-| <gy>::</gy> <a href="blogs.html">Read My Blog Posts</a>                                                                        |
-|                                                                                              |
-|                                                                                              |
-|                                                                                              |
-|--------------------------------rishabhyadav.inbox@gmail.com----------------------------------|
-:<y>______________________________________________________________________________________________</y>:
-:<y>----------------------------------------------------------------------------------------------</y>:
-<gy></gy>
-</pre>
-</div>
-</center>
+        const App = () => {
+            const [isMenuOpen, setIsMenuOpen] = useState(false);
+            const [isExpanded, setIsExpanded] = useState(false);
+            const [glitchText, setGlitchText] = useState(DATA.name);
 
-<!-- Bottom Automations Navigation -->
-<nav id="bottom-nav">
-    <div class="bottom-nav-label">AUTOMATIONS</div>
-    <div class="bottom-nav-content">
-        <div class="bottom-nav-header">Quick Links</div>
-        <div class="bottom-nav-links">
-            <a href="jobs.html">Job Search Dashboard</a>
-            <a href="intel.html">Intel</a>
-            <a href="Disclosed-Reports/reports_index.html">Reports</a>
-        </div>
-    </div>
-</nav>
+            useEffect(() => {
+                lucide.createIcons();
+                
+                const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
+                let iterations = 0;
+                const interval = setInterval(() => {
+                    setGlitchText(DATA.name.split("").map((letter, index) => {
+                        if (index < iterations) return DATA.name[index];
+                        return chars[Math.floor(Math.random() * chars.length)];
+                    }).join(""));
+                    if (iterations >= DATA.name.length) clearInterval(interval);
+                    iterations += 1/3;
+                }, 50);
+                return () => clearInterval(interval);
+            }, []);
 
+            // Re-run lucide on expansion or menu toggle
+            useEffect(() => {
+                lucide.createIcons();
+            }, [isExpanded, isMenuOpen]);
+
+            return (
+                <div className="min-h-screen selection:bg-red-600 selection:text-white p-4 md:p-12">
+                    <div className="scanline"></div>
+                    
+                    {/* Background Glow */}
+                    <div className="fixed inset-0 pointer-events-none overflow-hidden">
+                        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-red-600/5 blur-[120px] rounded-full"></div>
+                        <div className="absolute bottom-[-5%] right-[-5%] w-[40%] h-[40%] bg-slate-800/20 blur-[100px] rounded-full"></div>
+                    </div>
+
+                    <main className="max-w-4xl mx-auto relative z-10 border border-zinc-800 bg-[#0a0a0a]/95 backdrop-blur-xl shadow-2xl p-6 md:p-12 mb-28 rounded-md">
+                        
+                        {/* Blocky ASCII Art Restoration */}
+                        <div className="overflow-x-auto mb-12 cursor-default select-none text-center custom-scrollbar">
+                            <pre className="text-[5px] md:text-[6px] lg:text-[7px] inline-block leading-[1.1] text-zinc-500 hover:text-red-600 transition-all duration-700">
+{`
+ ███████╗ █████╗ ███╗   ██╗ █████╗ ████████╗██╗ ██████╗ █████╗ ██╗     ███╗   ██╗███████╗██████╗ ██████╗ 
+ ██╔════╝██╔══██╗████╗  ██║██╔══██╗╚══██╔══╝██║██╔════╝██╔══██╗██║     ████╗  ██║██╔════╝██╔══██╗██╔══██╗
+ █████╗  ███████║██╔██╗ ██║███████║   ██║   ██║██║     ███████║██║     ██╔██╗ ██║█████╗  ██████╔╝██║  ██║
+ ██╔══╝  ██╔══██║██║╚██╗██║██╔══██║   ██║   ██║██║     ██╔══██║██║     ██║╚██╗██║██╔══╝  ██╔══██╗██║  ██║
+ ██║     ██║  ██║██║ ╚████║██║  ██║   ██║   ██║╚██████╗██║  ██║███████╗██║ ╚████║███████╗██║  ██║██████╔╝
+ ╚═╝     ╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝   ╚═╝   ╚═╝ ╚═════╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝╚═════╝ 
+`}
+                            </pre>
+                        </div>
+
+                        {/* Social Matrix */}
+                        <div className="flex flex-wrap justify-center gap-6 mb-12 border-b border-zinc-800 pb-8">
+                            {DATA.links.map((link) => (
+                                <a key={link.name} href={link.url} target="_blank" className="flex items-center gap-2 text-[10px] font-black tracking-[0.2em] text-zinc-400 hover:text-red-600 transition-all bg-zinc-900/50 px-3 py-1.5 border border-transparent hover:border-red-600/20 hover:scale-105 active:scale-95">
+                                    <i data-lucide={link.icon} style={{width: '14px', height: '14px'}}></i> {link.name}
+                                </a>
+                            ))}
+                        </div>
+
+                        {/* Profile Core */}
+                        <div className="space-y-12 pb-12">
+                            <div className="bg-[#111111] border-l-4 border-red-600 p-6 relative shadow-lg">
+                                <div className="absolute top-0 right-0 p-3 text-[8px] text-red-600 opacity-30 font-bold uppercase tracking-widest">
+                                    X-ID: {DATA.alias}
+                                </div>
+                                <div className="flex items-center gap-2 mb-4">
+                                    <span className="text-red-600 animate-pulse text-lg">■</span>
+                                    <span className="text-[10px] text-zinc-500 font-black uppercase tracking-[0.3em]">Operational_Node</span>
+                                </div>
+                                <p className="text-white text-xl font-bold tracking-tighter mb-4">{glitchText}</p>
+                                
+                                <div className="space-y-4 text-sm text-zinc-400 leading-relaxed font-light border-t border-white/5 pt-4 mt-2">
+                                    {DATA.fullBio.map((paragraph, idx) => (
+                                        <p key={idx} className={paragraph.startsWith('-') ? 'text-red-600 font-bold mt-4' : ''}>
+                                            {paragraph}
+                                        </p>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Skills Section with Enhanced Animation */}
+                            <div className="space-y-6">
+                                <div className="flex items-center justify-between">
+                                    <h3 className="text-red-600 text-[10px] font-black tracking-[0.3em] uppercase flex items-center gap-2">
+                                        <i data-lucide="zap" className="animate-pulse" style={{width: '14px', height: '14px'}}></i> I LIKE TO DO:
+                                    </h3>
+                                    <button 
+                                        onClick={() => setIsExpanded(!isExpanded)}
+                                        className="text-[9px] font-bold text-zinc-600 hover:text-red-600 transition-all border border-zinc-800 px-3 py-1 bg-zinc-950 flex items-center gap-2 hover:bg-zinc-900 active:translate-y-0.5"
+                                    >
+                                        {isExpanded ? '[ COLLAPSE_MODULE ]' : '[ EXPAND_MODULE ]'}
+                                    </button>
+                                </div>
+                                
+                                <div className="flex flex-wrap gap-3">
+                                    {DATA.prioritySkills.map((skill, i) => (
+                                        <span 
+                                            key={i} 
+                                            className="px-4 py-2 text-[10px] bg-zinc-900 border border-red-600/30 text-red-600 font-bold transition-all cursor-default hover:bg-red-600/10 hover:border-red-600 hover:shadow-[0_0_10px_rgba(220,38,38,0.2)] hover:scale-105 duration-200"
+                                        >
+                                            {skill.toUpperCase()}
+                                        </span>
+                                    ))}
+                                    {isExpanded && DATA.fullArsenal.map((skill, i) => (
+                                        <span 
+                                            key={`a-${i}`} 
+                                            style={{ animationDelay: `${i * 30}ms` }}
+                                            className="animate-tag opacity-0 px-4 py-2 text-[10px] bg-zinc-900/50 border border-zinc-800 text-zinc-400 font-bold transition-all cursor-default hover:border-zinc-500 hover:text-zinc-200 hover:scale-105 duration-200"
+                                        >
+                                            {skill.toUpperCase()}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Footer */}
+                        <div className="mt-12 pt-10 border-t border-zinc-800 text-center space-y-4 opacity-60">
+                            <div className="text-[9px] font-bold tracking-[0.6em] uppercase">
+                                | {DATA.email} |
+                            </div>
+                        </div>
+                    </main>
+
+                    {/* Navigation Bottom Bar with Slide-Up staggered items */}
+                    <div className="fixed bottom-0 left-0 w-full z-[100] flex flex-col items-center"
+                         onMouseEnter={() => setIsMenuOpen(true)}
+                         onMouseLeave={() => setIsMenuOpen(false)}>
+                        
+                        {isMenuOpen && (
+                            <nav className="w-full max-w-5xl bg-[#0a0a0a] border border-red-600/30 border-b-0 rounded-t-[2rem] flex flex-wrap justify-evenly items-center p-10 gap-6 shadow-2xl animate-in slide-in-from-bottom-10">
+                                {DATA.quickLinks.map((link, i) => (
+                                    <a 
+                                        key={i} 
+                                        href={link.url} 
+                                        style={{ animationDelay: `${i * 50}ms` }}
+                                        className="animate-nav-item opacity-0 flex items-center gap-4 px-6 py-4 rounded-xl bg-zinc-900 border border-zinc-800 hover:border-red-600 hover:bg-red-600/5 transition-all group font-black text-[10px] uppercase tracking-widest w-full md:w-auto text-center hover:scale-105 active:scale-95"
+                                    >
+                                        <i data-lucide={link.icon} className="text-zinc-600 group-hover:text-red-600" style={{width: '14px', height: '14px'}}></i> {link.name}
+                                    </a>
+                                ))}
+                            </nav>
+                        )}
+
+                        <div className={`w-full py-5 text-center font-black tracking-[0.8em] text-[10px] transition-all duration-500 cursor-pointer ${isMenuOpen ? 'bg-white text-black' : 'bg-red-600 text-white shadow-lg'}`}>
+                            NAV [^]
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
 </body>
-<!-- Thanks @netspooky for the dope layout!!  -->
-<!-- Thank you @corg_e for a great idea for a portfolio website  -->
 </html>

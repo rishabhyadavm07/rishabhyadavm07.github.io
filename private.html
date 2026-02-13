@@ -3,18 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>//////</title>
+    <title>Private Section | fanaticalnerd</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        
-        body { 
-            background-color: #050505; 
-            color: #d4d4d4; 
-            font-family: 'Courier New', Courier, monospace; 
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700;800&display=swap');
+
+        body {
+            background-color: #050505;
+            color: #d4d4d4;
+            font-family: 'JetBrains+Mono', monospace;
+            margin: 0;
+            overflow-x: hidden;
         }
+
+        .scanline {
+            width: 100%;
+            height: 2px;
+            background: #dc2626;
+            opacity: 0.1;
+            position: fixed;
+            z-index: 50;
+            pointer-events: none;
+            animation: scan 10s linear infinite;
+        }
+
+        @keyframes scan {
+            0% { top: -10%; }
+            100% { top: 110%; }
+        }
+
         .hidden { display: none !important; }
-        
-        
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(5px); }
             to { opacity: 1; transform: translateY(0); }
@@ -23,655 +44,595 @@
             animation: fadeIn 0.4s ease-out forwards;
         }
 
-       
-        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: #0a0a0a; }
-        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #dc2626; }
         ::-webkit-scrollbar-thumb:hover { background: #7f1d1d; }
 
-        .modal-backdrop { background: rgba(0,0,0,0.8); }
+        .modal-backdrop { background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); }
         
-        
-        .calendar-day { transition: all 0.2s; position: relative; }
-        
-      
-        
-       
+        .calendar-day { transition: all 0.2s; position: relative; cursor: pointer; }
         .calendar-day.perfect { 
-            background-color: #064e3b; /* Deep Green */
+            background-color: #064e3b; 
             color: #a7f3d0; 
             border: 1px solid #059669; 
             box-shadow: 0 0 10px rgba(5, 150, 105, 0.2);
         }
-        
-       
         .calendar-day.partial { 
-            background-color: #451a03; /* Deep Orange/Brown */
+            background-color: #451a03; 
             color: #fdba74; 
             border: 1px solid #d97706; 
         }
-
-       
         .calendar-day.selected { 
             border: 1px dashed white !important; 
             background-color: rgba(255,255,255,0.1);
         }
-
-       
         .calendar-day.today::after {
             content: ''; position: absolute; bottom: 2px; right: 2px;
-            width: 4px; height: 4px; background: white; border-radius: 50%;
+            width: 4px; height: 4px; background: #dc2626; border-radius: 50%;
         }
-        
-     
-        .calendar-day.valid:hover { background-color: rgba(255, 255, 255, 0.1); cursor: pointer; border-color: #999; }
-        
-       
+        .calendar-day.valid:hover { background-color: rgba(220, 38, 38, 0.1); border-color: #dc2626; }
         .calendar-day.future { 
             opacity: 0.15; 
             cursor: not-allowed; 
             background: repeating-linear-gradient(45deg, transparent, transparent 2px, #222 2px, #222 4px);
         }
 
-        
         .habit-btn {
             transition: all 0.2s;
             opacity: 0.4;
             filter: grayscale(100%);
-            border: 1px solid #333;
+            border: 1px solid #1f2937;
         }
         .habit-btn:hover { opacity: 0.7; }
-        
-        /* Active States */
         .habit-btn.active { opacity: 1; filter: grayscale(0%); transform: scale(1.02); }
-        
-        /* Specific Colors */
-        .habit-btn.btn-physical.active { background-color: #450a0a; border-color: #ef4444; color: #fca5a5; box-shadow: 0 0 8px rgba(239, 68, 68, 0.3); }
-        .habit-btn.btn-nonut.active { background-color: #312e81; border-color: #818cf8; color: #c7d2fe; box-shadow: 0 0 8px rgba(129, 140, 248, 0.3); }
-        .habit-btn.btn-cloud.active { background-color: #0e7490; border-color: #22d3ee; color: #a5f3fc; box-shadow: 0 0 8px rgba(34, 211, 238, 0.3); }
+        .habit-btn.btn-physical.active { background-color: #450a0a; border-color: #ef4444; color: #fca5a5; }
+        .habit-btn.btn-nonut.active { background-color: #312e81; border-color: #818cf8; color: #c7d2fe; }
+        .habit-btn.btn-cloud.active { background-color: #0e7490; border-color: #22d3ee; color: #a5f3fc; }
+
+        /* Bottom Nav Entrance Animation */
+        @keyframes nav-slide-up {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-nav-item {
+            animation: nav-slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .tactical-panel {
+            background: rgba(10, 10, 10, 0.95);
+            border: 1px solid #1f2937;
+            backdrop-filter: blur(10px);
+        }
     </style>
 </head>
-<body class="flex flex-col items-center justify-center min-h-screen p-6 selection:bg-red-900 selection:text-white">
+<body class="flex flex-col items-center min-h-screen p-6 selection:bg-red-900 selection:text-white">
+    <div class="scanline"></div>
+    
+    <!-- Background Glow -->
+    <div class="fixed inset-0 pointer-events-none overflow-hidden -z-10">
+        <div class="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-red-600/5 blur-[120px] rounded-full"></div>
+        <div class="absolute bottom-[-5%] right-[-5%] w-[40%] h-[40%] bg-slate-800/10 blur-[100px] rounded-full"></div>
+    </div>
 
-    <div id="auth-section" class="w-full max-w-sm p-10 bg-neutral-950 border border-neutral-800 relative">
+    <!-- AUTH SECTION -->
+    <div id="auth-section" class="w-full max-w-sm p-10 bg-neutral-950 border border-neutral-800 relative mt-20 shadow-2xl">
         <div class="absolute top-0 left-0 w-full h-1 bg-red-800"></div>
-        <h2 class="text-xl font-bold mb-8 text-white tracking-widest uppercase text-center">Private Section</h2>
-        
+        <div class="text-center mb-8">
+            <i data-lucide="lock" class="mx-auto text-red-600 mb-4" style="width: 32px; height: 32px;"></i>
+            <h2 class="text-xl font-bold text-white tracking-[0.3em] uppercase">Private Access</h2>
+            <p class="text-zinc-600 text-[10px] mt-2 tracking-widest uppercase italic">Authentication_Required</p>
+        </div>
+                
         <form id="login-form" class="flex flex-col gap-6">
             <div class="relative group">
                 <input type="email" id="email" autocomplete="username" required placeholder=" " 
-                    class="block w-full px-4 py-3 bg-[#0a0a0a] border border-neutral-800 text-white focus:outline-none focus:border-red-700 focus:ring-1 focus:ring-red-900 transition-all peer">
+                    class="block w-full px-4 py-3 bg-[#0a0a0a] border border-neutral-800 text-white focus:outline-none focus:border-red-700 transition-all peer">
                 <label class="absolute text-sm text-neutral-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-neutral-950 px-2 peer-focus:px-2 peer-focus:text-red-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-3">
-                    NAME
+                    IDENTITY
                 </label>
             </div>
-            
+                        
             <div class="relative group">
                 <input type="password" id="password" autocomplete="current-password" required placeholder=" " 
-                    class="block w-full px-4 py-3 bg-[#0a0a0a] border border-neutral-800 text-white focus:outline-none focus:border-red-700 focus:ring-1 focus:ring-red-900 transition-all peer">
+                    class="block w-full px-4 py-3 bg-[#0a0a0a] border border-neutral-800 text-white focus:outline-none focus:border-red-700 transition-all peer">
                 <label class="absolute text-sm text-neutral-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-neutral-950 px-2 peer-focus:px-2 peer-focus:text-red-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-3">
                     PASSPHRASE
                 </label>
             </div>
-            
-            <button type="submit" id="submit-btn" class="relative w-full bg-neutral-900 hover:bg-red-900 border border-neutral-700 hover:border-red-600 text-neutral-300 hover:text-white font-bold py-3 uppercase tracking-wider transition-all duration-300 mt-2 shadow-[0_0_10px_rgba(255,0,0,0.1)] hover:shadow-[0_0_20px_rgba(255,0,0,0.4)]">
+                        
+            <button type="submit" id="submit-btn" class="w-full bg-neutral-900 hover:bg-red-900 border border-neutral-700 hover:border-red-600 text-neutral-300 hover:text-white font-bold py-3 uppercase tracking-wider transition-all duration-300 mt-2">
                 TURN IN
             </button>
         </form>
-        <p id="error-message" class="text-red-500 text-xs mt-6 text-center hidden border-l-2 border-red-600 pl-2 bg-red-900/10 py-2"></p>
+        <p id="error-message" class="text-red-500 text-xs mt-6 text-center hidden border-l-2 border-red-600 pl-2 bg-red-900/10 py-2 font-mono uppercase"></p>
     </div>
 
-    <div id="dashboard-section" class="w-full max-w-6xl hidden animate-fade-in">
-        
-        <div class="flex flex-col md:flex-row justify-between items-end mb-10 border-b border-neutral-800 pb-4">
-            <div>
-                <h1 class="text-3xl font-bold text-white tracking-tight">PRIVATE SECTION</h1>
-                <div class="flex items-center gap-2 mt-2">
-                    <div class="w-2 h-2 bg-red-600 rounded-full animate-pulse"></div>
-                    <p class="text-xs text-neutral-500 uppercase tracking-widest" id="user-email-display">Connecting...</p>
+    <!-- DASHBOARD SECTION -->
+    <div id="dashboard-section" class="w-full max-w-6xl hidden animate-fade-in mb-32">
+        <div class="flex flex-col md:flex-row justify-between items-end mb-10 border-b border-neutral-800 pb-8">
+            <div class="space-y-3">
+                <h1 class="text-4xl md:text-6xl font-black text-white tracking-tighter uppercase">Private_Section</h1>
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-2">
+                        <div class="w-2 h-2 bg-green-600 rounded-full animate-pulse"></div>
+                        <p class="text-[10px] text-neutral-500 uppercase tracking-widest font-mono" id="user-email-display">Connecting...</p>
+                    </div>
+                    <div class="text-red-600 text-[10px] font-black tracking-[0.2em] uppercase bg-red-600/5 px-3 py-1 border border-red-600/20">
+                        PERFECT_STREAK: <span id="streak-counter">0 DAYS</span>
+                    </div>
                 </div>
             </div>
-            <div class="flex gap-6 items-center">
-                <div class="flex flex-col items-end border-r border-neutral-800 pr-6">
-                    <span class="text-[10px] text-neutral-600 uppercase tracking-widest">Perfect Streak</span>
-                    <span id="streak-counter" class="text-xl font-bold text-green-600 font-mono">0 DAYS</span>
-                </div>
-                
-                <div class="flex gap-4 items-center">
-                    <a href="journal.html" class="text-xs text-neutral-500 hover:text-red-500 hover:underline tracking-widest uppercase transition">Journal</a>
-                    
-                    <button id="refresh-btn" class="text-xs text-neutral-500 hover:text-red-500 hover:underline tracking-widest uppercase transition">Refresh</button>
-                    <button id="logout-btn" class="text-xs text-neutral-500 hover:text-red-500 hover:underline tracking-widest uppercase transition">End Session</button>
-                </div>
+            <div class="flex gap-4 items-center mt-6 md:mt-0">
+                <button id="refresh-btn" class="text-[10px] font-bold text-neutral-500 hover:text-white uppercase tracking-widest transition">[ REFRESH ]</button>
+                <button id="logout-btn" class="text-[10px] font-bold text-red-900 hover:text-red-500 uppercase tracking-widest transition">[ END SESSION ]</button>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+            <!-- Sidebar: Protocol Log -->
             <div class="lg:col-span-1 space-y-8">
-                
-                <div class="bg-neutral-950 border border-neutral-800 p-6 sticky top-6">
-                    <h3 class="text-sm font-bold text-neutral-400 mb-4 uppercase tracking-wider border-l-2 border-green-700 pl-3 flex justify-between">
-                        <span>Protocol Log</span>
-                        <span id="current-month-display" class="text-neutral-600 font-mono"></span>
-                    </h3>
-                    
-                    <div class="grid grid-cols-7 gap-1 mb-2 text-center text-[10px] text-neutral-600 font-mono">
+                <div class="bg-neutral-950 border border-neutral-800 p-8 shadow-xl">
+                    <div class="flex items-center justify-between mb-8 border-b border-neutral-900 pb-4">
+                        <h3 class="text-red-600 text-[10px] font-black tracking-widest uppercase">01 // Protocol_Log</h3>
+                        <span id="current-month-display" class="text-neutral-600 font-mono text-[10px] font-bold"></span>
+                    </div>
+                                        
+                    <div class="grid grid-cols-7 gap-1 mb-4 text-center text-[10px] text-neutral-700 font-bold">
                         <div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div>
                     </div>
-                    <div id="calendar-grid" class="grid grid-cols-7 gap-1 font-mono text-xs">
-                        </div>
-                    
-                    <div class="mt-4 flex justify-between items-center text-[10px] text-neutral-500 mb-4">
-                        <button id="prev-month" class="hover:text-white">&lt; PREV</button>
-                        <button id="next-month" class="hover:text-white">NEXT &gt;</button>
+                    <div id="calendar-grid" class="grid grid-cols-7 gap-1 font-mono"></div>
+                                        
+                    <div class="mt-6 flex justify-between items-center text-[10px] font-bold text-neutral-500">
+                        <button id="prev-month" class="hover:text-red-600 transition-colors">&lt; PREV</button>
+                        <button id="next-month" class="hover:text-red-600 transition-colors">NEXT &gt;</button>
                     </div>
 
-                    <div id="habit-panel" class="hidden border-t border-neutral-800 pt-4 animate-fade-in">
-                        <p class="text-[10px] text-neutral-500 uppercase tracking-widest mb-3 text-center">Log for: <span id="selected-date-display" class="text-white"></span></p>
-                        
-                        <div class="space-y-2 mb-4">
-                            <button id="btn-physical" class="habit-btn btn-physical w-full py-3 px-4 flex items-center justify-between text-xs font-bold uppercase tracking-widest bg-neutral-900 text-neutral-500">
+                    <div id="habit-panel" class="hidden border-t border-neutral-900 mt-10 pt-6 animate-fade-in">
+                        <p class="text-[9px] text-neutral-500 uppercase tracking-widest mb-6 border-b border-neutral-900 pb-2">Target: <span id="selected-date-display" class="text-white"></span></p>
+                                                
+                        <div class="space-y-3 mb-6">
+                            <button id="btn-physical" class="habit-btn btn-physical w-full py-4 px-5 flex items-center justify-between text-[10px] font-black uppercase tracking-widest bg-neutral-900">
                                 <span>Protocol Alpha</span>
-                                <div class="w-2 h-2 rounded-full bg-red-600"></div>
+                                <div class="w-1.5 h-1.5 rounded-full bg-red-600"></div>
                             </button>
-                            
-                            <button id="btn-nonut" class="habit-btn btn-nonut w-full py-3 px-4 flex items-center justify-between text-xs font-bold uppercase tracking-widest bg-neutral-900 text-neutral-500">
+                            <button id="btn-nonut" class="habit-btn btn-nonut w-full py-4 px-5 flex items-center justify-between text-[10px] font-black uppercase tracking-widest bg-neutral-900">
                                 <span>Signal Discipline</span>
-                                <div class="w-2 h-2 rounded-full bg-indigo-500"></div>
+                                <div class="w-1.5 h-1.5 rounded-full bg-indigo-500"></div>
                             </button>
-                            
-                            <button id="btn-cloud" class="habit-btn btn-cloud w-full py-3 px-4 flex items-center justify-between text-xs font-bold uppercase tracking-widest bg-neutral-900 text-neutral-500">
+                            <button id="btn-cloud" class="habit-btn btn-cloud w-full py-4 px-5 flex items-center justify-between text-[10px] font-black uppercase tracking-widest bg-neutral-900">
                                 <span>Project Atlas</span>
-                                <div class="w-2 h-2 rounded-full bg-cyan-600"></div>
+                                <div class="w-1.5 h-1.5 rounded-full bg-cyan-600"></div>
                             </button>
                         </div>
 
-                        <div class="mb-4 pt-2 border-t border-neutral-900">
-                            <label class="block text-[10px] text-neutral-500 uppercase tracking-widest mb-1">Daily Count</label>
-                            <div class="flex items-center">
-                                <input type="number" id="counter-input" min="0" placeholder="0" 
-                                class="w-full bg-neutral-900 border border-neutral-800 text-white p-2 text-center font-mono text-sm focus:border-red-900 focus:outline-none focus:bg-neutral-800 transition">
-                            </div>
+                        <div class="mb-6 pt-4 border-t border-neutral-900">
+                            <label class="block text-[10px] text-neutral-500 uppercase tracking-widest mb-2">Daily Count</label>
+                            <input type="number" id="counter-input" min="0" placeholder="0"
+                                class="w-full bg-neutral-900 border border-neutral-800 text-white p-3 text-center font-mono text-sm focus:border-red-900 outline-none transition">
                         </div>
 
-                        <button id="confirm-log-btn" class="w-full bg-neutral-800 hover:bg-white hover:text-black text-white font-bold py-2 text-xs uppercase tracking-widest transition shadow-[0_0_10px_rgba(255,255,255,0.1)]">
+                        <button id="confirm-log-btn" class="w-full bg-red-800 hover:bg-white hover:text-black text-white font-black py-4 text-[10px] uppercase tracking-widest transition shadow-lg">
                             Update Log
                         </button>
                     </div>
                 </div>
-
             </div>
 
-            <div class="lg:col-span-2">
-                
-                <div class="bg-neutral-950 border border-neutral-800 p-6 mb-8">
-                    <h3 class="text-sm font-bold text-neutral-400 mb-6 uppercase tracking-wider border-l-2 border-red-700 pl-3">New Note</h3>
-                    <input type="text" id="note-title" placeholder="SUBJECT" class="w-full mb-4 p-3 bg-[#0a0a0a] border border-neutral-800 text-white placeholder-neutral-600 focus:outline-none focus:border-red-800 transition text-sm shadow-inner">
-                    <textarea id="note-content" placeholder="DATA STREAM..." class="w-full mb-4 p-3 bg-[#0a0a0a] border border-neutral-800 text-white placeholder-neutral-600 h-24 focus:outline-none focus:border-red-800 transition text-sm font-mono resize-none shadow-inner"></textarea>
-                    <button id="add-note-btn" class="w-full bg-red-900/20 hover:bg-red-900/40 border border-red-900/50 hover:border-red-600 text-red-500 hover:text-white font-bold py-3 text-xs uppercase tracking-widest transition-all duration-300">
+            <!-- Main: Data Stream -->
+            <div class="lg:col-span-2 space-y-10">
+                <div class="bg-neutral-950 border border-neutral-800 p-8 shadow-xl">
+                    <h3 class="text-red-600 text-[10px] font-black tracking-widest uppercase mb-8 border-l-2 border-red-600 pl-4">New_Packet</h3>
+                    <input type="text" id="note-title" placeholder="SUBJECT" class="w-full mb-4 p-4 bg-[#0a0a0a] border border-neutral-800 text-white font-bold tracking-widest focus:outline-none focus:border-red-800 transition text-sm">
+                    <textarea id="note-content" placeholder="DATA STREAM..." class="w-full mb-6 p-4 bg-[#0a0a0a] border border-neutral-800 text-white h-32 focus:outline-none focus:border-red-800 transition text-sm font-mono resize-none custom-scrollbar"></textarea>
+                    <button id="add-note-btn" class="w-full bg-red-900/10 hover:bg-red-900/40 border border-red-900/30 hover:border-red-600 text-red-500 hover:text-white font-black py-4 text-[10px] uppercase tracking-[0.3em] transition-all duration-300">
                         Upload Note
                     </button>
                 </div>
 
-                <h3 class="text-sm font-bold text-neutral-600 mb-6 uppercase tracking-wider flex items-center justify-between">
-                    <span>Notes</span>
-                    <span class="text-[10px] text-neutral-700">REALTIME CONNECTION: ACTIVE</span>
-                </h3>
-                <div id="notes-container" class="space-y-4"></div>
+                <div class="space-y-6">
+                    <h3 class="text-[10px] font-black text-neutral-600 uppercase tracking-[0.3em] flex items-center justify-between px-2">
+                        <span>Stored_Packets</span>
+                        <span class="text-red-900 animate-pulse">Realtime_Link: Active</span>
+                    </h3>
+                    <div id="notes-container" class="space-y-4"></div>
+                </div>
             </div>
         </div>
     </div>
 
-    <div id="edit-modal" class="fixed inset-0 hidden items-center justify-center modal-backdrop z-50">
-        <div class="bg-neutral-950 border border-neutral-800 p-6 w-full max-w-lg shadow-[0_0_50px_rgba(0,0,0,1)]">
-            <h4 class="text-white text-lg font-bold mb-4 border-b border-neutral-800 pb-2">Edit Log</h4>
-            <input id="edit-title" class="w-full mb-3 p-2 bg-[#0a0a0a] border border-neutral-800 text-white font-mono text-sm" />
-            <textarea id="edit-content" class="w-full mb-3 p-2 bg-[#0a0a0a] border border-neutral-800 text-white h-36 font-mono text-sm"></textarea>
-            <div class="flex justify-end gap-3">
-                <button id="cancel-edit" class="px-4 py-2 text-xs uppercase tracking-wider text-neutral-400 hover:text-white border border-transparent hover:border-neutral-700 transition">Cancel</button>
-                <button id="save-edit" class="px-4 py-2 bg-red-900/80 hover:bg-red-800 text-white text-xs uppercase tracking-wider border border-red-700 transition">Save Changes</button>
+    <!-- Edit Modal -->
+    <div id="edit-modal" class="fixed inset-0 hidden items-center justify-center modal-backdrop z-50 p-6">
+        <div class="bg-neutral-950 border border-neutral-800 p-10 w-full max-w-2xl shadow-2xl relative">
+            <div class="absolute top-0 left-0 w-full h-1 bg-red-800"></div>
+            <h4 class="text-white text-sm font-black mb-8 uppercase tracking-widest border-l-2 border-red-600 pl-4">Packet_Modification</h4>
+            <input id="edit-title" class="w-full mb-4 p-4 bg-[#0a0a0a] border border-neutral-800 text-white font-bold tracking-widest focus:border-red-800 outline-none text-sm uppercase" />
+            <textarea id="edit-content" class="w-full mb-8 p-4 bg-[#0a0a0a] border border-neutral-800 text-white h-64 font-mono text-sm focus:border-red-800 outline-none custom-scrollbar"></textarea>
+            <div class="flex justify-end gap-8">
+                <button id="cancel-edit" class="text-[10px] font-bold uppercase tracking-widest text-neutral-600 hover:text-white transition">Discard</button>
+                <button id="save-edit" class="bg-red-800 hover:bg-red-600 text-white px-10 py-3 text-[10px] font-black uppercase tracking-widest transition">Save Archive</button>
             </div>
+        </div>
+    </div>
+
+    <!-- AUTOMATIONS BOTTOM BAR -->
+    <div id="bottom-nav" class="fixed bottom-0 left-0 w-full z-[100] flex flex-col items-center">
+        <nav id="nav-menu" class="hidden w-full max-w-5xl bg-[#0a0a0a] border border-red-600/30 border-b-0 rounded-t-[2rem] flex flex-wrap justify-evenly items-center p-10 gap-6 shadow-2xl">
+            <!-- Nav links populated via script for synchronization -->
+        </nav>
+        <div id="nav-trigger" class="w-full py-5 text-center font-black tracking-[0.8em] text-[10px] transition-all duration-700 cursor-pointer bg-red-600 text-white shadow-lg">
+            NAV [^]
         </div>
     </div>
 
     <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
-    import { 
-        getFirestore, collection, addDoc, query, orderBy, onSnapshot, 
-        serverTimestamp, where, deleteDoc, doc, updateDoc, getDocs, setDoc, getDoc, arrayUnion, arrayRemove
-    } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+        import { 
+            getFirestore, collection, addDoc, query, orderBy, onSnapshot, 
+            serverTimestamp, where, deleteDoc, doc, updateDoc, setDoc
+        } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyCy8XWCEYJ4aOSPn-XTxox8v0QTgMDbX_w",
-        authDomain: "my-portfolio-notes.firebaseapp.com",
-        projectId: "my-portfolio-notes",
-        storageBucket: "my-portfolio-notes.firebasestorage.app",
-        messagingSenderId: "372485530630",
-        appId: "1:372485530630:web:d53f7c955e5010b9390f87"
-    };
+        const firebaseConfig = {
+            apiKey: "AIzaSyCy8XWCEYJ4aOSPn-XTxox8v0QTgMDbX_w",
+            authDomain: "my-portfolio-notes.firebaseapp.com",
+            projectId: "my-portfolio-notes",
+            storageBucket: "my-portfolio-notes.firebasestorage.app",
+            messagingSenderId: "372485530630",
+            appId: "1:372485530630:web:d53f7c955e5010b9390f87"
+        };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
-    let currentUser = null;
-    let unsubscribeNotes = null;
+        let currentUser = null;
+        let unsubscribeNotes = null;
 
-   
-    const authSection = document.getElementById('auth-section');
-    const dashboardSection = document.getElementById('dashboard-section');
-    const loginForm = document.getElementById('login-form');
-    const submitBtn = document.getElementById('submit-btn');
-    const errorMessage = document.getElementById('error-message');
-    const logoutBtn = document.getElementById('logout-btn');
-    const addNoteBtn = document.getElementById('add-note-btn');
-    const notesContainer = document.getElementById('notes-container');
-    const userEmailDisplay = document.getElementById('user-email-display');
-    const refreshBtn = document.getElementById('refresh-btn');
-    const streakCounter = document.getElementById('streak-counter');
+        const authSection = document.getElementById('auth-section');
+        const dashboardSection = document.getElementById('dashboard-section');
+        const loginForm = document.getElementById('login-form');
+        const submitBtn = document.getElementById('submit-btn');
+        const errorMessage = document.getElementById('error-message');
+        const logoutBtn = document.getElementById('logout-btn');
+        const addNoteBtn = document.getElementById('add-note-btn');
+        const notesContainer = document.getElementById('notes-container');
+        const userEmailDisplay = document.getElementById('user-email-display');
+        const refreshBtn = document.getElementById('refresh-btn');
+        const streakCounter = document.getElementById('streak-counter');
 
-    // Calendar Elements
-    const calendarGrid = document.getElementById('calendar-grid');
-    const currentMonthDisplay = document.getElementById('current-month-display');
-    const prevMonthBtn = document.getElementById('prev-month');
-    const nextMonthBtn = document.getElementById('next-month');
-    
-    // Habit Elements
-    const habitPanel = document.getElementById('habit-panel');
-    const selectedDateDisplay = document.getElementById('selected-date-display');
-    const confirmLogBtn = document.getElementById('confirm-log-btn');
-    const btnPhysical = document.getElementById('btn-physical');
-    const btnNoNut = document.getElementById('btn-nonut');
-    const btnCloud = document.getElementById('btn-cloud');
-    const counterInput = document.getElementById('counter-input'); 
+        // Calendar Elements
+        const calendarGrid = document.getElementById('calendar-grid');
+        const currentMonthDisplay = document.getElementById('current-month-display');
+        const prevMonthBtn = document.getElementById('prev-month');
+        const nextMonthBtn = document.getElementById('next-month');
 
-    let calendarDate = new Date(); 
-    let userLogs = {}; 
-    let userCounts = {}; 
-    let selectedDateKey = null;     
-    let currentSelection = new Set(); 
+        // Habit Elements
+        const habitPanel = document.getElementById('habit-panel');
+        const selectedDateDisplay = document.getElementById('selected-date-display');
+        const confirmLogBtn = document.getElementById('confirm-log-btn');
+        const btnPhysical = document.getElementById('btn-physical');
+        const btnNoNut = document.getElementById('btn-nonut');
+        const btnCloud = document.getElementById('btn-cloud');
+        const counterInput = document.getElementById('counter-input');
 
-    // --- AUTHENTICATION ---
-    loginForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
+        let calendarDate = new Date();
+        let userLogs = {};
+        let userCounts = {};
+        let selectedDateKey = null;
+        let currentSelection = new Set();
+
+        // Synchronized Nav Links
+        const navLinks = [
+            { name: "HOME", icon: "home", url: "index.html" },
+            { name: "JOB DASHBOARD", icon: "activity", url: "jobs.html" },
+            { name: "INTEL", icon: "radar", url: "intel.html" },
+            { name: "BLOGS", icon: "book-open", url: "blogs.html" },
+            { name: "REPORTS", icon: "file-text", url: "Disclosed-Reports/reports_index.html" },
+            { name: "JOURNAL", icon: "book", url: "journal.html" },
+            // { name: "PRIVATE", icon: "lock", url: "private.html" }
+        ];
+
+        // --- BOTTOM NAV LOGIC ---
+        const bottomNavTrigger = document.getElementById('nav-trigger');
+        const navMenu = document.getElementById('nav-menu');
+        const bottomNavContainer = document.getElementById('bottom-nav');
         
-        errorMessage.classList.add('hidden');
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = "<span class='animate-pulse'>VERIFYING CREDENTIALS...</span>";
+        const populateNav = () => {
+            navMenu.innerHTML = navLinks.map((link, i) => `
+                <a href="${link.url}" style="animation-delay: ${i * 50}ms" class="animate-nav-item opacity-0 flex items-center gap-4 px-6 py-4 rounded-xl bg-zinc-900 border border-zinc-800 hover:border-red-600 hover:bg-red-600/5 transition-all group font-black text-[10px] uppercase tracking-widest w-full md:w-auto text-center hover:scale-105 active:scale-95">
+                    <i data-lucide="${link.icon}" class="text-zinc-600 group-hover:text-red-600" style="width:14px; height: 14px"></i>
+                    ${link.name}
+                </a>
+            `).join('');
+            lucide.createIcons();
+        };
 
-        try {
-            await signInWithEmailAndPassword(auth, email, password);
-        } catch (error) {
-            console.error(error);
-            errorMessage.textContent = "ACCESS DENIED: INVALID CREDENTIALS";
-            errorMessage.classList.remove('hidden');
-        } finally {
-            submitBtn.disabled = false;
-            submitBtn.textContent = "TURN IN";
-        }
-    });
-
-    logoutBtn.addEventListener('click', () => signOut(auth));
-
-    onAuthStateChanged(auth, async (user) => {
-        if (!user && unsubscribeNotes) {
-            unsubscribeNotes();
-            unsubscribeNotes = null;
-        }
-
-        currentUser = user;
-        if (user) {
-            authSection.classList.add('hidden');
-            dashboardSection.classList.remove('hidden');
-            userEmailDisplay.textContent = "OPERATOR: " + user.email;
-            
-            initNotesSystem();
-            initHabitSystem(); 
-        } else {
-            authSection.classList.remove('hidden');
-            dashboardSection.classList.add('hidden');
-            notesContainer.innerHTML = '';
-        }
-    });
-
-    // ==========================================
-  
-
-    async function initHabitSystem() {
-        const docRef = doc(db, "user_habits_v2", currentUser.uid);
-        
-        onSnapshot(docRef, (docSnap) => {
-            if (docSnap.exists()) {
-                const data = docSnap.data();
-                userLogs = data.logs || {}; 
-                userCounts = data.counts || {}; 
+        const toggleMenu = (open) => {
+            if (open) {
+                navMenu.classList.remove('hidden');
+                bottomNavTrigger.classList.add('bg-white', 'text-black');
+                bottomNavTrigger.classList.remove('bg-red-600', 'text-white');
             } else {
-                userLogs = {};
-                userCounts = {};
+                navMenu.classList.add('hidden');
+                bottomNavTrigger.classList.remove('bg-white', 'text-black');
+                bottomNavTrigger.classList.add('bg-red-600', 'text-white');
             }
-            renderCalendar();
-            calculateStreak();
-            
-            if(selectedDateKey) {
-                openHabitPanel(selectedDateKey);
+        };
+
+        bottomNavContainer.addEventListener('mouseenter', () => toggleMenu(true));
+        bottomNavContainer.addEventListener('mouseleave', () => toggleMenu(false));
+
+        // --- AUTHENTICATION ---
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            errorMessage.classList.add('hidden');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = "<span class='animate-pulse'>VERIFYING CREDENTIALS...</span>";
+
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+            } catch (error) {
+                errorMessage.textContent = "ACCESS DENIED: UNAUTHORIZED_IDENTITY";
+                errorMessage.classList.remove('hidden');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = "TURN IN";
             }
         });
 
-        prevMonthBtn.onclick = () => { calendarDate.setMonth(calendarDate.getMonth() - 1); renderCalendar(); };
-        nextMonthBtn.onclick = () => { calendarDate.setMonth(calendarDate.getMonth() + 1); renderCalendar(); };
-        
-        btnPhysical.onclick = () => toggleHabit(btnPhysical, 'physical');
-        btnNoNut.onclick = () => toggleHabit(btnNoNut, 'nonut');
-        btnCloud.onclick = () => toggleHabit(btnCloud, 'cloud');
-        
-        confirmLogBtn.onclick = submitLog;
-    }
+        logoutBtn.addEventListener('click', () => signOut(auth));
 
-    function toggleHabit(btn, habitName) {
-        if(currentSelection.has(habitName)) {
-            currentSelection.delete(habitName);
-            btn.classList.remove('active');
-        } else {
-            currentSelection.add(habitName);
-            btn.classList.add('active');
-        }
-    }
-
-    function renderCalendar() {
-        calendarGrid.innerHTML = "";
-        
-        const year = calendarDate.getFullYear();
-        const month = calendarDate.getMonth();
-        
-        const monthNames = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
-        currentMonthDisplay.textContent = `${monthNames[month]} ${year}`;
-
-        const firstDay = new Date(year, month, 1).getDay();
-        const daysInMonth = new Date(year, month + 1, 0).getDate();
-        
-        const today = new Date();
-        today.setHours(0,0,0,0);
-
-        for (let i = 0; i < firstDay; i++) {
-            const emptyCell = document.createElement("div");
-            emptyCell.className = "p-3 border border-transparent"; 
-            calendarGrid.appendChild(emptyCell);
-        }
-
-        for (let day = 1; day <= daysInMonth; day++) {
-            const cellDate = new Date(year, month, day);
-            cellDate.setHours(0,0,0,0);
-
-            const dateKey = toDateKey(cellDate);
-            const cell = document.createElement("div");
-            
-            cell.className = "calendar-day p-3 border border-neutral-900 bg-neutral-900/30 text-neutral-500 flex items-center justify-center font-mono text-sm";
-            cell.textContent = day;
-
-            if (cellDate.getTime() > today.getTime()) {
-                cell.classList.add("future");
+        onAuthStateChanged(auth, async (user) => {
+            populateNav();
+            if (!user && unsubscribeNotes) {
+                unsubscribeNotes();
+                unsubscribeNotes = null;
+            }
+            currentUser = user;
+            if (user) {
+                authSection.classList.add('hidden');
+                dashboardSection.classList.remove('hidden');
+                userEmailDisplay.textContent = "OPERATOR: " + user.email;
+                initNotesSystem();
+                initHabitSystem();
             } else {
-                cell.classList.add("valid");
-                cell.addEventListener('click', () => {
-                    document.querySelectorAll('.calendar-day').forEach(c => c.classList.remove('selected'));
-                    cell.classList.add('selected');
-                    openHabitPanel(dateKey);
+                authSection.classList.remove('hidden');
+                dashboardSection.classList.add('hidden');
+                notesContainer.innerHTML = '';
+            }
+        });
+
+        // --- HABIT SYSTEM ---
+        async function initHabitSystem() {
+            const docRef = doc(db, "user_habits_v2", currentUser.uid);
+            onSnapshot(docRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    userLogs = data.logs || {};
+                    userCounts = data.counts || {};
+                } else {
+                    userLogs = {};
+                    userCounts = {};
+                }
+                renderCalendar();
+                calculateStreak();
+                if (selectedDateKey) openHabitPanel(selectedDateKey);
+            });
+
+            prevMonthBtn.onclick = () => { calendarDate.setMonth(calendarDate.getMonth() - 1); renderCalendar(); };
+            nextMonthBtn.onclick = () => { calendarDate.setMonth(calendarDate.getMonth() + 1); renderCalendar(); };
+
+            btnPhysical.onclick = () => toggleHabit(btnPhysical, 'physical');
+            btnNoNut.onclick = () => toggleHabit(btnNoNut, 'nonut');
+            btnCloud.onclick = () => toggleHabit(btnCloud, 'cloud');
+            confirmLogBtn.onclick = submitLog;
+        }
+
+        function toggleHabit(btn, habitName) {
+            if (currentSelection.has(habitName)) {
+                currentSelection.delete(habitName);
+                btn.classList.remove('active');
+            } else {
+                currentSelection.add(habitName);
+                btn.classList.add('active');
+            }
+        }
+
+        function renderCalendar() {
+            calendarGrid.innerHTML = "";
+            const year = calendarDate.getFullYear();
+            const month = calendarDate.getMonth();
+            const monthNames = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+            currentMonthDisplay.textContent = `${monthNames[month]} ${year}`;
+
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            for (let i = 0; i < firstDay; i++) {
+                const emptyCell = document.createElement("div");
+                emptyCell.className = "p-3";
+                calendarGrid.appendChild(emptyCell);
+            }
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const cellDate = new Date(year, month, day);
+                cellDate.setHours(0, 0, 0, 0);
+                const dateKey = toDateKey(cellDate);
+                const cell = document.createElement("div");
+                cell.className = "calendar-day p-3 border border-neutral-900 bg-neutral-900/30 text-neutral-500 flex items-center justify-center font-mono text-sm";
+                cell.textContent = day;
+
+                if (cellDate.getTime() > today.getTime()) {
+                    cell.classList.add("future");
+                } else {
+                    cell.classList.add("valid");
+                    cell.onclick = () => {
+                        document.querySelectorAll('.calendar-day').forEach(c => c.classList.remove('selected'));
+                        cell.classList.add('selected');
+                        openHabitPanel(dateKey);
+                    };
+
+                    const loggedHabits = userLogs[dateKey] || [];
+                    if (loggedHabits.length === 3) cell.classList.add('perfect');
+                    else if (loggedHabits.length > 0) cell.classList.add('partial');
+                    if (cellDate.getTime() === today.getTime()) cell.classList.add('today');
+                    if (selectedDateKey === dateKey) cell.classList.add('selected');
+                }
+                calendarGrid.appendChild(cell);
+            }
+        }
+
+        function openHabitPanel(dateKey) {
+            selectedDateKey = dateKey;
+            selectedDateDisplay.textContent = dateKey;
+            habitPanel.classList.remove('hidden');
+            const loggedHabits = userLogs[dateKey] || [];
+            currentSelection = new Set(loggedHabits);
+            counterInput.value = userCounts[dateKey] || "";
+            updateBtnState(btnPhysical, 'physical');
+            updateBtnState(btnNoNut, 'nonut');
+            updateBtnState(btnCloud, 'cloud');
+        }
+
+        function updateBtnState(btn, habitName) {
+            if (currentSelection.has(habitName)) btn.classList.add('active');
+            else btn.classList.remove('active');
+        }
+
+        async function submitLog() {
+            if (!selectedDateKey) return;
+            confirmLogBtn.disabled = true;
+            confirmLogBtn.textContent = "SAVING...";
+            const docRef = doc(db, "user_habits_v2", currentUser.uid);
+            try {
+                await setDoc(docRef, {
+                    logs: { [selectedDateKey]: Array.from(currentSelection) },
+                    counts: { [selectedDateKey]: counterInput.value }
+                }, { merge: true });
+                confirmLogBtn.textContent = "UPDATE LOG";
+            } catch (e) {
+                console.error("Habit update failure:", e);
+            } finally {
+                confirmLogBtn.disabled = false;
+            }
+        }
+
+        function calculateStreak() {
+            const today = new Date();
+            const todayStr = toDateKey(today);
+            let checkDate = new Date();
+            if ((userLogs[todayStr] || []).length < 3) checkDate.setDate(checkDate.getDate() - 1);
+
+            let streak = 0;
+            while (true) {
+                const key = toDateKey(checkDate);
+                if ((userLogs[key] || []).length === 3) {
+                    streak++;
+                    checkDate.setDate(checkDate.getDate() - 1);
+                } else break;
+            }
+            streakCounter.textContent = `${streak} DAYS`;
+        }
+
+        function toDateKey(dateObj) {
+            const y = dateObj.getFullYear();
+            const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+            const d = String(dateObj.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        }
+
+        // --- NOTES SYSTEM ---
+        const editModal = document.getElementById('edit-modal');
+        const editTitle = document.getElementById('edit-title');
+        const editContent = document.getElementById('edit-content');
+        const cancelEditBtn = document.getElementById('cancel-edit');
+        const saveEditBtn = document.getElementById('save-edit');
+        let editingDocId = null;
+
+        refreshBtn.onclick = () => initNotesSystem(true);
+
+        function initNotesSystem(force = false) {
+            if (unsubscribeNotes && !force) return;
+            if (unsubscribeNotes) unsubscribeNotes();
+            const q = query(collection(db, "notes"), where("uid", "==", currentUser.uid), orderBy("createdAt", "desc"));
+            unsubscribeNotes = onSnapshot(q, (snapshot) => {
+                notesContainer.innerHTML = snapshot.empty ? 
+                    '<div class="p-12 text-center border border-dashed border-neutral-800 text-neutral-700 text-[10px] tracking-widest uppercase">No Data Logs Found</div>' : '';
+                snapshot.forEach(docSnap => renderNoteCard(docSnap.id, docSnap.data()));
+            });
+        }
+
+        addNoteBtn.onclick = async () => {
+            const title = document.getElementById('note-title').value.trim();
+            const content = document.getElementById('note-content').value.trim();
+            if (!title || !content) return;
+            addNoteBtn.disabled = true;
+            addNoteBtn.innerHTML = "<span class='animate-pulse'>UPLOADING...</span>";
+            try {
+                await addDoc(collection(db, "notes"), {
+                    title, content, uid: currentUser.uid, createdAt: serverTimestamp()
                 });
+                document.getElementById('note-title').value = '';
+                document.getElementById('note-content').value = '';
+            } catch (e) { console.error(e); }
+            addNoteBtn.disabled = false;
+            addNoteBtn.innerText = "UPLOAD NOTE";
+        };
 
-                const loggedHabits = userLogs[dateKey] || [];
-                
-                if (loggedHabits.length === 3) {
-                    cell.classList.add('perfect');
-                } else if (loggedHabits.length > 0) {
-                    cell.classList.add('partial');
-                }
-
-                if (cellDate.getTime() === today.getTime()) {
-                    cell.classList.add('today');
-                }
-            }
-            
-            calendarGrid.appendChild(cell);
-        }
-    }
-
-    function openHabitPanel(dateKey) {
-        selectedDateKey = dateKey;
-        selectedDateDisplay.textContent = dateKey;
-        habitPanel.classList.remove('hidden');
-
-        const loggedHabits = userLogs[dateKey] || [];
-        currentSelection = new Set(loggedHabits);
-
-        // Set existing count if available
-        const currentCount = userCounts[dateKey] || ""; 
-        counterInput.value = currentCount;
-
-        updateBtnState(btnPhysical, 'physical');
-        updateBtnState(btnNoNut, 'nonut');
-        updateBtnState(btnCloud, 'cloud');
-    }
-
-    function updateBtnState(btn, habitName) {
-        if(currentSelection.has(habitName)) btn.classList.add('active');
-        else btn.classList.remove('active');
-    }
-
-    async function submitLog() {
-        if (!selectedDateKey) return;
-        
-        confirmLogBtn.disabled = true;
-        confirmLogBtn.textContent = "SAVING...";
-        
-        const docRef = doc(db, "user_habits_v2", currentUser.uid);
-        const habitsArray = Array.from(currentSelection);
-        const countValue = counterInput.value; 
-        
-        try {
-            await setDoc(docRef, {
-                logs: {
-                    [selectedDateKey]: habitsArray
-                },
-                counts: {
-                    [selectedDateKey]: countValue 
-                }
-            }, { merge: true });
-            
-            confirmLogBtn.textContent = "UPDATE LOG";
-            
-        } catch (e) {
-            console.error("Habit toggle failed:", e);
-            alert("Error updating log: " + e.message);
-        } finally {
-            confirmLogBtn.disabled = false;
-        }
-    }
-
-    function calculateStreak() {
-        const today = new Date();
-        const todayStr = toDateKey(today);
-        let checkDate = new Date();
-        
-        const todayLogs = userLogs[todayStr] || [];
-        if (todayLogs.length < 3) {
-            checkDate.setDate(checkDate.getDate() - 1);
-        }
-
-        let streak = 0;
-        
-        while (true) {
-            const key = toDateKey(checkDate);
-            const logs = userLogs[key] || [];
-            
-            if (logs.length === 3) {
-                streak++;
-                checkDate.setDate(checkDate.getDate() - 1);
-            } else {
-                break;
-            }
-        }
-
-        streakCounter.textContent = `${streak} DAYS`;
-    }
-
-    function toDateKey(dateObj) {
-        const y = dateObj.getFullYear();
-        const m = String(dateObj.getMonth() + 1).padStart(2, '0');
-        const d = String(dateObj.getDate()).padStart(2, '0');
-        return `${y}-${m}-${d}`;
-    }
-
-    // ==========================================
-    
-    const editModal = document.getElementById('edit-modal');
-    const editTitle = document.getElementById('edit-title');
-    const editContent = document.getElementById('edit-content');
-    const cancelEditBtn = document.getElementById('cancel-edit');
-    const saveEditBtn = document.getElementById('save-edit');
-    let editingDocId = null;
-
-    refreshBtn.addEventListener('click', () => {
-        if (currentUser) initNotesSystem(true);
-    });
-
-    async function initNotesSystem(forceRefresh = false) {
-        if (unsubscribeNotes && !forceRefresh) return;
-        if (unsubscribeNotes) { unsubscribeNotes(); unsubscribeNotes = null; }
-
-        const qRealtime = query(
-            collection(db, "notes"),
-            where("uid", "==", currentUser.uid),
-            orderBy("createdAt", "desc")
-        );
-
-        unsubscribeNotes = onSnapshot(qRealtime, (snapshot) => {
-            if (snapshot.empty) {
-                notesContainer.innerHTML = `
-                    <div class="p-8 text-center border border-dashed border-neutral-800 text-neutral-600 text-xs tracking-widest uppercase">
-                        No Data Logs Found
+        function renderNoteCard(id, data) {
+            const dateStr = data.createdAt?.toDate ? data.createdAt.toDate().toLocaleString() : "SYNCING...";
+            const el = document.createElement('div');
+            el.className = 'tactical-panel p-8 border-neutral-800 group hover:border-red-900/50 transition-all relative overflow-hidden animate-fade-in';
+            el.innerHTML = `
+                <div class="flex justify-between items-start mb-6">
+                    <div class="space-y-1">
+                        <h4 class="text-white text-lg font-bold group-hover:text-red-500 transition-colors uppercase tracking-tight">${data.title}</h4>
+                        <div class="text-[8px] text-neutral-600 font-mono tracking-widest uppercase">PKT_ID: ${id.substring(0,8)}</div>
                     </div>
-                `;
-                return;
+                    <div class="flex gap-4 opacity-0 group-hover:opacity-100 transition-all">
+                        <button data-id="${id}" data-action="edit" class="text-[10px] font-bold text-neutral-600 hover:text-white uppercase tracking-widest">Edit</button>
+                        <button data-id="${id}" data-action="delete" class="text-[10px] font-bold text-red-900 hover:text-red-500 uppercase tracking-widest">Purge</button>
+                    </div>
+                </div>
+                <p class="text-neutral-400 text-sm font-mono leading-relaxed whitespace-pre-wrap">${data.content}</p>
+                <div class="mt-6 pt-4 border-t border-neutral-900 text-[9px] text-zinc-700 flex justify-between font-bold">
+                    <span>TS_UPLINK:</span> <span>${dateStr}</span>
+                </div>
+            `;
+            notesContainer.appendChild(el);
+        }
+
+        document.addEventListener('click', async (e) => {
+            const btn = e.target.closest('button[data-id]');
+            if (!btn) return;
+            const id = btn.dataset.id;
+            const action = btn.dataset.action;
+            if (action === 'delete') {
+                if (confirm('CONFIRM PURGE?')) await deleteDoc(doc(db, 'notes', id));
+            } else if (action === 'edit') {
+                editingDocId = id;
+                const panel = btn.closest('.tactical-panel');
+                editTitle.value = panel.querySelector('h4').textContent;
+                editContent.value = panel.querySelector('p').textContent;
+                editModal.classList.remove('hidden');
+                editModal.classList.add('flex');
             }
-            notesContainer.innerHTML = '';
-            snapshot.forEach((docSnap) => {
-                renderNoteCard(docSnap.id, docSnap.data());
-            });
-        }, (err) => {
-            console.error('Notes Error:', err);
         });
-    }
 
-    addNoteBtn.addEventListener('click', async () => {
-        const title = document.getElementById('note-title').value.trim();
-        const content = document.getElementById('note-content').value.trim();
-        if (!title || !content) return alert("ERROR: EMPTY FIELDS DETECTED");
+        cancelEditBtn.onclick = () => { editModal.classList.add('hidden'); editModal.classList.remove('flex'); };
+        saveEditBtn.onclick = async () => {
+            if (!editingDocId) return;
+            await updateDoc(doc(db, 'notes', editingDocId), { title: editTitle.value, content: editContent.value, updatedAt: serverTimestamp() });
+            editModal.classList.add('hidden'); editModal.classList.remove('flex');
+        };
 
-        addNoteBtn.disabled = true;
-        addNoteBtn.innerHTML = "<span class='animate-pulse'>UPLOADING...</span>";
-        
-        try {
-            await addDoc(collection(db, "notes"), {
-                title, content,
-                createdAt: serverTimestamp(),
-                uid: currentUser.uid,
-                createdByEmail: currentUser.email
-            });
-            document.getElementById('note-title').value = '';
-            document.getElementById('note-content').value = '';
-        } catch (e) {
-            alert("UPLOAD FAILED: " + e.message);
-        }
-        addNoteBtn.disabled = false;
-        addNoteBtn.innerText = "UPLOAD NOTE";
-    });
-
-    function renderNoteCard(id, data) {
-        let dateStr = "SYNCING...";
-        if (data.createdAt && typeof data.createdAt.toDate === 'function') {
-            dateStr = data.createdAt.toDate().toLocaleString('en-GB', { 
-                day: '2-digit', month: '2-digit', year: 'numeric',
-                hour: '2-digit', minute: '2-digit'
-            }).replace(',', ' //');
-        }
-
-        const el = document.createElement('div');
-        el.className = 'group relative bg-neutral-950 border border-neutral-800 hover:border-red-900/50 transition duration-500 animate-fade-in';
-        
-        const corner = `<div class="absolute top-0 right-0 w-2 h-2 border-t border-r border-red-800 opacity-0 group-hover:opacity-100 transition-opacity"></div>`;
-
-        el.innerHTML = `
-            ${corner}
-            <div class="p-5">
-                <div class="flex justify-between items-start mb-3">
-                    <h4 class="font-sans font-bold text-white text-lg tracking-tight group-hover:text-red-500 transition-colors">${escapeHtml(data.title)}</h4>
-                    <span class="text-[10px] text-neutral-600 font-mono border border-neutral-900 px-1 group-hover:border-red-900/30 group-hover:text-red-900 transition-colors">ID:${id.slice(0,4)}</span>
-                </div>
-
-                <div class="flex gap-2 items-start mb-3">
-                    <button data-id="${id}" data-action="edit" class="text-[10px] opacity-0 group-hover:opacity-100 transition text-neutral-400 hover:text-white font-mono uppercase">Edit</button>
-                    <button data-id="${id}" data-action="delete" class="text-[10px] opacity-0 group-hover:opacity-100 transition text-red-900 hover:text-red-500 font-mono uppercase">Delete</button>
-                </div>
-
-                <p class="text-neutral-400 text-sm font-mono whitespace-pre-wrap leading-relaxed">${escapeHtml(data.content)}</p>
-            </div>
-            <div class="px-5 py-2 bg-[#080808] border-t border-neutral-900 flex justify-between items-center text-[10px] text-neutral-600 font-mono">
-                <span class="uppercase">TS: ${dateStr}</span>
-            </div>
-        `;
-        notesContainer.appendChild(el);
-    }
-
-    document.addEventListener('click', async (e) => {
-        const btn = e.target.closest('button[data-id]');
-        if (!btn) return;
-
-        const id = btn.getAttribute('data-id');
-        const action = btn.getAttribute('data-action');
-
-        if (action === 'delete') {
-            if (!confirm('CONFIRM DELETION?')) return;
-            await deleteDoc(doc(db, 'notes', id));
-        }
-
-        if (action === 'edit') {
-            const card = btn.closest('.group');
-            editingDocId = id;
-            editTitle.value = card.querySelector('h4').textContent;
-            editContent.value = card.querySelector('p').textContent;
-            editModal.classList.remove('hidden');
-            editModal.classList.add('flex');
-        }
-    });
-
-    cancelEditBtn.addEventListener('click', () => {
-        editingDocId = null;
-        editModal.classList.add('hidden');
-        editModal.classList.remove('flex');
-    });
-
-    saveEditBtn.addEventListener('click', async () => {
-        if (!editingDocId) return;
-        const title = editTitle.value.trim();
-        const content = editContent.value.trim();
-        if(!title || !content) return;
-
-        await updateDoc(doc(db, 'notes', editingDocId), { 
-            title, content, updatedAt: serverTimestamp() 
-        });
-        
-        editingDocId = null;
-        editModal.classList.add('hidden');
-        editModal.classList.remove('flex');
-    });
-
-    function escapeHtml(str = '') {
-        return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-    }
+        window.onload = () => lucide.createIcons();
     </script>
 </body>
 </html>

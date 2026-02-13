@@ -1,272 +1,247 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>Blog Posts | Rishabh Yadav</title>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.1">
-<meta name="description" content="Cybersecurity blog posts, CTF writeups, and security research by Rishabh Yadav">
-<meta name="author" content="Rishabh Yadav">
-<meta name="canonical" content="https://rishabhyadavm07.github.io/blogs.html">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Archive & Research | fanaticalnerd</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React and ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700;800&display=swap');
+        
+        body {
+            font-family: 'JetBrains+Mono', monospace;
+            background-color: #050505;
+            color: #dddddd;
+            margin: 0;
+            overflow-x: hidden;
+        }
 
-<link rel="apple-touch-icon" sizes="180x180" href="/favicon_io/apple-touch-icon.png">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon_io/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="/favicon_io/favicon-16x16.png">
-<link rel="manifest" href="/favicon_io/site.webmanifest">
+        .scanline {
+            width: 100%;
+            height: 2px;
+            background: #dc2626;
+            opacity: 0.1;
+            position: fixed;
+            z-index: 50;
+            pointer-events: none;
+            animation: scan 10s linear infinite;
+        }
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+        @keyframes scan {
+            0% { top: -10%; }
+            100% { top: 110%; }
+        }
 
-<style>
-      body { color: #dddddd;
-             font-family: "JetBrains Mono", monospace;
-             background-color: #0c0d10;
-             font-size: 16px;
-             line-height: 16px;
-             margin: 0 auto;
-             padding: 1em 0 1em 0;
-             /* cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewport='0 0 100 100' style='font-size:24px;'><text y='50%'>🔑</text></svg>") 16 16, auto; */
-           }
-       pre { font-family: "JetBrains Mono", monospace; }
-         a { color: #98f5ff; text-decoration: none; }
-       iky { color: #74ee15; }
-         y { color: #ffa298; }
-        gy { color: #f5ff98; }
-         w { color: #ffffff; }
-        gr { color: #b5bd68; }
-         r { color: #f22e2e; }
-       pnk { color: #f4b6e5; }
-        bb { color: #5cc2ca; }
-       prp { color: #7a80a2; }
-         l { color: #c5c8c6; }
-        lg { color: #9de9a9; }
-</style>
-<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
-<link rel="icon" href="/favicon.ico" type="image/x-icon">
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #0a0a0a;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #dc2626;
+        }
+
+        /* Nav Entrance Animation */
+        @keyframes nav-slide-up {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-nav-item {
+            animation: nav-slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .tactical-card {
+            background: rgba(17, 17, 17, 0.9);
+            border: 1px solid rgba(31, 41, 55, 1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .tactical-card:hover {
+            border-color: rgba(220, 38, 38, 0.4);
+            transform: translateX(4px);
+            background: rgba(220, 38, 38, 0.02);
+        }
+    </style>
 </head>
-<body>
-    <center>
-<div style="display: inline-block; text-align: left;"><pre>
+<body class="custom-scrollbar">
+    <div id="root"></div>
 
+    <script type="text/babel">
+        const { useState, useEffect } = React;
 
+        const App = () => {
+            const [isMenuOpen, setIsMenuOpen] = useState(false);
+            const [blogs, setBlogs] = useState([]);
+            const [projects, setProjects] = useState([]);
+            const [loading, setLoading] = useState(true);
 
+            useEffect(() => {
+                const loadData = async () => {
+                    try {
+                        const response = await fetch('BLOGS/blogs.json');
+                        const data = await response.json();
+                        
+                        const sortedBlogs = (data.blogs || []).sort((a, b) => new Date(b.date) - new Date(a.date));
+                        const sortedProjects = (data.projects || []).sort((a, b) => new Date(b.date) - new Date(a.date));
+                        
+                        setBlogs(sortedBlogs);
+                        setProjects(sortedProjects);
+                    } catch (error) {
+                        console.error('Error loading data stream:', error);
+                    } finally {
+                        setLoading(false);
+                    }
+                };
+                loadData();
+            }, []);
 
-.<y>______________________________________________________________________________________________</y>.
-:<y>----------------------------------------------------------------------------------------------</y>:</gy>
-|                                                                                              |
-| <a href="index.html"><gy>←</gy> Back to Home</a>                                                                               |
-|                                                                                              |
-| <y>-- <w>All Blog Posts</w> --------------------------------------------------------------------------</y> |
-|                                                                                              |
-<div id="blog-list">| <gy>::</gy> <lg>Loading blog posts...</lg>                                                                     |</div>|                                                                                              |
-| <y>-- <w>Project Continuum</w> -----------------------------------------------------------------------</y> |
-|                                                                                              |
-<div id="project-list">| <gy>::</gy> <lg>Loading projects....</lg>                                                                         |</div>|                                                                                              |
-|                                                                                              |
-|--------------------------------rishabhyadav.inbox@gmail.com----------------------------------|
-:<y>______________________________________________________________________________________________</y>:
-:<y>----------------------------------------------------------------------------------------------</y>:
-<gy></gy>
-</pre>
-</div>
-</center>
+            useEffect(() => {
+                lucide.createIcons();
+            }, [isMenuOpen, loading, blogs, projects]);
 
-<script>
-const BLOGS_PATH = 'BLOGS';
-const TOTAL_WIDTH = 94; // Total fixed width of the terminal box
+            const EntryCard = ({ item, isProject }) => {
+                const url = isProject ? (item.url || `posts/${item.folder}.html`) : `posts/${item.folder}.html`;
+                
+                return (
+                    <a href={url} className="tactical-card p-6 rounded-sm block group relative overflow-hidden">
+                        <div className="flex justify-between items-start mb-2">
+                            <h3 className="text-red-600 font-black text-lg tracking-tight group-hover:text-red-500 transition-colors uppercase">
+                                {item.title}
+                            </h3>
+                            <span className="text-[10px] text-zinc-600 font-mono">{item.date}</span>
+                        </div>
+                        <p className="text-zinc-400 text-sm font-light leading-relaxed mb-4 line-clamp-2">
+                            {item.excerpt}
+                        </p>
+                        <div className="flex items-center gap-2 text-[9px] font-bold text-zinc-700 group-hover:text-zinc-500 transition-colors">
+                            <span className="text-red-900">>></span> READ_CONTENT_LOG
+                        </div>
+                        <div className="absolute top-0 right-0 w-8 h-8 opacity-10 group-hover:opacity-30 transition-opacity">
+                            <i data-lucide="external-link" style={{width: '12px', height: '12px'}} className="absolute top-2 right-2"></i>
+                        </div>
+                    </a>
+                );
+            };
 
-async function loadBlogs() {
-    const blogListElement = document.getElementById('blog-list');
-    const projectListElement = document.getElementById('project-list');
+            const navLinks = [
+                { name: "HOME", icon: "home", url: "index.html" },
+                { name: "JOB DASHBOARD", icon: "activity", url: "jobs.html" },
+                { name: "INTEL", icon: "radar", url: "intel.html" },
+                // { name: "BLOGS", icon: "book-open", url: "blogs.html" },
+                { name: "REPORTS", icon: "file-text", url: "Disclosed-Reports/reports_index.html" },
+                { name: "JOURNAL", icon: "book", url: "journal.html" },
+                { name: "PRIVATE", icon: "lock", url: "private.html" }
+            ];
 
-    try {
-        const response = await fetch(`${BLOGS_PATH}/blogs.json`);
+            return (
+                <div className="min-h-screen selection:bg-red-600 selection:text-white p-4 md:p-12">
+                    <div className="scanline"></div>
+                    
+                    <div className="fixed inset-0 pointer-events-none overflow-hidden">
+                        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-red-600/5 blur-[120px] rounded-full animate-pulse"></div>
+                    </div>
 
-        if (!response.ok) {
-            const errorContent = '<gy>::</gy> <r>No blogs found yet. Check back soon!</r>';
-            blogListElement.innerHTML = createFormattedLine(errorContent) + '\n';
-            const projectLine = '| <gy>::</gy> <prp>To be added soon</prp>';
-            const projectActualLength = stripTags(projectLine).length;
-            const projectPadding = TOTAL_WIDTH - projectActualLength;
-            projectListElement.innerHTML = projectLine + ' '.repeat(Math.max(0, projectPadding)) + '|';
-            return;
-        }
+                    <main className="max-w-4xl mx-auto relative z-10 p-6 md:p-12 mb-28 rounded-md bg-[#0a0a0a]/80 backdrop-blur-md border border-zinc-900 shadow-2xl">
+                        
+                        <div className="mb-16 space-y-6">
+                            <a href="index.html" className="flex items-center gap-2 text-[10px] font-black tracking-[0.2em] text-zinc-500 hover:text-red-600 transition-all bg-zinc-900/30 px-4 py-2 border border-zinc-800 hover:border-red-600/40 w-max">
+                                <i data-lucide="arrow-left" style={{width: '14px', height: '14px'}}></i> BACK TO INTERFACE
+                            </a>
+                            <div className="flex justify-between items-end">
+                                <div>
+                                    <h1 className="text-white text-4xl md:text-6xl font-black tracking-tighter uppercase">Content_Archive</h1>
+                                    <p className="text-zinc-500 text-sm mt-2 font-mono tracking-widest">
+                                        <span className="text-red-600 animate-pulse">●</span> DATABASE_SYNC: ACTIVE
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
 
-        const data = await response.json();
+                        {loading ? (
+                            <div className="space-y-4">
+                                {[1, 2, 3].map(i => (
+                                    <div key={i} className="h-32 bg-zinc-900/50 animate-pulse border border-zinc-800 rounded-sm"></div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="space-y-16">
+                                <section>
+                                    <h2 className="text-zinc-500 text-xs font-black tracking-[0.4em] uppercase mb-8 border-b border-zinc-900 pb-2 flex items-center gap-3">
+                                        <i data-lucide="book-open" className="text-red-900" style={{width: '14px'}}></i> 01 // Research & Blogs
+                                    </h2>
+                                    <div className="space-y-4">
+                                        {blogs.length > 0 ? (
+                                            blogs.map((blog, idx) => <EntryCard key={idx} item={blog} isProject={false} />)
+                                        ) : (
+                                            <p className="text-zinc-700 text-sm italic font-mono uppercase tracking-widest">No entries detected in sector</p>
+                                        )}
+                                    </div>
+                                </section>
 
-        // Handle both old format (array) and new format (object with blogs/projects)
-        const blogs = Array.isArray(data) ? data : (data.blogs || []);
-        const projects = Array.isArray(data) ? [] : (data.projects || []);
+                                <section>
+                                    <h2 className="text-zinc-500 text-xs font-black tracking-[0.4em] uppercase mb-8 border-b border-zinc-900 pb-2 flex items-center gap-3">
+                                        <i data-lucide="terminal" className="text-red-900" style={{width: '14px'}}></i> 02 // Projects
+                                    </h2>
+                                    <div className="space-y-4">
+                                        {projects.length > 0 ? (
+                                            projects.map((project, idx) => <EntryCard key={idx} item={project} isProject={true} />)
+                                        ) : (
+                                            <p className="text-zinc-700 text-sm italic font-mono uppercase tracking-widest">No entries detected in sector</p>
+                                        )}
+                                    </div>
+                                </section>
+                            </div>
+                        )}
 
-        // Load blogs
-        if (blogs.length === 0) {
-            const noBlogsContent = '<gy>::</gy> <r>No blogs found yet. Check back soon!</r>';
-            blogListElement.innerHTML = createFormattedLine(noBlogsContent) + '\n';
-        } else {
-            // Sort blogs by date (newest first)
-            blogs.sort((a, b) => new Date(b.date) - new Date(a.date));
+                        <div className="mt-24 pt-10 border-t border-zinc-900 text-center opacity-40">
+                            <div className="text-[9px] font-bold tracking-[0.6em] uppercase">
+                                # h4ppy_h4cking | rishabhyadav.inbox@gmail.com
+                            </div>
+                        </div>
+                    </main>
 
-            // Generate blog list HTML with proper formatting
-            let blogHTML = '';
-            blogs.forEach((blog, index) => {
-                // Link to static pages for proper social media sharing
-                const blogUrl = `posts/${blog.folder}.html`;
+                    {/* Bottom Nav - Synchronized */}
+                    <div 
+                        className="fixed bottom-0 left-0 w-full z-[100] flex flex-col items-center"
+                        onMouseEnter={() => setIsMenuOpen(true)}
+                        onMouseLeave={() => setIsMenuOpen(false)}
+                    >
+                        {isMenuOpen && (
+                            <nav className="w-full max-w-5xl bg-[#0a0a0a] border border-red-600/30 border-b-0 rounded-t-[2rem] flex flex-wrap justify-evenly items-center p-10 gap-6 shadow-2xl animate-in slide-in-from-bottom-10">
+                                {navLinks.map((link, i) => (
+                                    <a 
+                                        key={i} 
+                                        href={link.url}
+                                        style={{ animationDelay: `${i * 50}ms` }}
+                                        className="animate-nav-item opacity-0 flex items-center gap-4 px-6 py-4 rounded-xl bg-zinc-900 border border-zinc-800 hover:border-red-600 hover:bg-red-600/5 transition-all group font-black text-[10px] uppercase tracking-widest w-full md:w-auto text-center hover:scale-105 active:scale-95"
+                                    >
+                                        <i data-lucide={link.icon} className="text-zinc-600 group-hover:text-red-600" style={{width: '14px', height: '14px'}}></i>
+                                        {link.name}
+                                    </a>
+                                ))}
+                            </nav>
+                        )}
 
-                // Perform border analysis and formatting after content is loaded
-                const formattedTitle = analyzeAndFormatTitle(blog.title, blog.date, blogUrl);
-                blogHTML += formattedTitle + '\n';
+                        <div className={`w-full py-5 text-center font-black tracking-[0.8em] text-[10px] transition-all duration-700 cursor-pointer ${isMenuOpen ? 'bg-white text-black' : 'bg-red-600 text-white shadow-lg'}`}>
+                            NAV [^]
+                        </div>
+                    </div>
+                </div>
+            );
+        };
 
-                // Add separator line between posts
-                blogHTML += createFormattedLine('') + '\n';
-            });
-
-            blogListElement.innerHTML = blogHTML;
-        }
-
-        // Load projects
-        if (projects.length === 0) {
-            const projectLine = '| <gy>::</gy> <prp>To be added soon</prp>';
-            const projectActualLength = stripTags(projectLine).length;
-            const projectPadding = TOTAL_WIDTH - projectActualLength;
-            projectListElement.innerHTML = projectLine + ' '.repeat(Math.max(0, projectPadding)) + ' |';
-        } else {
-            // Sort projects by date (newest first)
-            projects.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-            // Generate project list HTML with proper formatting
-            let projectHTML = '';
-            projects.forEach((project, index) => {
-                // Projects can have a URL or link to posts
-                const projectUrl = project.url || `posts/${project.folder}.html`;
-
-                // Perform border analysis and formatting after content is loaded
-                const formattedTitle = analyzeAndFormatTitle(project.title, project.date, projectUrl);
-                projectHTML += formattedTitle + '\n';
-
-                // Add separator line between projects
-                projectHTML += createFormattedLine('') + '\n';
-            });
-
-            projectListElement.innerHTML = projectHTML;
-        }
-
-    } catch (error) {
-        console.error('Error loading blogs:', error);
-        const errorContent = `<gy>::</gy> <r>Error loading blogs: ${error.message}. Please try again later.</r>`;
-        blogListElement.innerHTML = createFormattedLine(errorContent) + '\n';
-        const projectLine = '| <gy>::</gy> <prp>To be added soon</prp>';
-        const projectActualLength = stripTags(projectLine).length;
-        const projectPadding = TOTAL_WIDTH - projectActualLength;
-        projectListElement.innerHTML = projectLine + ' '.repeat(Math.max(0, projectPadding)) + '|';
-    }
-}
-
-// Helper function to strip HTML tags for length calculation (Optimized)
-function stripTags(html) {
-    // Regex to strip any HTML tag (e.g., <gy>, <a>, </a>, <img ...>, <span class="...">)
-    return html.replace(/<[^>]*>/g, '').trim();
-}
-
-// Helper function to ensure proper line padding
-function padLine(line, totalWidth = TOTAL_WIDTH) {
-    const contentLength = stripTags(line).length;
-    const padding = totalWidth - contentLength;
-    return line + ' '.repeat(Math.max(0, padding)) + '|';
-}
-
-// Helper function to create a properly formatted line
-function createFormattedLine(content, totalWidth = TOTAL_WIDTH) {
-    const line = `| ${content}`;
-    const contentLength = stripTags(line).length;
-    const padding = totalWidth - contentLength;
-    return line + ' '.repeat(Math.max(0, padding)) + '|';
-}
-
-// Function to analyze and format title after JSON content is loaded
-function analyzeAndFormatTitle(title, date, url, totalWidth = TOTAL_WIDTH) {
-    console.log(`Analyzing title: "${title}" with date: "${date}"`);
-
-    const maxContentWidth = totalWidth - 4; // Account for "| :: " and " |" = 90 chars for content
-    const titleWithDate = `${title} (${date})`;
-    const fullContent = `:: ${titleWithDate}`;
-
-    // Calculate the actual character length (excluding HTML tags)
-    const contentLength = stripTags(fullContent).length;
-    console.log(`Content length: ${contentLength}, Max allowed: ${maxContentWidth}`);
-
-    if (contentLength <= maxContentWidth) {
-        // Content fits on one line, add padding to reach exactly 94 characters
-        const titleLine = `| <gy>::</gy> <a href="${url}" class="blog-title-link">${title}</a> <span class="blog-date">(${date}) </span>`;
-        const actualLength = stripTags(titleLine).length;
-        const padding = totalWidth - actualLength;
-        console.log(`Single line - actual length: ${actualLength}, padding needed: ${padding}`);
-
-        // Ensure we have exactly 94 characters total
-        const paddedLine = titleLine + ' '.repeat(Math.max(0, padding)) + '|';
-        console.log(`Final line length: ${stripTags(paddedLine).length}`);
-        return paddedLine;
-    } else {
-        // Content is too long, need to break it
-        console.log('Content too long, breaking into multiple lines');
-        const words = title.split(' ');
-        let currentLine = '| <gy>::</gy> ';
-        let lineLength = stripTags(currentLine).length;
-        let result = '';
-
-        // Add words until we approach the 90 character limit
-        for (let i = 0; i < words.length; i++) {
-            const word = words[i];
-            const testLine = currentLine + word + ' ';
-            const testLength = stripTags(testLine).length;
-
-            if (testLength > maxContentWidth && i > 0) {
-                // Current line is full, pad it to exactly 94 characters and start new line
-                const actualLineLength = stripTags(currentLine).length;
-                const padding = totalWidth - actualLineLength;
-                const paddedLine = currentLine + ' '.repeat(Math.max(0, padding)) + '|';
-                result += paddedLine + '\n';
-                console.log(`Line break at word: "${word}", line length: ${stripTags(paddedLine).length}`);
-                currentLine = '|    '; // Indent for continuation
-                lineLength = 4;
-            }
-
-            currentLine += word + ' ';
-            lineLength += word.length + 1;
-        }
-
-        // Add the date to the last line with a trailing space
-        const finalLine = currentLine + `(${date}) `;
-        const finalLength = stripTags(finalLine).length;
-
-        if (finalLength > maxContentWidth) {
-            // Date doesn't fit, put it on a new line
-            const actualLineLength = stripTags(currentLine).length;
-            const padding = totalWidth - actualLineLength;
-            const paddedLine = currentLine + ' '.repeat(Math.max(0, padding)) + '|';
-            result += paddedLine + '\n';
-            console.log(`Title line length: ${stripTags(paddedLine).length}`);
-
-            const dateLine = `|    (${date}) `;
-            const dateActualLength = stripTags(dateLine).length;
-            const datePadding = totalWidth - dateActualLength;
-            const paddedDateLine = dateLine + ' '.repeat(Math.max(0, datePadding)) + '|';
-            result += paddedDateLine;
-            console.log(`Date line length: ${stripTags(paddedDateLine).length}`);
-        } else {
-            // Date fits on the same line, pad to exactly 94 characters
-            const actualFinalLength = stripTags(finalLine).length;
-            const padding = totalWidth - actualFinalLength;
-            const paddedFinalLine = finalLine + ' '.repeat(Math.max(0, padding)) + '|';
-            result += paddedFinalLine;
-            console.log(`Final line length: ${stripTags(paddedFinalLine).length}`);
-        }
-
-        return result;
-    }
-}
-
-document.addEventListener('DOMContentLoaded', loadBlogs);
-</script>
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
 </body>
 </html>

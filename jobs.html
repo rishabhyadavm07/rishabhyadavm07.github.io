@@ -3,427 +3,271 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>damn...</title>
-
-    <link rel="apple-touch-icon" sizes="180x180" href="/favicon_io/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon_io/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon_io/favicon-16x16.png">
-    <link rel="manifest" href="/favicon_io/site.webmanifest">
-
-    <!-- Import JetBrains Mono -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-
+    <title>Job Dashboard | fanaticalnerd</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React and ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
     <style>
-        :root {
-            --bg-color: #050505;
-            --card-bg: #0a0a0a;
-            --border-color: #333;
-            --text-primary: #e5e5e5;
-            --text-secondary: #888;
-            --accent: #ccff00; /* Acid Green */
-            --accent-hover: #b3e600;
-            --grid-line: rgba(255, 255, 255, 0.03);
-        }
-
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700;800&display=swap');
+        
         body {
-            font-family: 'JetBrains Mono', monospace; /* Updated Font */
-            background-color: var(--bg-color);
-            background-image: 
-                linear-gradient(var(--grid-line) 1px, transparent 1px),
-                linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
-            background-size: 30px 30px;
-            color: var(--text-primary);
+            font-family: 'JetBrains+Mono', monospace;
+            background-color: #050505;
+            color: #dddddd;
             margin: 0;
-            padding: 40px 20px;
-            line-height: 1.5;
+            overflow-x: hidden;
         }
 
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
+        .scanline {
+            width: 100%;
+            height: 2px;
+            background: #dc2626;
+            opacity: 0.1;
+            position: fixed;
+            z-index: 50;
+            pointer-events: none;
+            animation: scan 10s linear infinite;
         }
 
-        header {
-            margin-bottom: 60px;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            flex-wrap: wrap;
-            gap: 20px;
+        @keyframes scan {
+            0% { top: -10%; }
+            100% { top: 110%; }
         }
 
-        h1 {
-            margin: 0;
-            font-size: 3rem;
-            font-weight: 400;
-            letter-spacing: -2px;
-            text-transform: uppercase;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #0a0a0a;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #dc2626;
         }
 
-        h1 span {
-            color: var(--accent);
+        /* Nav Entrance Animation */
+        @keyframes nav-slide-up {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .status-badge {
-            border: 1px solid var(--accent);
-            color: var(--accent);
-            padding: 5px 10px;
-            font-size: 0.8rem;
-            text-transform: uppercase;
+        .animate-nav-item {
+            animation: nav-slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 1px; /* Gap for border effect */
-            background-color: var(--border-color); /* Creates the borders */
-            border: 1px solid var(--border-color);
+        .glass-card {
+            background: rgba(17, 17, 17, 0.9);
+            border: 1px solid rgba(31, 41, 55, 1);
+            transition: all 0.3s ease;
         }
-
-        .card {
-            background-color: var(--bg-color);
-            padding: 30px;
-            display: flex;
-            flex-direction: column;
-            transition: background-color 0.2s;
-        }
-
-        .card:hover {
-            background-color: #0c0c0c;
-        }
-
-        .card-header {
-            margin-bottom: 25px;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        h2 {
-            margin: 0;
-            font-size: 1rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-weight: 700;
-            color: var(--text-primary);
-        }
-
-        .card-icon {
-            color: var(--text-secondary);
-        }
-
-        h3 {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: var(--text-secondary);
-            margin-top: 20px;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-        }
-
-        h3::before {
-            content: '//';
-            color: var(--accent);
-            margin-right: 8px;
-        }
-
-        .link-group {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        a.job-link {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: transparent;
-            color: var(--text-primary);
-            text-decoration: none;
-            padding: 8px 0;
-            border-bottom: 1px solid #1a1a1a;
-            transition: all 0.2s ease;
-            font-size: 0.9rem;
-        }
-
-        a.job-link:hover {
-            padding-left: 10px;
-            color: var(--accent);
-            border-bottom-color: var(--accent);
-        }
-
-        .link-text {
-            position: relative;
-        }
-
-        .tag {
-            font-size: 0.65rem;
-            padding: 2px 6px;
-            border: 1px solid #333;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-        }
-
-        a.job-link:hover .tag {
-            border-color: var(--accent);
-            color: var(--accent);
-        }
-
-        footer {
-            margin-top: 60px;
-            border-top: 1px solid var(--border-color);
-            padding-top: 20px;
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-        }
-
-        @media (max-width: 768px) {
-            h1 { font-size: 2rem; }
-            .grid { grid-template-columns: 1fr; }
-            body { padding: 20px 10px; }
+        .glass-card:hover {
+            border-color: rgba(220, 38, 38, 0.4);
+            box-shadow: 0 0 20px rgba(220, 38, 38, 0.1);
         }
     </style>
 </head>
-<body>
+<body class="custom-scrollbar">
+    <div id="root"></div>
 
-<div class="container">
-    <header>
-        <div>
-            <h1>damn...</h1>
-            <p style="color: #666; margin-top: 10px;">> Target: Cloud Sec, Analyst, VAPT, Pentest, API Testing</p>
-        </div>
-    </header>
+    <script type="text/babel">
+        const { useState, useEffect } = React;
 
-    <div class="grid">
-        <!-- CARD 1: GOOGLE DORKS -->
-        <div class="card">
-            <div class="card-header">
-                <h2>01 / Direct ATS Search</h2>
-                <span class="card-icon">[ATS]</span>
-            </div>
-            
-            <h3>Cloud Security</h3>
-            <div class="link-group">
-                <a href="https://www.google.com/search?q=site:greenhouse.io+%22Cloud+Security%22+%28%22India%22+OR+%22Remote%22%29" target="_blank" class="job-link">
-                    <span class="link-text">Greenhouse: Cloud Sec</span>
-                    <span class="tag">DORK</span>
-                </a>
-                <a href="https://www.google.com/search?q=site:lever.co+%22Cloud+Security%22+%28%22India%22+OR+%22Remote%22%29" target="_blank" class="job-link">
-                    <span class="link-text">Lever: Cloud Sec</span>
-                    <span class="tag">DORK</span>
-                </a>
-                <a href="https://www.google.com/search?q=site:myworkdayjobs.com+%22Cloud+Security%22+%28%22India%22+OR+%22Remote%22%29" target="_blank" class="job-link">
-                    <span class="link-text">Workday: Cloud Sec</span>
-                    <span class="tag">DORK</span>
-                </a>
-            </div>
+        const App = () => {
+            const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-            <h3>Security Analyst</h3>
-            <div class="link-group">
-                <a href="https://www.google.com/search?q=site:greenhouse.io+%22Security+Analyst%22+%28%22India%22+OR+%22Remote%22%29" target="_blank" class="job-link">
-                    <span class="link-text">Greenhouse: Analyst</span>
-                    <span class="tag">DORK</span>
-                </a>
-                <a href="https://www.google.com/search?q=site:lever.co+%22Security+Analyst%22+%28%22India%22+OR+%22Remote%22%29" target="_blank" class="job-link">
-                    <span class="link-text">Lever: Analyst</span>
-                    <span class="tag">DORK</span>
-                </a>
-            </div>
-        </div>
+            useEffect(() => {
+                lucide.createIcons();
+            }, [isMenuOpen]);
 
-        <!-- CARD 2: LINKEDIN -->
-        <div class="card">
-            <div class="card-header">
-                <h2>02 / LinkedIn & Social</h2>
-                <span class="card-icon">[LNKD]</span>
-            </div>
+            const dorks = [
+                {
+                    id: "01",
+                    title: "DIRECT ATS SEARCH",
+                    icon: "search",
+                    subcategories: [
+                        {
+                            label: "// CLOUD SECURITY",
+                            links: [
+                                { name: "Greenhouse: Cloud Sec", url: "https://www.google.com/search?q=site:greenhouse.io+%22Cloud+Security%22+%28%22India%22+OR+%22Remote%22%29" },
+                                { name: "Lever: Cloud Sec", url: "https://www.google.com/search?q=site:lever.co+%22Cloud+Security%22+%28%22India%22+OR+%22Remote%22%29" },
+                                { name: "Workday: Cloud Sec", url: "https://www.google.com/search?q=site:myworkdayjobs.com+%22Cloud+Security%22+%28%22India%22+OR+%22Remote%22%29" }
+                            ]
+                        },
+                        {
+                            label: "// SECURITY ANALYST",
+                            links: [
+                                { name: "Greenhouse: Analyst", url: "https://www.google.com/search?q=site:greenhouse.io+%22Security+Analyst%22+%28%22India%22+OR+%22Remote%22%29" },
+                                { name: "Lever: Analyst", url: "https://www.google.com/search?q=site:lever.co+%22Security+Analyst%22+%28%22India%22+OR+%22Remote%22%29" }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    id: "02",
+                    title: "LINKEDIN & SOCIAL RECON",
+                    icon: "radar",
+                    subcategories: [
+                        {
+                            label: "// JOB BOARDS",
+                            links: [
+                                { name: "Cloud Security Engineer", url: "https://www.linkedin.com/jobs/search/?keywords=Cloud%20Security%20Engineer&location=India&f_WT=1%2C2&refresh=true" },
+                                { name: "Security Analyst", url: "https://www.linkedin.com/jobs/search/?keywords=Security%20Analyst&location=India&f_WT=1%2C2&refresh=true" }
+                            ]
+                        },
+                        {
+                            label: "// CONTENT SEARCH",
+                            links: [
+                                { name: "Posts: \"Hiring Cloud Sec\"", url: "https://www.linkedin.com/search/results/content/?keywords=%22hiring%22%20AND%20%22Cloud%20Security%20Engineer%22%20AND%20%22email%22" },
+                                { name: "Posts: \"DM Me Analyst\"", url: "https://www.linkedin.com/search/results/content/?keywords=%22looking%20for%22%20AND%20%22Security%20Analyst%22%20AND%20%28%22DM%20me%22%20OR%20%22send%20resume%22%29" }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    id: "03",
+                    title: "GLOBAL AGGREGATORS",
+                    icon: "globe",
+                    subcategories: [
+                        {
+                            label: "// NAUKRI (FILTERED)",
+                            links: [
+                                { name: "Cloud Security Eng", url: "https://www.naukri.com/cloud-security-engineer-jobs?k=Cloud%20Security%20Engineer" },
+                                { name: "Security Analyst", url: "https://www.naukri.com/security-analyst-jobs?k=Security%20Analyst" },
+                                { name: "VAPT / Pen Testing", url: "https://www.naukri.com/vapt-jobs?k=VAPT" }
+                            ]
+                        },
+                        {
+                            label: "// OTHER",
+                            links: [
+                                { name: "Indeed: Cloud Sec", url: "https://in.indeed.com/jobs?q=Cloud+Security+Engineer&l=India&sort=date" },
+                                { name: "Google Jobs Module", url: "https://www.google.com/search?q=Cloud+Security+Engineer+jobs+near+me&ibp=htl;jobs" }
+                            ]
+                        }
+                    ]
+                }
+            ];
 
-            <h3>Job Boards</h3>
-            <div class="link-group">
-                <a href="https://www.linkedin.com/jobs/search/?keywords=Cloud%20Security%20Engineer&location=India&f_WT=1%2C2&refresh=true" target="_blank" class="job-link">
-                    <span class="link-text">Cloud Security Engineer</span>
-                    <span class="tag">INDIA</span>
-                </a>
-                <a href="https://www.linkedin.com/jobs/search/?keywords=Security%20Analyst&location=India&f_WT=1%2C2&refresh=true" target="_blank" class="job-link">
-                    <span class="link-text">Security Analyst</span>
-                    <span class="tag">INDIA</span>
-                </a>
-            </div>
+            const navLinks = [
+                { name: "HOME", icon: "home", url: "index.html" },
+                // { name: "JOB DASHBOARD", icon: "activity", url: "jobs.html" },
+                { name: "INTEL", icon: "radar", url: "intel.html" },
+                { name: "BLOGS", icon: "book-open", url: "blogs.html" },
+                { name: "REPORTS", icon: "file-text", url: "Disclosed-Reports/reports_index.html" },
+                { name: "JOURNAL", icon: "book", url: "journal.html" },
+                { name: "PRIVATE", icon: "lock", url: "private.html" }
+            ];
 
-            <h3>Content Search</h3>
-            <div class="link-group">
-                <a href="https://www.linkedin.com/search/results/content/?keywords=%22hiring%22%20AND%20%22Cloud%20Security%20Engineer%22%20AND%20%22email%22&origin=GLOBAL_SEARCH_HEADER&sid=" target="_blank" class="job-link">
-                    <span class="link-text">Posts: "Hiring Cloud Sec"</span>
-                    <span class="tag">FEED</span>
-                </a>
-                <a href="https://www.linkedin.com/search/results/content/?keywords=%22looking%20for%22%20AND%20%22Security%20Analyst%22%20AND%20%28%22DM%20me%22%20OR%20%22send%20resume%22%29&origin=GLOBAL_SEARCH_HEADER" target="_blank" class="job-link">
-                    <span class="link-text">Posts: "DM Me Analyst"</span>
-                    <span class="tag">FEED</span>
-                </a>
-                <a href="https://www.linkedin.com/search/results/content/?keywords=%22Urgent%20Hiring%22%20AND%20%22Cyber%20Security%22&sortBy=%22date_posted%22" target="_blank" class="job-link">
-                    <span class="link-text">Posts: "Urgent Cyber"</span>
-                    <span class="tag">LATEST</span>
-                </a>
-            </div>
-        </div>
+            return (
+                <div className="min-h-screen selection:bg-red-600 selection:text-white p-4 md:p-12">
+                    <div className="scanline"></div>
+                    
+                    {/* Background Glow */}
+                    <div className="fixed inset-0 pointer-events-none overflow-hidden">
+                        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-red-600/5 blur-[120px] rounded-full animate-pulse"></div>
+                    </div>
 
-        <!-- CARD 3: AGGREGATORS -->
-        <div class="card">
-            <div class="card-header">
-                <h2>03 / Major Job Boards</h2>
-                <span class="card-icon">[MASS]</span>
-            </div>
+                    <main className="max-w-7xl mx-auto relative z-10 p-6 md:p-12 mb-28">
+                        
+                        {/* Header Section */}
+                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-16 border-b border-zinc-800 pb-12">
+                            <div className="space-y-4">
+                                <a href="index.html" className="flex items-center gap-2 text-[10px] font-black tracking-[0.2em] text-zinc-500 hover:text-red-600 transition-all bg-zinc-900/30 px-4 py-2 border border-zinc-800 hover:border-red-600/40 w-max">
+                                    <i data-lucide="arrow-left" style={{width: '14px', height: '14px'}}></i> BACK TO INTERFACE
+                                </a>
+                                <h1 className="text-white text-4xl md:text-6xl font-black tracking-tighter uppercase">Job_Dashboard</h1>
+                                <p className="text-zinc-500 text-sm font-light">
+                                    <span className="text-red-600">>></span> TARGET_DOMAINS: CLOUD_SEC, APSEC, VAPT, PENTEST
+                                </p>
+                            </div>
+                            <div className="hidden lg:block text-right">
+                                <div className="text-[10px] text-zinc-600 font-bold uppercase tracking-[0.4em]">MISSION_STATUS: ACTIVE</div>
+                                <div className="text-[10px] text-red-600 font-bold uppercase tracking-[0.4em] animate-pulse">SCANNING_OPPORTUNITIES...</div>
+                            </div>
+                        </div>
 
-            <h3>Naukri (Filtered)</h3>
-            <div class="link-group">
-                <a href="https://www.naukri.com/cloud-security-engineer-jobs?k=Cloud%20Security%20Engineer" target="_blank" class="job-link">
-                    <span class="link-text">Cloud Security Eng</span>
-                    <span class="tag">NAUKRI</span>
-                </a>
-                <a href="https://www.naukri.com/security-analyst-jobs?k=Security%20Analyst" target="_blank" class="job-link">
-                    <span class="link-text">Security Analyst</span>
-                    <span class="tag">NAUKRI</span>
-                </a>
-                <a href="https://www.naukri.com/vapt-jobs?k=VAPT" target="_blank" class="job-link">
-                    <span class="link-text">VAPT / Pen Testing</span>
-                    <span class="tag">NAUKRI</span>
-                </a>
-            </div>
+                        {/* Tactical Grid */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                            {dorks.map((section, idx) => (
+                                <div key={idx} className="glass-card p-8 rounded-sm flex flex-col h-full">
+                                    <div className="flex items-center justify-between mb-8">
+                                        <div className="text-red-600 text-xs font-black tracking-widest">{section.id} / {section.title}</div>
+                                        <i data-lucide={section.icon} className="text-zinc-700" style={{width: '20px', height: '20px'}}></i>
+                                    </div>
 
-            <h3>Global</h3>
-            <div class="link-group">
-                <a href="https://in.indeed.com/jobs?q=Cloud+Security+Engineer&l=India&sort=date" target="_blank" class="job-link">
-                    <span class="link-text">Indeed: Cloud Sec</span>
-                    <span class="tag">NEW</span>
-                </a>
-                <a href="https://www.google.com/search?q=Cloud+Security+Engineer+jobs+near+me&ibp=htl;jobs" target="_blank" class="job-link">
-                    <span class="link-text">Google Jobs Module</span>
-                    <span class="tag">LOCAL</span>
-                </a>
-            </div>
-        </div>
+                                    <div className="space-y-10 flex-grow">
+                                        {section.subcategories.map((sub, sIdx) => (
+                                            <div key={sIdx}>
+                                                <h3 className="text-zinc-500 text-[10px] font-black tracking-[0.2em] mb-4 border-l-2 border-red-600/40 pl-3">{sub.label}</h3>
+                                                <div className="flex flex-col space-y-3 pl-4">
+                                                    {sub.links.map((link, lIdx) => (
+                                                        <a 
+                                                            key={lIdx} 
+                                                            href={link.url} 
+                                                            target="_blank"
+                                                            className="text-sm text-zinc-400 hover:text-red-600 transition-colors flex items-center gap-2 group"
+                                                        >
+                                                            <i data-lucide="chevron-right" className="text-zinc-800 group-hover:text-red-600 transition-colors" style={{width: '12px', height: '12px'}}></i>
+                                                            {link.name}
+                                                        </a>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <div className="mt-12 pt-4 border-t border-zinc-900 flex justify-between items-center opacity-30 text-[8px] font-bold tracking-widest">
+                                        <span>ENCRYPTED_NODE</span>
+                                        <span>AUTH: REQUIRED</span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
 
-        <!-- CARD 4: STARTUPS -->
-        <div class="card">
-            <div class="card-header">
-                <h2>04 / Startup Jobs</h2>
-                <span class="card-icon">[VC]</span>
-            </div>
+                        {/* Footer Footprint */}
+                        <div className="mt-24 pt-10 border-t border-zinc-900 text-center opacity-40">
+                            <div className="text-[9px] font-bold tracking-[0.6em] uppercase">
+                                # h4ppy_h4cking | rishabhyadav.inbox@gmail.com
+                            </div>
+                        </div>
+                    </main>
 
-            <h3>Premium India</h3>
-            <div class="link-group">
-                <a href="https://www.instahyre.com/search-jobs/?text=security" target="_blank" class="job-link">
-                    <span class="link-text">Instahyre: Security</span>
-                    <span class="tag">PREMIUM</span>
-                </a>
-                <a href="https://cutshort.io/jobs/cyber-security-jobs" target="_blank" class="job-link">
-                    <span class="link-text">Cutshort: CyberSec</span>
-                    <span class="tag">AI</span>
-                </a>
-            </div>
+                    {/* Bottom Automations Nav - Synchronized */}
+                    <div 
+                        className="fixed bottom-0 left-0 w-full z-[100] flex flex-col items-center"
+                        onMouseEnter={() => setIsMenuOpen(true)}
+                        onMouseLeave={() => setIsMenuOpen(false)}
+                    >
+                        {isMenuOpen && (
+                            <nav className="w-full max-w-5xl bg-[#0a0a0a] border border-red-600/30 border-b-0 rounded-t-[2rem] flex flex-wrap justify-evenly items-center p-10 gap-6 shadow-2xl animate-in slide-in-from-bottom-10">
+                                {navLinks.map((link, i) => (
+                                    <a 
+                                        key={i} 
+                                        href={link.url}
+                                        style={{ animationDelay: `${i * 50}ms` }}
+                                        className="animate-nav-item opacity-0 flex items-center gap-4 px-6 py-4 rounded-xl bg-zinc-900 border border-zinc-800 hover:border-red-600 hover:bg-red-600/5 transition-all group font-black text-[10px] uppercase tracking-widest w-full md:w-auto text-center hover:scale-105 active:scale-95"
+                                    >
+                                        <i data-lucide={link.icon} className="text-zinc-600 group-hover:text-red-600" style={{width: '14px', height: '14px'}}></i>
+                                        {link.name}
+                                    </a>
+                                ))}
+                            </nav>
+                        )}
 
-            <h3>Global Elite</h3>
-            <div class="link-group">
-                <!-- Updated to be strictly Security Roles -->
-                <a href="https://wellfound.com/jobs?role=Security%20Engineer" target="_blank" class="job-link">
-                    <span class="link-text">Wellfound: Sec Eng</span>
-                    <span class="tag">GLOBAL</span>
-                </a>
-                <a href="https://www.ycombinator.com/jobs/role/security-engineer" target="_blank" class="job-link">
-                    <span class="link-text">YCombinator: Sec Eng</span>
-                    <span class="tag">ELITE</span>
-                </a>
-            </div>
-        </div>
+                        <div className={`w-full py-5 text-center font-black tracking-[0.8em] text-[10px] transition-all duration-700 cursor-pointer ${isMenuOpen ? 'bg-white text-black' : 'bg-red-600 text-white shadow-lg'}`}>
+                            NAV [^]
+                        </div>
+                    </div>
+                </div>
+            );
+        };
 
-        <!-- CARD 5: SPECIALIZED -->
-        <div class="card">
-            <div class="card-header">
-                <h2>05 / Priority Deep Dive</h2>
-                <span class="card-icon">[DEEP]</span>
-            </div>
-
-            <h3>Cloud & Threat Ops</h3>
-            <div class="link-group">
-                <a href="https://www.linkedin.com/jobs/search/?keywords=Cloud%20Security%20Architect&location=India" target="_blank" class="job-link">
-                    <span class="link-text">Cloud Sec Architect</span>
-                    <span class="tag">ARCH</span>
-                </a>
-                <a href="https://www.linkedin.com/jobs/search/?keywords=AWS%20Security%20OR%20Azure%20Security&location=India" target="_blank" class="job-link">
-                    <span class="link-text">AWS / Azure Security</span>
-                    <span class="tag">CLOUD</span>
-                </a>
-                <a href="https://www.linkedin.com/jobs/search/?keywords=Threat%20Hunter%20OR%20Incident%20Response&location=India" target="_blank" class="job-link">
-                    <span class="link-text">Threat Hunter / IR</span>
-                    <span class="tag">SOC+</span>
-                </a>
-            </div>
-
-            <h3>VAPT & Offensive</h3>
-            <div class="link-group">
-                <a href="https://www.linkedin.com/jobs/search/?keywords=Penetration%20Tester&location=India" target="_blank" class="job-link">
-                    <span class="link-text">Penetration Tester</span>
-                    <span class="tag">VAPT</span>
-                </a>
-                <a href="https://www.linkedin.com/jobs/search/?keywords=API%20Security" target="_blank" class="job-link">
-                    <span class="link-text">API Security Testing</span>
-                    <span class="tag">API</span>
-                </a>
-            </div>
-        </div>
-
-        <!-- CARD 6: REMOTE -->
-        <div class="card">
-            <div class="card-header">
-                <h2>06 / Remote Jobs</h2>
-                <span class="card-icon">[USD]</span>
-            </div>
-
-            <h3>Filtered Boards</h3>
-            <div class="link-group">
-                <!-- Strictly filtered for Security now -->
-                <a href="https://weworkremotely.com/remote-jobs/search?term=security" target="_blank" class="job-link">
-                    <span class="link-text">WWR: Security Search</span>
-                    <span class="tag">GLOBAL</span>
-                </a>
-                <a href="https://remoteok.com/remote-infosec-jobs" target="_blank" class="job-link">
-                    <span class="link-text">RemoteOK: InfoSec</span>
-                    <span class="tag">TAG</span>
-                </a>
-                <a href="https://himalayas.app/jobs/security" target="_blank" class="job-link">
-                    <span class="link-text">Himalayas: Security</span>
-                    <span class="tag">CLEAN</span>
-                </a>
-            </div>
-
-            <h3>Global ATS Dorks</h3>
-            <div class="link-group">
-                <a href="https://www.google.com/search?q=site:greenhouse.io+%22Security+Engineer%22+%22Remote%22+-India" target="_blank" class="job-link">
-                    <span class="link-text">Greenhouse: World</span>
-                    <span class="tag">DORK</span>
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <footer>
-        <div>> EXECUTION_COMPLETE</div>
-        <div>v2.0.1</div>
-    </footer>
-</div>
-
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
 </body>
-<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
-<link rel="icon" href="/favicon.ico" type="image/x-icon">
 </html>
