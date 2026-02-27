@@ -1,0 +1,261 @@
+# Warmup and Cooldown Data
+# Optimized for mobility support, joint integrity, and strength performance.
+# No resistance bands included.
+
+exercises:
+  # === DAY A: Legs, Shoulders, Core (Warmup & Cooldown) ===
+  - name: "Dynamic Leg Swings"
+    category: "warmup"
+    muscle_group: "legs"
+    day: "A"
+    description: "Improves hip mobility and dynamically prepares hamstrings and hip flexors."
+    form_tips:
+      - "Keep torso upright and core engaged."
+      - "Swing with control, not momentum."
+    equipment:
+      - "None"
+    gif_url: "src/gifs/dynamic-leg-swings.gif"
+    notes: "Ideal before squats and lunges."
+    duration: "15 reps per leg"
+
+  - name: "Bodyweight Squats"
+    category: "warmup"
+    muscle_group: "legs"
+    day: "A"
+    description: "Primes quads, glutes, and hip joints before loaded work."
+    form_tips:
+      - "Push hips back first."
+      - "Keep chest tall and knees tracking over toes."
+    equipment:
+      - "None"
+    gif_url: "src/gifs/bodyweight-squat.gif"
+    notes: "Gradually increases joint temperature."
+    duration: "15 reps"
+
+  - name: "Arm Circles (Controlled)"
+    category: "warmup"
+    muscle_group: "shoulders"
+    day: "A"
+    description: "Improves shoulder mobility and blood flow."
+    form_tips:
+      - "Start small and increase circle size."
+      - "Keep elbows straight."
+    equipment:
+      - "None"
+    gif_url: "src/gifs/arm-circles.gif"
+    notes: "Prepares shoulders for overhead work."
+    duration: "30 sec each direction"
+
+  - name: "Plank Hold"
+    category: "warmup"
+    muscle_group: "core"
+    day: "A"
+    description: "Activates deep core stabilizers for bracing."
+    form_tips:
+      - "Keep body in straight line."
+      - "Brace as if preparing for a punch."
+    equipment:
+      - "None"
+    gif_url: "src/gifs/plank.gif"
+    notes: "Enhances spinal stability."
+    duration: "30-45 seconds"
+
+  - name: "Standing Hamstring Stretch"
+    category: "cooldown"
+    muscle_group: "legs"
+    day: "A"
+    description: "Restores hamstring length post workout."
+    form_tips:
+      - "Hinge from hips."
+      - "Avoid rounding lower back."
+    equipment:
+      - "None"
+    gif_url: "src/gifs/standing-hamstring-stretch.gif"
+    notes: "Improves posterior chain recovery."
+    duration: "45 sec per leg"
+
+  - name: "Quad Stretch"
+    category: "cooldown"
+    muscle_group: "legs"
+    day: "A"
+    description: "Reduces quadriceps tightness."
+    form_tips:
+      - "Keep knees close together."
+      - "Stand tall."
+    equipment:
+      - "None"
+    gif_url: "src/gifs/quad-stretch.gif"
+    notes: "Supports knee health."
+    duration: "45 sec per leg"
+
+  - name: "Child’s Pose"
+    category: "cooldown"
+    muscle_group: "shoulders"
+    day: "A"
+    description: "Gently stretches shoulders and lower back."
+    form_tips:
+      - "Sit hips back fully."
+      - "Relax neck and breathe deeply."
+    equipment:
+      - "Mat"
+    gif_url: "src/gifs/childs-pose.gif"
+    notes: "Encourages recovery."
+    duration: "60 seconds"
+
+  - name: "Supine Core Breathing"
+    category: "cooldown"
+    muscle_group: "core"
+    day: "A"
+    description: "Promotes parasympathetic recovery and diaphragm activation."
+    form_tips:
+      - "Inhale through nose expanding abdomen."
+      - "Exhale slowly and fully."
+    equipment:
+      - "Mat"
+    gif_url: "src/gifs/diaphragmatic-breathing.gif"
+    notes: "Reduces post-training tension."
+    duration: "2 minutes"
+
+  # === DAY B: Chest, Triceps (Warmup & Cooldown) ===
+  - name: "Arm Swings (Cross Body)"
+    category: "warmup"
+    muscle_group: "chest"
+    day: "B"
+    description: "Improves shoulder mobility before pressing."
+    form_tips:
+      - "Open arms wide then cross in front."
+      - "Maintain upright posture."
+    equipment:
+      - "None"
+    gif_url: "src/gifs/arm-swings.gif"
+    notes: "Warms up pecs dynamically."
+    duration: "30 seconds"
+
+  - name: "Incline Push-ups"
+    category: "warmup"
+    muscle_group: "chest"
+    day: "B"
+    description: "Gradually loads chest and triceps."
+    form_tips:
+      - "Keep body straight."
+      - "Lower with control."
+    equipment:
+      - "Bench or Box"
+    gif_url: "src/gifs/incline-pushups.gif"
+    notes: "Prepares nervous system for pressing."
+    duration: "12 reps"
+
+  - name: "Diamond Push-ups (Light)"
+    category: "warmup"
+    muscle_group: "triceps"
+    day: "B"
+    description: "Activates triceps before heavy work."
+    form_tips:
+      - "Keep elbows close."
+      - "Maintain tight core."
+    equipment:
+      - "None"
+    gif_url: "src/gifs/diamond-pushups.gif"
+    notes: "Enhances elbow stability."
+    duration: "8-10 reps"
+
+  - name: "Doorway Chest Stretch"
+    category: "cooldown"
+    muscle_group: "chest"
+    day: "B"
+    description: "Stretches pectorals after pressing."
+    form_tips:
+      - "Place arms against wall."
+      - "Lean forward gently."
+    equipment:
+      - "Wall or Door Frame"
+    gif_url: "src/gifs/doorway-chest-stretch.gif"
+    notes: "Improves posture."
+    duration: "60 seconds"
+
+  - name: "Overhead Triceps Stretch"
+    category: "cooldown"
+    muscle_group: "triceps"
+    day: "B"
+    description: "Relieves triceps tightness."
+    form_tips:
+      - "Point elbow upward."
+      - "Apply gentle pressure."
+    equipment:
+      - "None"
+    gif_url: "src/gifs/overhead-tricep-stretch.gif"
+    notes: "Supports elbow mobility."
+    duration: "45 sec per arm"
+
+  # === DAY C: Back, Biceps (Warmup & Cooldown) ===
+  - name: "Cat-Cow"
+    category: "warmup"
+    muscle_group: "back"
+    day: "C"
+    description: "Mobilizes spine and warms up posterior chain."
+    form_tips:
+      - "Move slowly between flexion and extension."
+      - "Coordinate with breathing."
+    equipment:
+      - "Mat"
+    gif_url: "src/gifs/cat-cow.gif"
+    notes: "Improves spinal mobility."
+    duration: "10 slow reps"
+
+  - name: "Scapular Push-ups"
+    category: "warmup"
+    muscle_group: "back"
+    day: "C"
+    description: "Activates scapular stabilizers."
+    form_tips:
+      - "Keep arms straight."
+      - "Retract and protract shoulder blades."
+    equipment:
+      - "None"
+    gif_url: "src/gifs/scapular-pushups.gif"
+    notes: "Prepares shoulders for rows and pull-ups."
+    duration: "12 reps"
+
+  - name: "Light Dumbbell Curls"
+    category: "warmup"
+    muscle_group: "biceps"
+    day: "C"
+    description: "Increases blood flow before heavier curls."
+    form_tips:
+      - "Avoid swinging."
+      - "Control eccentric phase."
+    equipment:
+      - "Light Dumbbells"
+    gif_url: "src/gifs/light-dumbbell-curls.gif"
+    notes: "Reduces elbow strain."
+    duration: "12 reps"
+
+  - name: "Seated Forward Fold"
+    category: "cooldown"
+    muscle_group: "back"
+    day: "C"
+    description: "Stretches lower back and hamstrings."
+    form_tips:
+      - "Reach from hips."
+      - "Relax neck and shoulders."
+    equipment:
+      - "Mat"
+    gif_url: "src/gifs/seated-forward-fold.gif"
+    notes: "Encourages recovery."
+    duration: "60 seconds"
+
+  - name: "Biceps Wall Stretch"
+    category: "cooldown"
+    muscle_group: "biceps"
+    day: "C"
+    description: "Stretches biceps and anterior shoulder."
+    form_tips:
+      - "Extend arm against wall."
+      - "Rotate torso away gently."
+    equipment:
+      - "Wall"
+    gif_url: "src/gifs/bicep-wall-stretch.gif"
+    notes: "Maintains elbow flexibility."
+    duration: "45 sec per arm"
+
+# Last Updated: 2026-02-27

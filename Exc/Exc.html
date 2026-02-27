@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workout Cooldown & Warmup Reference</title>
+    <meta name="description" content="A quick reference page for workout warmup and cooldown exercises, filterable by day split.">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- js-yaml for parsing workout data -->
+    <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Link to external stylesheet in the src directory -->
+    <link rel="stylesheet" href="src/style.css">
+
+    <style>
+        /* Base theme styles that are part of the original site's identity */
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700;800&display=swap');
+        
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background-color: #050505;
+            color: #dddddd;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        .scanline {
+            width: 100%;
+            height: 2px;
+            background: #dc2626;
+            opacity: 0.1;
+            position: fixed;
+            z-index: 50;
+            pointer-events: none;
+            animation: scan 10s linear infinite;
+        }
+
+        @keyframes scan {
+            0% { top: -10%; }
+            100% { top: 110%; }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0a0a0a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #dc2626;
+        }
+    </style>
+</head>
+<body class="selection:bg-red-600 selection:text-white">
+    <div class="scanline"></div>
+
+    <!-- Background Glow -->
+    <div class="fixed inset-0 pointer-events-none overflow-hidden">
+        <div class="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-red-600/5 blur-[120px] rounded-full"></div>
+        <div class="absolute bottom-[-5%] right-[-5%] w-[40%] h-[40%] bg-slate-800/20 blur-[100px] rounded-full"></div>
+    </div>
+
+    <div class="relative z-10 min-h-screen p-4 md:p-8 lg:p-12">
+        <main class="max-w-7xl mx-auto">
+            <!-- Header -->
+            <header class="text-center mb-12">
+                <h1 class="text-3xl md:text-4xl font-bold text-white tracking-tighter mb-2">Workout Reference</h1>
+                <p class="text-zinc-400 font-light">Warmup & Cooldown protocols sourced from <code class="text-red-600">workouts.yaml</code></p>
+            </header>
+
+            <!-- Day Navigation -->
+            <nav class="flex justify-center gap-4 mb-12 border border-zinc-800 bg-[#0a0a0a]/90 backdrop-blur-xl p-4 rounded-md max-w-md mx-auto">
+                <button data-day="A" class="day-selector flex-1 text-center text-[10px] font-black tracking-[0.2em] uppercase text-zinc-400 hover:text-red-600 transition-all bg-zinc-900/50 px-3 py-2 border-2 border-transparent hover:border-red-600/30">Day A</button>
+                <button data-day="B" class="day-selector flex-1 text-center text-[10px] font-black tracking-[0.2em] uppercase text-zinc-400 hover:text-red-600 transition-all bg-zinc-900/50 px-3 py-2 border-2 border-transparent hover:border-red-600/30">Day B</button>
+                <button data-day="C" class="day-selector flex-1 text-center text-[10px] font-black tracking-[0.2em] uppercase text-zinc-400 hover:text-red-600 transition-all bg-zinc-900/50 px-3 py-2 border-2 border-transparent hover:border-red-600/30">Day C</button>
+            </nav>
+
+            <!-- Muscle groups for the selected day -->
+            <div id="muscle-groups-display" class="text-center mb-12 text-zinc-500 text-sm font-bold tracking-wider">
+                <!-- JS will populate this -->
+            </div>
+            
+            <!-- Content Sections -->
+            <div id="content-container" class="space-y-16">
+                <!-- Warmup Section -->
+                <div>
+                    <h2 class="flex items-center gap-3 text-red-600 text-lg font-black tracking-[0.3em] uppercase mb-8">
+                        <i data-lucide="flame"></i> Warmup
+                    </h2>
+                    <div id="warmup-section" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <!-- JS will populate this section -->
+                    </div>
+                </div>
+
+                <!-- Cooldown Section -->
+                <div>
+                    <h2 class="flex items-center gap-3 text-cyan-400 text-lg font-black tracking-[0.3em] uppercase mb-8">
+                        <i data-lucide="snowflake"></i> Cooldown
+                    </h2>
+                    <div id="cooldown-section" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <!-- JS will populate this section -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <footer class="mt-20 pt-10 border-t border-zinc-800 text-center opacity-60">
+                <p id="last-updated" class="text-[9px] font-bold tracking-[0.2em] uppercase text-zinc-500">
+                    <!-- JS will populate this -->
+                </p>
+            </footer>
+        </main>
+    </div>
+
+    <!-- Link to external script in the src directory -->
+    <script src="src/app.js"></script>
+</body>
+</html>

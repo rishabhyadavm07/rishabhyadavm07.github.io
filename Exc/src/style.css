@@ -1,0 +1,33 @@
+/* Component-specific styles for the workout page */
+
+/* Smooth transitions for content visibility */
+.content-section {
+    transition: opacity 0.5s ease-in-out;
+}
+
+/* Accordion styles for expandable form tips */
+.accordion-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.accordion-content.open {
+    max-height: 500px; /* Adjust as needed */
+}
+
+/* Active state for the day selector buttons */
+.day-selector.active {
+    color: #ffffff;
+    background-color: #dc2626;
+    border-color: #dc2626;
+}
+
+/* Lazy-loaded GIF placeholder style */
+img[data-src] {
+    filter: blur(10px);
+    transition: filter 0.5s;
+}
+
+img.lazy-loaded {
+    filter: blur(0);
+}
