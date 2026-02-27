@@ -14,7 +14,7 @@ exercises:
       - "Swing with control, not momentum."
     equipment:
       - "None"
-    gif_url: "src/gifs/dynamic-leg-swings.gif"
+    gif_url: "src/gifs/Dynamic Leg Swings.webp"
     notes: "Ideal before squats and lunges."
     duration: "15 reps per leg"
 
@@ -28,7 +28,7 @@ exercises:
       - "Keep chest tall and knees tracking over toes."
     equipment:
       - "None"
-    gif_url: "src/gifs/bodyweight-squat.gif"
+    gif_url: "src/gifs/Bodyweight Squats.gif"
     notes: "Gradually increases joint temperature."
     duration: "15 reps"
 
@@ -42,7 +42,7 @@ exercises:
       - "Keep elbows straight."
     equipment:
       - "None"
-    gif_url: "src/gifs/arm-circles.gif"
+    gif_url: "src/gifs/Arm circles.gif"
     notes: "Prepares shoulders for overhead work."
     duration: "30 sec each direction"
 
@@ -56,7 +56,7 @@ exercises:
       - "Brace as if preparing for a punch."
     equipment:
       - "None"
-    gif_url: "src/gifs/plank.gif"
+    gif_url: "src/gifs/Plank Hold.jpg"
     notes: "Enhances spinal stability."
     duration: "30-45 seconds"
 
@@ -70,7 +70,7 @@ exercises:
       - "Avoid rounding lower back."
     equipment:
       - "None"
-    gif_url: "src/gifs/standing-hamstring-stretch.gif"
+    gif_url: "src/gifs/Standing Hamstring Streach.gif"
     notes: "Improves posterior chain recovery."
     duration: "45 sec per leg"
 
@@ -84,7 +84,7 @@ exercises:
       - "Stand tall."
     equipment:
       - "None"
-    gif_url: "src/gifs/quad-stretch.gif"
+    gif_url: "src/gifs/Standing Quad Strech.gif"
     notes: "Supports knee health."
     duration: "45 sec per leg"
 
@@ -98,7 +98,7 @@ exercises:
       - "Relax neck and breathe deeply."
     equipment:
       - "Mat"
-    gif_url: "src/gifs/childs-pose.gif"
+    gif_url: "src/gifs/Child's Pose.jpg"
     notes: "Encourages recovery."
     duration: "60 seconds"
 
@@ -112,7 +112,7 @@ exercises:
       - "Exhale slowly and fully."
     equipment:
       - "Mat"
-    gif_url: "src/gifs/diaphragmatic-breathing.gif"
+    gif_url: "src/gifs/Supine Core Breathing.jpg"
     notes: "Reduces post-training tension."
     duration: "2 minutes"
 
@@ -127,7 +127,7 @@ exercises:
       - "Maintain upright posture."
     equipment:
       - "None"
-    gif_url: "src/gifs/arm-swings.gif"
+    gif_url: "src/gifs/Arm Swings.gif"
     notes: "Warms up pecs dynamically."
     duration: "30 seconds"
 
@@ -141,7 +141,7 @@ exercises:
       - "Lower with control."
     equipment:
       - "Bench or Box"
-    gif_url: "src/gifs/incline-pushups.gif"
+    gif_url: "src/gifs/Incline Push-Ups.jpg"
     notes: "Prepares nervous system for pressing."
     duration: "12 reps"
 
@@ -155,7 +155,7 @@ exercises:
       - "Maintain tight core."
     equipment:
       - "None"
-    gif_url: "src/gifs/diamond-pushups.gif"
+    gif_url: "src/gifs/Diamond Push-Ups.gif"
     notes: "Enhances elbow stability."
     duration: "8-10 reps"
 
@@ -169,7 +169,7 @@ exercises:
       - "Lean forward gently."
     equipment:
       - "Wall or Door Frame"
-    gif_url: "src/gifs/doorway-chest-stretch.gif"
+    gif_url: "src/gifs/Doorway Chest Stretch.gif"
     notes: "Improves posture."
     duration: "60 seconds"
 
@@ -183,7 +183,7 @@ exercises:
       - "Apply gentle pressure."
     equipment:
       - "None"
-    gif_url: "src/gifs/overhead-tricep-stretch.gif"
+    gif_url: "src/gifs/Overhead Triceps Stretch.gif"
     notes: "Supports elbow mobility."
     duration: "45 sec per arm"
 
@@ -198,7 +198,7 @@ exercises:
       - "Coordinate with breathing."
     equipment:
       - "Mat"
-    gif_url: "src/gifs/cat-cow.gif"
+    gif_url: "src/gifs/Cat–Cow.jpg"
     notes: "Improves spinal mobility."
     duration: "10 slow reps"
 
@@ -212,7 +212,7 @@ exercises:
       - "Retract and protract shoulder blades."
     equipment:
       - "None"
-    gif_url: "src/gifs/scapular-pushups.gif"
+    gif_url: "src/gifs/Scapular Push-Ups.gif"
     notes: "Prepares shoulders for rows and pull-ups."
     duration: "12 reps"
 
@@ -226,7 +226,7 @@ exercises:
       - "Control eccentric phase."
     equipment:
       - "Light Dumbbells"
-    gif_url: "src/gifs/light-dumbbell-curls.gif"
+    gif_url: "src/gifs/Light Dumbbell Curls.webp"
     notes: "Reduces elbow strain."
     duration: "12 reps"
 
@@ -240,7 +240,7 @@ exercises:
       - "Relax neck and shoulders."
     equipment:
       - "Mat"
-    gif_url: "src/gifs/seated-forward-fold.gif"
+    gif_url: "src/gifs/Seated Forward Fold.jpg"
     notes: "Encourages recovery."
     duration: "60 seconds"
 
@@ -254,7 +254,7 @@ exercises:
       - "Rotate torso away gently."
     equipment:
       - "Wall"
-    gif_url: "src/gifs/bicep-wall-stretch.gif"
+    gif_url: "src/gifs/Biceps Wall Stretch.gif"
     notes: "Maintains elbow flexibility."
     duration: "45 sec per arm"
 
