@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resudit | fanaticalnerd</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700;800&display=swap');
+
+    body {
+        font-family: 'JetBrains Mono', monospace;
+        background-color: #050505;
+        color: #dddddd;
+        margin: 0;
+        overflow-x: hidden;
+    }
+
+    .scanline {
+        width: 100%;
+        height: 2px;
+        background: #dc2626;
+        opacity: 0.1;
+        position: fixed;
+        z-index: 50;
+        pointer-events: none;
+        animation: scan 10s linear infinite;
+    }
+
+    @keyframes scan {
+        0% { top: -10%; }
+        100% { top: 110%; }
+    }
+
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #0a0a0a; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #dc2626; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .glass-card {
+        background: rgba(17, 17, 17, 0.95);
+        border: 1px solid rgba(31, 41, 55, 1);
+        transition: all 0.2s ease-in-out;
+    }
+    .glass-card:hover {
+        border-color: rgba(220, 38, 38, 0.5);
+        box-shadow: 0 0 25px rgba(220, 38, 38, 0.15);
+    }
+
+    textarea {
+        background: rgba(10, 10, 10, 0.95);
+        border: 1px solid rgba(31, 41, 55, 1);
+        color: #dddddd;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        padding: 14px 16px;
+        resize: vertical;
+        min-height: 220px;
+        outline: none;
+        line-height: 1.65;
+        transition: all 0.2s ease;
+        caret-color: #dc2626;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    textarea:focus {
+        border-color: #dc2626;
+        box-shadow: 0 0 15px rgba(220, 38, 38, 0.1);
+    }
+    textarea::placeholder { color: #3f3f46; }
+
+    .output-textarea {
+        background: rgba(17, 17, 17, 0.95);
+        border: 1px solid rgba(31, 41, 55, 1);
+        border-left: 4px solid #dc2626;
+        color: #e4e4e7;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        padding: 16px 18px;
+        resize: vertical;
+        min-height: 300px;
+        outline: none;
+        line-height: 1.7;
+        transition: all 0.2s ease;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    .output-textarea:focus {
+        border-color: rgba(220, 38, 38, 0.6);
+        box-shadow: 0 0 25px rgba(220, 38, 38, 0.12);
+    }
+
+    .spinner {
+        width: 14px; height: 14px;
+        border: 2px solid rgba(255,255,255,.3);
+        border-top-color: #fff;
+        border-radius: 50%;
+        animation: spin .55s linear infinite;
+        display: inline-block;
+    }
+
+    input[type="password"] { caret-color: #dc2626; }
+    .icon { display: inline-block; vertical-align: middle; }
+
+    /* ─── ATS Score Gauge ─── */
+    .score-ring {
+        transform: rotate(-90deg);
+        transition: none;
+    }
+    .score-ring circle.track {
+        fill: none;
+        stroke: #1f2937;
+        stroke-width: 6;
+    }
+    .score-ring circle.fill {
+        fill: none;
+        stroke-width: 6;
+        stroke-linecap: round;
+        stroke-dasharray: 339.292;
+        stroke-dashoffset: 339.292;
+        transition: stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1), stroke 0.3s ease;
+    }
+
+    @keyframes pulse-glow {
+        0%, 100% { filter: drop-shadow(0 0 6px rgba(220, 38, 38, 0.3)); }
+        50% { filter: drop-shadow(0 0 16px rgba(220, 38, 38, 0.6)); }
+    }
+    .score-glow {
+        animation: pulse-glow 2s ease-in-out infinite;
+    }
+
+    @keyframes count-fade {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .score-num {
+        animation: count-fade 0.5s ease-out forwards;
+    }
+</style>
+</head>
+<body class="custom-scrollbar selection:bg-red-600 selection:text-white">
+    <div class="scanline"></div>
+
+    <div class="fixed inset-0 pointer-events-none overflow-hidden -z-10">
+        <div class="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-red-600/5 blur-[120px] rounded-full"></div>
+        <div class="absolute bottom-[-5%] right-[-5%] w-[40%] h-[40%] bg-slate-800/20 blur-[100px] rounded-full"></div>
+    </div>
+
+    <div class="min-h-screen p-4 md:p-12">
+        <main class="max-w-5xl mx-auto relative z-10 border border-zinc-800 bg-[#0a0a0a]/95 backdrop-blur-xl shadow-2xl p-6 md:p-12 mb-10 rounded-md">
+
+            <!-- Header -->
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10 border-b border-zinc-800 pb-10">
+                <div class="space-y-3">
+                    <a href="index.html" class="flex items-center gap-2 text-[10px] font-black tracking-[0.2em] text-zinc-500 hover:text-red-600 transition-all bg-zinc-900/30 px-4 py-2 border border-zinc-800 hover:border-red-600/40 w-max">
+                        <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                        BACK_TO_INTERFACE
+                    </a>
+                    <h1 class="text-white text-3xl md:text-5xl font-black tracking-tighter uppercase leading-none">Resudit</h1>
+                    <p class="text-zinc-500 text-[10px] font-black tracking-[0.2em] uppercase">
+                        <span class="text-red-600">>></span> SCOPE: SKILLS_SECTION_ONLY &nbsp;|&nbsp; ENGINE: GEMINI &nbsp;|&nbsp; TARGET: 95+ ATS
+                    </p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="text-[9px] font-bold text-zinc-600 uppercase tracking-[0.2em] border border-zinc-800 px-3 py-1.5 bg-zinc-950">LATEX_IN → LATEX_OUT</span>
+                </div>
+            </div>
+
+            <!-- API Key -->
+            <div class="glass-card p-5 mb-8">
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="text-red-600 animate-pulse text-sm">■</span>
+                    <span class="text-[10px] text-zinc-500 font-black uppercase tracking-[0.3em]">Gemini_API_Config</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <input id="apiKey" type="password" placeholder="GEMINI_API_KEY_STRING..."
+                        class="flex-1 px-4 py-3 bg-zinc-900/50 border border-zinc-800 text-sm focus:border-red-600 outline-none text-white font-mono placeholder:text-zinc-700 transition-all">
+                </div>
+                <div class="mt-2 text-[9px] text-zinc-600 font-bold tracking-widest uppercase">
+                    Free key → <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener" class="text-red-600 hover:underline">aistudio.google.com/apikey</a> &nbsp;|&nbsp; Key stored locally only
+                </div>
+            </div>
+
+            <!-- Input Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black tracking-[0.3em] text-red-600 uppercase flex items-center gap-2">
+                        <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                        LaTeX_Resume
+                    </label>
+                    <textarea id="latex" placeholder="PASTE_FULL_LATEX_RESUME_HERE...&#10;>> Only the skills section will be modified." spellcheck="false"></textarea>
+                </div>
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black tracking-[0.3em] text-red-600 uppercase flex items-center gap-2">
+                        <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/></svg>
+                        Job_Description
+                    </label>
+                    <textarea id="jd" placeholder="PASTE_TARGET_JD_HERE..."></textarea>
+                </div>
+            </div>
+
+            <!-- Error -->
+            <div id="error" class="border border-red-900/50 bg-red-950/20 p-4 text-red-500 text-xs font-black tracking-widest uppercase mb-4" style="display:none"></div>
+
+            <!-- Button -->
+            <button id="goBtn" onclick="optimize()"
+                class="w-full bg-red-600 hover:bg-red-700 text-white font-black py-4 uppercase tracking-[0.2em] text-xs transition-all active:scale-[0.98] shadow-lg flex items-center justify-center gap-3 mb-2 disabled:opacity-50 disabled:cursor-wait">
+                <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                Go
+            </button>
+            <div id="status" class="text-center text-[10px] text-zinc-600 font-bold tracking-widest uppercase mb-8 min-h-[18px]"></div>
+
+            <!-- ═══ OUTPUT SECTION ═══ -->
+            <div id="outputSection" style="display:none">
+
+                <!-- ATS Score Display -->
+                <div class="glass-card p-6 md:p-8 mb-8 border-red-600/30">
+                    <div class="flex items-center gap-2 mb-6">
+                        <svg class="icon text-red-600" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                        <span class="text-[10px] font-black tracking-[0.3em] text-red-600 uppercase">ATS_Compatibility_Score</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+                        <!-- Before -->
+                        <div class="flex flex-col items-center gap-3">
+                            <div class="relative w-32 h-32">
+                                <svg class="score-ring w-full h-full" viewBox="0 0 120 120">
+                                    <circle class="track" cx="60" cy="60" r="54"/>
+                                    <circle id="scoreBefore" class="fill" cx="60" cy="60" r="54" stroke="#ef4444"/>
+                                </svg>
+                                <div class="absolute inset-0 flex flex-col items-center justify-center">
+                                    <span id="scoreBeforeNum" class="text-2xl font-black text-red-500 score-num">—</span>
+                                    <span class="text-[8px] text-zinc-600 font-bold tracking-widest uppercase">BEFORE</span>
+                                </div>
+                            </div>
+                            <span class="text-[9px] text-zinc-600 font-black tracking-widest uppercase">Original_Score</span>
+                        </div>
+
+                        <!-- Arrow -->
+                        <div class="flex flex-col items-center gap-2">
+                            <svg class="text-zinc-700" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                            <span id="scoreDelta" class="text-[10px] font-black text-green-500 tracking-widest uppercase">—</span>
+                        </div>
+
+                        <!-- After -->
+                        <div class="flex flex-col items-center gap-3">
+                            <div class="relative w-32 h-32 score-glow">
+                                <svg class="score-ring w-full h-full" viewBox="0 0 120 120">
+                                    <circle class="track" cx="60" cy="60" r="54"/>
+                                    <circle id="scoreAfter" class="fill" cx="60" cy="60" r="54" stroke="#22c55e"/>
+                                </svg>
+                                <div class="absolute inset-0 flex flex-col items-center justify-center">
+                                    <span id="scoreAfterNum" class="text-2xl font-black text-green-500 score-num">—</span>
+                                    <span class="text-[8px] text-zinc-600 font-bold tracking-widest uppercase">AFTER</span>
+                                </div>
+                            </div>
+                            <span class="text-[9px] text-zinc-600 font-black tracking-widest uppercase">Optimized_Score</span>
+                        </div>
+                    </div>
+                    <!-- Keywords matched -->
+                    <div id="keywordsBar" class="mt-6 pt-5 border-t border-zinc-800" style="display:none">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-[9px] font-black tracking-widest text-zinc-500 uppercase">JD_Keywords_Matched</span>
+                            <span id="kwCount" class="text-[9px] font-black tracking-widest text-green-500 uppercase"></span>
+                        </div>
+                        <div class="w-full h-2 bg-zinc-900 rounded-full overflow-hidden">
+                            <div id="kwBar" class="h-full bg-gradient-to-r from-red-600 to-green-500 rounded-full transition-all duration-1000 ease-out" style="width:0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Output Box -->
+                <div class="bg-[#111111] border-l-4 border-red-600 p-6 relative shadow-lg mb-8">
+                    <div class="absolute top-0 right-0 p-3 text-[8px] text-red-600 opacity-30 font-bold uppercase tracking-widest">
+                        X-OUTPUT: OPTIMIZED
+                    </div>
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-2">
+                            <span class="text-red-600 animate-pulse text-lg">■</span>
+                            <span class="text-[10px] text-zinc-500 font-black uppercase tracking-[0.3em]">Optimized_LaTeX_Output</span>
+                        </div>
+                        <button id="copyBtn" onclick="copyOutput()"
+                            class="text-[9px] font-bold text-zinc-400 hover:text-red-600 transition-all border border-zinc-800 px-4 py-2 bg-zinc-950 flex items-center gap-2 hover:bg-zinc-900 hover:border-red-600/40 active:translate-y-0.5 uppercase tracking-widest">
+                            <svg class="icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                            COPY_LATEX
+                        </button>
+                    </div>
+                    <textarea id="outputBox" class="output-textarea custom-scrollbar" readonly spellcheck="false"></textarea>
+                </div>
+
+                <!-- Changes -->
+                <div class="glass-card p-6 mb-6">
+                    <div class="flex items-center gap-2 mb-5">
+                        <svg class="icon text-red-600" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M6 21V9a9 9 0 0 0 9 9"/></svg>
+                        <span id="changesTitle" class="text-[10px] font-black tracking-[0.3em] text-red-600 uppercase">Changes</span>
+                    </div>
+                    <div id="changesList" class="space-y-3"></div>
+                </div>
+
+                <!-- Tips -->
+                <div class="glass-card p-6">
+                    <div class="flex items-center gap-2 mb-5">
+                        <svg class="icon text-red-600" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        <span class="text-[10px] font-black tracking-[0.3em] text-red-600 uppercase">ATS_Intel_Tips</span>
+                    </div>
+                    <div id="tipsList" class="space-y-3"></div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="mt-12 pt-10 border-t border-zinc-800 text-center space-y-4 opacity-60">
+                <div class="text-[9px] font-bold tracking-[0.6em] uppercase">
+                    | Always cross-check the optimized LaTeX for formatting integrity. |
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+<script>
+var SYSTEM_PROMPT = [
+'You are SkillForge — an elite ATS resume optimization engine.',
+'',
+'═══ MISSION ═══',
+'You receive a FULL LaTeX resume and a Job Description (JD).',
+'Edit ONLY the plain-text skill terms inside the skills section to maximize ATS score to 95+.',
+'Calculate and report ATS score BEFORE and AFTER edits.',
+'',
+'═══ ATS SCORING ═══',
+'1. Extract all keywords/tools/technologies/methodologies from the JD.',
+'2. Count how many appear in the resume skills section.',
+'3. Score = (matched / total) * 100.',
+'4. Calculate BEFORE (original) and AFTER (modified) scores.',
+'5. Target: AFTER >= 95.',
+'',
+'═══ WHAT YOU CAN CHANGE — TWO PHASES ═══',
+'',
+'PHASE 1 — REPLACEMENTS (do these FIRST):',
+'• Scan the skills section for low-impact, vague, or generic terms that can be swapped with exact JD keywords.',
+'• Replace one plain-text skill term with a semantically equivalent JD keyword (e.g., "MS Office" → "Microsoft Office Suite").',
+'• There is no hard cap on replacements — replace as many weak terms as needed.',
+'• Replacements are ALWAYS preferred over additions because they keep the resume length stable.',
+'',
+'PHASE 2 — ADDITIONS (only AFTER all replacements are done):',
+'• If the ATS score is still below 95 after all replacements, THEN add new JD keywords.',
+'• Add new terms by appending to the END of an EXISTING comma-separated list.',
+'• MAXIMUM 7 new keyword additions. Never exceed 7 additions.',
+'• Only add terms the candidate plausibly possesses based on their experience/education.',
+'• Do NOT create new \\item entries or new lines — append to existing lists only.',
+'',
+'PRIORITY ORDER:',
+'1. Replace weak/generic terms with exact JD matches.',
+'2. Replace synonym mismatches (e.g., "testing" → "penetration testing" if JD says that).',
+'3. Add missing critical JD keywords (max 7 additions).',
+'4. Stop when score >= 95.',
+'',
+'═══ ABSOLUTE FORMATTING RULES — READ CAREFULLY ═══',
+'',
+'!! CRITICAL: Your #1 job is to NOT break the LaTeX. Formatting violations are WORSE than a low ATS score. !!',
+'',
+'NEVER CHANGE:',
+'• Any LaTeX command: \\section, \\textbf, \\item, \\begin, \\end, \\hfill, \\resumeItem, \\resumeSubHeadingListStart, or ANY custom command/macro.',
+'• Any line that starts with \\ (backslash) — copy it EXACTLY.',
+'• Any comment line starting with %.',
+'• Any \\begin{...} or \\end{...} line.',
+'• Any blank/empty line.',
+'• Any line break position — if the original has a newline somewhere, keep it.',
+'• Any spacing, indentation, or whitespace pattern.',
+'• The \\documentclass line and everything in the preamble (before \\begin{document}).',
+'• EVERYTHING outside the skills section — copy byte-for-byte.',
+'',
+'YOUR EDIT TECHNIQUE:',
+'• Find the skills section (usually \\section{Skills}, \\section{Technical Skills}, etc.).',
+'• Within that section, locate the plain-text skill terms (the words between commas, inside \\textbf{} labels, etc.).',
+'• ONLY swap/add plain-text words. Do NOT restructure, reorder lines, add new \\item entries, remove \\item entries, change \\textbf{} labels, or alter any LaTeX syntax.',
+'• If skills are in a comma-separated list like "Python, Java, C++", you may change to "Python, Java, Go" — but keep the same comma+space pattern.',
+'• If adding a term, append it to the END of an existing comma-separated list. Do not create new lines or new \\item entries.',
+'',
+'EXAMPLE OF CORRECT EDIT:',
+'Original: \\textbf{Languages:} Python, Java, C++ \\\\',
+'Modified: \\textbf{Languages:} Python, Java, C++, Go \\\\',
+'(Only "Go" added at end. The \\textbf, colon, spaces, and \\\\ are IDENTICAL.)',
+'',
+'EXAMPLE OF WRONG EDIT (DO NOT DO THIS):',
+'Original: \\textbf{Languages:} Python, Java, C++ \\\\',
+'Wrong:   \\textbf{Programming Languages:} Go, Python, Java, C++ \\\\',
+'(Changed the label AND reordered — this is FORBIDDEN.)',
+'',
+'═══ OUTPUT FORMAT — IN THIS EXACT ORDER ═══',
+'',
+'<ATS_SCORE>',
+'before: [number]',
+'after: [number]',
+'keywords_matched: [number]',
+'keywords_total: [number]',
+'</ATS_SCORE>',
+'',
+'<CHANGES>',
+'[List REPLACEMENTS first, then ADDITIONS]',
+'- "original term" → "replacement term" | reason',
+'- "original term" → "replacement term" | reason',
+'- ADDED: "new term" to [which list/line] | reason',
+'[Replacements have no cap. Additions: max 7.]',
+'</CHANGES>',
+'',
+'<TIPS>',
+'- tip 1',
+'- tip 2',
+'- tip 3',
+'</TIPS>',
+'',
+'<LATEX>',
+'[COMPLETE resume from first line to last line, with ONLY skill terms changed inside the skills section. Every other character must be identical to the input.]',
+'</LATEX>',
+'',
+'═══ FINAL WARNINGS ═══',
+'• Output ATS_SCORE, CHANGES, TIPS first, then LATEX last.',
+'• Do NOT use markdown fences or JSON.',
+'• Do NOT reformat, restructure, or "clean up" the LaTeX.',
+'• Do NOT change any \\command, any {argument}, any comment, any blank line.',
+'• If you are unsure whether something is a formatting element, DO NOT CHANGE IT.',
+'• Copy-paste the entire input resume into <LATEX>, then ONLY do find-and-replace on the specific skill terms you listed in <CHANGES>. Nothing else.'
+].join('\n');
+
+var resultData = null;
+var CIRCUMFERENCE = 2 * Math.PI * 54; // 339.292
+
+function setStatus(msg, type) {
+    var el = document.getElementById('status');
+    el.textContent = msg;
+    el.className = 'text-center text-[10px] font-bold tracking-widest uppercase mb-8 min-h-[18px]';
+    if (type === 'ok') el.classList.add('text-green-500');
+    else if (type === 'fail') el.classList.add('text-red-500');
+    else el.classList.add('text-zinc-600');
+}
+
+function showError(msg) {
+    var el = document.getElementById('error');
+    el.textContent = '!! ' + msg + ' !!';
+    el.style.display = msg ? 'block' : 'none';
+}
+
+function parseResponse(text) {
+    var result = { modified_latex: '', changes: [], ats_tips: [], score_before: 0, score_after: 0, kw_matched: 0, kw_total: 0 };
+
+    // ATS Score
+    var scoreMatch = text.match(/<ATS_SCORE>([\s\S]*?)<\/ATS_SCORE>/);
+    if (scoreMatch) {
+        var block = scoreMatch[1];
+        var bm = block.match(/before\s*:\s*(\d+)/);
+        var am = block.match(/after\s*:\s*(\d+)/);
+        var kwm = block.match(/keywords_matched\s*:\s*(\d+)/);
+        var kwt = block.match(/keywords_total\s*:\s*(\d+)/);
+        if (bm) result.score_before = parseInt(bm[1]);
+        if (am) result.score_after = parseInt(am[1]);
+        if (kwm) result.kw_matched = parseInt(kwm[1]);
+        if (kwt) result.kw_total = parseInt(kwt[1]);
+    }
+
+    var latexMatch = text.match(/<LATEX>([\s\S]*?)<\/LATEX>/);
+    if (latexMatch) result.modified_latex = latexMatch[1].trim();
+
+    var changesMatch = text.match(/<CHANGES>([\s\S]*?)<\/CHANGES>/);
+    if (changesMatch) {
+        var lines = changesMatch[1].trim().split('\n').filter(function(l) { return l.trim().startsWith('-'); });
+        result.changes = lines.map(function(line) {
+            var clean = line.replace(/^-\s*/, '');
+            // Check for ADDED: pattern
+            var addedMatch = clean.match(/^ADDED:\s*"([^"]+)"\s*\|?\s*(.*)/i);
+            if (addedMatch) return { original: '—', replacement: addedMatch[1], reason: addedMatch[2].trim() };
+            var quoted = clean.match(/"([^"]+)"\s*(?:→|->|=>|—>)\s*"([^"]+)"\s*\|?\s*(.*)/);
+            if (quoted) return { original: quoted[1], replacement: quoted[2], reason: quoted[3].trim() };
+            var parts = clean.split(/\s*(?:→|->|=>|—>)\s*/);
+            if (parts.length >= 2) {
+                var right = parts[1].split(/\s*\|\s*/);
+                return { original: parts[0].trim().replace(/^"|"$/g,''), replacement: right[0].trim().replace(/^"|"$/g,''), reason: (right[1] || '').trim() };
+            }
+            return { original: clean, replacement: '', reason: '' };
+        });
+    }
+
+    var tipsMatch = text.match(/<TIPS>([\s\S]*?)<\/TIPS>/);
+    if (tipsMatch) {
+        result.ats_tips = tipsMatch[1].trim().split('\n')
+            .map(function(l) { return l.replace(/^-\s*/, '').replace(/^\d+\.\s*/, '').trim(); })
+            .filter(Boolean);
+    }
+    return result;
+}
+
+function fetchWithTimeout(url, options, ms) {
+    return new Promise(function(resolve, reject) {
+        var timer = setTimeout(function() { reject(new Error('REQUEST_TIMED_OUT_AFTER_' + Math.round(ms / 1000) + 'S')); }, ms);
+        fetch(url, options).then(function(res) { clearTimeout(timer); resolve(res); }).catch(function(err) { clearTimeout(timer); reject(err); });
+    });
+}
+
+function copyOutput() {
+    var box = document.getElementById('outputBox');
+    if (!box.value) return;
+    box.select(); box.setSelectionRange(0, box.value.length);
+    navigator.clipboard.writeText(box.value).then(function() {
+        var b = document.getElementById('copyBtn');
+        var orig = b.innerHTML;
+        b.innerHTML = '<svg class="icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> COPIED';
+        setTimeout(function() { b.innerHTML = orig; }, 2000);
+    });
+}
+
+function animateScore(el, numEl, score, color) {
+    var offset = CIRCUMFERENCE - (score / 100) * CIRCUMFERENCE;
+    // Reset first
+    el.style.transition = 'none';
+    el.style.strokeDashoffset = CIRCUMFERENCE;
+    el.style.stroke = color;
+    // Force reflow then animate
+    el.getBoundingClientRect();
+    el.style.transition = 'stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1)';
+    el.style.strokeDashoffset = offset;
+
+    // Animate number counting
+    var start = 0;
+    var duration = 1500;
+    var startTime = null;
+    function step(ts) {
+        if (!startTime) startTime = ts;
+        var progress = Math.min((ts - startTime) / duration, 1);
+        var eased = 1 - Math.pow(1 - progress, 3);
+        var current = Math.round(eased * score);
+        numEl.textContent = current;
+        if (progress < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+}
+
+function renderResults() {
+    if (!resultData) return;
+    document.getElementById('outputSection').style.display = 'block';
+
+    // Scores
+    var sb = Math.max(0, Math.min(100, resultData.score_before));
+    var sa = Math.max(0, Math.min(100, resultData.score_after));
+
+    setTimeout(function() {
+        animateScore(
+            document.getElementById('scoreBefore'),
+            document.getElementById('scoreBeforeNum'),
+            sb, sb >= 70 ? '#eab308' : '#ef4444'
+        );
+        animateScore(
+            document.getElementById('scoreAfter'),
+            document.getElementById('scoreAfterNum'),
+            sa, sa >= 90 ? '#22c55e' : '#eab308'
+        );
+        // Color the after number
+        var afterNumEl = document.getElementById('scoreAfterNum');
+        afterNumEl.className = 'text-2xl font-black score-num ' + (sa >= 90 ? 'text-green-500' : 'text-yellow-500');
+        var beforeNumEl = document.getElementById('scoreBeforeNum');
+        beforeNumEl.className = 'text-2xl font-black score-num ' + (sb >= 70 ? 'text-yellow-500' : 'text-red-500');
+    }, 200);
+
+    // Delta
+    var delta = sa - sb;
+    document.getElementById('scoreDelta').textContent = (delta > 0 ? '+' : '') + delta + ' PTS';
+    document.getElementById('scoreDelta').className = 'text-[10px] font-black tracking-widest uppercase ' + (delta > 0 ? 'text-green-500' : 'text-zinc-500');
+
+    // Keywords bar
+    if (resultData.kw_total > 0) {
+        document.getElementById('keywordsBar').style.display = 'block';
+        document.getElementById('kwCount').textContent = resultData.kw_matched + ' / ' + resultData.kw_total + ' KEYWORDS';
+        var pct = Math.round((resultData.kw_matched / resultData.kw_total) * 100);
+        setTimeout(function() {
+            document.getElementById('kwBar').style.width = pct + '%';
+        }, 300);
+    }
+
+    // Output textarea
+    var box = document.getElementById('outputBox');
+    box.value = resultData.modified_latex;
+    box.style.height = 'auto';
+    box.style.height = Math.min(Math.max(box.scrollHeight + 4, 300), 550) + 'px';
+
+    // Changes
+    var changes = resultData.changes || [];
+    document.getElementById('changesTitle').textContent = 'CHANGES (' + changes.length + ')';
+    var cl = document.getElementById('changesList');
+    if (changes.length === 0) {
+        cl.innerHTML = '<p class="text-zinc-700 text-[10px] italic uppercase tracking-widest">NO_CHANGES_REQUIRED</p>';
+    } else {
+        var html = '';
+        for (var i = 0; i < changes.length; i++) {
+            var c = changes[i];
+            var isAdded = c.original === '—' || c.original.toLowerCase() === 'added';
+            html += '<div class="p-4 bg-zinc-900/30 border-l-2 border-zinc-800 hover:border-red-600 transition-all">' +
+                '<div class="flex items-center gap-3 flex-wrap">';
+            if (isAdded) {
+                html += '<span class="px-3 py-1 text-[10px] bg-blue-950/40 border border-blue-900/30 text-blue-400 font-bold">+ ADDED</span>';
+            } else {
+                html += '<span class="px-3 py-1 text-[10px] bg-red-950/40 border border-red-900/30 text-red-500 font-bold">' + esc(c.original) + '</span>' +
+                    '<span class="text-zinc-700 text-xs font-black">→</span>';
+            }
+            html += '<span class="px-3 py-1 text-[10px] bg-green-950/40 border border-green-900/30 text-green-500 font-bold">' + esc(c.replacement) + '</span>' +
+                '</div><p class="mt-2 text-[9px] text-zinc-600 font-bold tracking-wider uppercase">' + esc(c.reason) + '</p></div>';
+        }
+        cl.innerHTML = html;
+    }
+
+    // Tips
+    var tips = resultData.ats_tips || [];
+    var tl = document.getElementById('tipsList');
+    var thtml = '';
+    for (var j = 0; j < tips.length; j++) {
+        thtml += '<div class="flex items-start gap-4 p-4 bg-zinc-900/30 border-l-2 border-zinc-800 hover:border-red-600 transition-all">' +
+            '<span class="text-[10px] font-black text-red-600 mt-0.5">' + String(j + 1).padStart(2, '0') + '</span>' +
+            '<span class="text-xs text-zinc-400 leading-relaxed">' + esc(tips[j]) + '</span></div>';
+    }
+    tl.innerHTML = thtml;
+    document.getElementById('outputSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function optimize() {
+    var apiKey = document.getElementById('apiKey').value.trim();
+    var latex = document.getElementById('latex').value.trim();
+    var jd = document.getElementById('jd').value.trim();
+
+    if (!apiKey) { showError('API_KEY_REQUIRED — GET_FREE_KEY_AT_AISTUDIO.GOOGLE.COM/APIKEY'); return; }
+    if (!latex || !jd) { showError('PROVIDE_BOTH_LATEX_RESUME_AND_JOB_DESCRIPTION'); return; }
+
+    showError('');
+    setStatus('>> INITIALIZING_CONNECTION...');
+    document.getElementById('outputSection').style.display = 'none';
+    // Reset gauges
+    document.getElementById('scoreBefore').style.strokeDashoffset = CIRCUMFERENCE;
+    document.getElementById('scoreAfter').style.strokeDashoffset = CIRCUMFERENCE;
+    document.getElementById('scoreBeforeNum').textContent = '—';
+    document.getElementById('scoreAfterNum').textContent = '—';
+    document.getElementById('scoreDelta').textContent = '—';
+    document.getElementById('kwBar').style.width = '0%';
+    resultData = null;
+
+    var btn = document.getElementById('goBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> PROCESSING_INTEL...';
+
+    var userMessage = 'Here is my complete LaTeX resume:\n\n' + latex + '\n\n---\n\nHere is the Job Description:\n\n' + jd + '\n\n---\n\nINSTRUCTIONS:\n1. Find the skills section in my resume.\n2. PHASE 1: REPLACE existing weak/generic skill terms with exact JD keyword matches first. Do all possible replacements.\n3. PHASE 2: Only AFTER replacements, ADD missing JD keywords to existing lists. MAX 7 additions.\n4. DO NOT change ANY LaTeX command, macro, formatting, spacing, line break, label, or structure.\n5. Think of it as find-and-replace on WORDS ONLY. Every \\command, every {bracket}, every %, every blank line must be identical to my input.\n6. Output: <ATS_SCORE>, <CHANGES> (replacements listed first, then additions), <TIPS>, then <LATEX> last.';
+    var url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' + encodeURIComponent(apiKey);
+    var body = JSON.stringify({
+        system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
+        contents: [{ role: 'user', parts: [{ text: userMessage }] }],
+        generationConfig: { maxOutputTokens: 50000, temperature: 0.3 }
+    });
+
+    setStatus('>> SYNCING_WITH_GEMINI_NODE... (15-60s)');
+
+    fetchWithTimeout(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: body }, 180000)
+    .then(function(res) {
+        if (!res.ok) {
+            return res.text().then(function(errText) {
+                var msg = 'GEMINI_API_ERROR_' + res.status;
+                try { var ej = JSON.parse(errText); if (ej.error && ej.error.message) msg = ej.error.message; } catch(e) { msg += ': ' + errText.slice(0, 300); }
+                throw new Error(msg);
+            });
+        }
+        return res.json();
+    })
+    .then(function(data) {
+        setStatus('>> PARSING_RESPONSE...');
+        if (!data.candidates || data.candidates.length === 0) {
+            var br = data.promptFeedback && data.promptFeedback.blockReason;
+            throw new Error(br ? 'BLOCKED_BY_SAFETY_FILTER: ' + br : 'EMPTY_RESPONSE_FROM_GEMINI');
+        }
+        var candidate = data.candidates[0];
+        if (candidate.finishReason === 'SAFETY') throw new Error('BLOCKED_BY_SAFETY_FILTER');
+
+        // If truncated, still try to parse what we got
+        var wasTruncated = candidate.finishReason === 'MAX_TOKENS';
+
+        var text = '';
+        var parts = candidate.content && candidate.content.parts;
+        if (parts && parts.length) { for (var i = 0; i < parts.length; i++) { if (parts[i].text) text += parts[i].text; } }
+        if (!text || text.trim().length < 30) throw new Error('RESPONSE_TOO_SHORT — RETRY');
+
+        resultData = parseResponse(text);
+
+        // If truncated and no closing </LATEX> tag, grab everything after <LATEX>
+        if (!resultData.modified_latex && wasTruncated) {
+            var partialMatch = text.match(/<LATEX>([\s\S]*)/);
+            if (partialMatch) {
+                // Remove any trailing partial tags
+                var partial = partialMatch[1].replace(/<\/?(CHANGES|TIPS|ATS_SCORE)[\s\S]*/g, '').trim();
+                if (partial.length > 50) {
+                    resultData.modified_latex = partial;
+                    if (!resultData.ats_tips.length) resultData.ats_tips = ['Response was partially truncated. The LaTeX output may be incomplete at the end — verify the closing lines of your document.'];
+                }
+            }
+        }
+
+        if (!resultData.modified_latex) {
+            if (text.indexOf('\\documentclass') !== -1 || text.indexOf('\\begin{document}') !== -1 || text.indexOf('\\section') !== -1) {
+                var cleaned = text.replace(/```latex\s*/gi, '').replace(/```\s*/gi, '');
+                cleaned = cleaned.replace(/<\/?(?:LATEX|CHANGES|TIPS|ATS_SCORE)>/g, '').trim();
+                resultData.modified_latex = cleaned;
+                resultData.changes = resultData.changes.length ? resultData.changes : [];
+                if (!resultData.ats_tips.length) resultData.ats_tips = ['Gemini returned raw LaTeX without structured tags. Compare output with your original.'];
+            } else { throw new Error('LATEX_NOT_FOUND_IN_RESPONSE — RETRY'); }
+        }
+
+        renderResults();
+        var statusMsg = '>> DONE — ' + resultData.changes.length + ' CHANGE(S) | SCORE: ' + resultData.score_before + ' → ' + resultData.score_after;
+        if (wasTruncated) statusMsg += ' | ⚠ PARTIALLY_TRUNCATED';
+        setStatus(statusMsg, 'ok');
+    })
+    .catch(function(e) {
+        showError(e.message || 'UNKNOWN_ERROR');
+        setStatus('>> OPERATION_FAILED', 'fail');
+    })
+    .finally(function() {
+        btn.disabled = false;
+        btn.innerHTML = '<svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> EXECUTE_OPTIMIZATION';
+    });
+}
+
+function esc(s) { var d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+</script>
+</body>
+</html>
