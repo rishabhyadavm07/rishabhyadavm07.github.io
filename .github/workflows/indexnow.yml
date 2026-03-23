@@ -1,0 +1,35 @@
+name: Submit to IndexNow
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  indexnow:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Submit URLs to IndexNow
+        run: |
+          curl -X POST "https://api.indexnow.org/indexnow" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "host": "fanaticalnerd.com",
+              "key": "351f8be4a8fdc5984c9e6388abeef9b4bb9b7929ad3bb118170ab5a624c0ec0c",
+              "keyLocation": "https://fanaticalnerd.com/351f8be4a8fdc5984c9e6388abeef9b4bb9b7929ad3bb118170ab5a624c0ec0c.txt",
+              "urlList": [
+                "https://fanaticalnerd.com/",
+                "https://fanaticalnerd.com/blogs.html",
+                "https://fanaticalnerd.com/resudit.html",
+                "https://fanaticalnerd.com/intel.html",
+                "https://fanaticalnerd.com/interview_ques.html",
+                "https://fanaticalnerd.com/jobs.html",
+                "https://fanaticalnerd.com/Exc/Exc.html",
+                "https://fanaticalnerd.com/posts/My-Adventures-in-AI-Red-Teaming-What-I-Learned-This-Week.html",
+                "https://fanaticalnerd.com/posts/i-tried-to-teach-an-ai-agent-security-now-it-corrects-my-grammar.html",
+                "https://fanaticalnerd.com/posts/how-to-roast-a-warden.html",
+                "https://fanaticalnerd.com/Disclosed-Reports/reports_index.html",
+                "https://fanaticalnerd.com/Disclosed-Reports/BAC-hackerone.html",
+                "https://fanaticalnerd.com/Disclosed-Reports/hackerone-authentication.html",
+                "https://fanaticalnerd.com/Disclosed-Reports/hackerone-injection.html"
+              ]
+            }'
