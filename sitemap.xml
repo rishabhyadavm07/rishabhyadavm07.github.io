@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <!-- Home -->
+  <url>
+    <loc>https://fanaticalnerd.com/</loc>
+    <lastmod>2026-02-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- Main Pages -->
+  <url>
+    <loc>https://fanaticalnerd.com/blogs.html</loc>
+    <lastmod>2026-02-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <url>
+    <loc>https://fanaticalnerd.com/resudit.html</loc>
+    <lastmod>2026-03-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://fanaticalnerd.com/intel.html</loc>
+    <lastmod>2026-02-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://fanaticalnerd.com/interview_ques.html</loc>
+    <lastmod>2026-02-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://fanaticalnerd.com/jobs.html</loc>
+    <lastmod>2026-02-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- Exc / Workout Tracker -->
+  <url>
+    <loc>https://fanaticalnerd.com/Exc/Exc.html</loc>
+    <lastmod>2026-02-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- Blog Posts -->
+  <url>
+    <loc>https://fanaticalnerd.com/posts/My-Adventures-in-AI-Red-Teaming-What-I-Learned-This-Week.html</loc>
+    <lastmod>2025-11-06</lastmod>
+    <changefreq>never</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://fanaticalnerd.com/posts/i-tried-to-teach-an-ai-agent-security-now-it-corrects-my-grammar.html</loc>
+    <lastmod>2025-11-06</lastmod>
+    <changefreq>never</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://fanaticalnerd.com/posts/how-to-roast-a-warden.html</loc>
+    <lastmod>2025-11-06</lastmod>
+    <changefreq>never</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- Disclosed Security Reports -->
+  <url>
+    <loc>https://fanaticalnerd.com/Disclosed-Reports/reports_index.html</loc>
+    <lastmod>2026-02-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://fanaticalnerd.com/Disclosed-Reports/BAC-hackerone.html</loc>
+    <lastmod>2026-02-12</lastmod>
+    <changefreq>never</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://fanaticalnerd.com/Disclosed-Reports/hackerone-authentication.html</loc>
+    <lastmod>2026-02-12</lastmod>
+    <changefreq>never</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://fanaticalnerd.com/Disclosed-Reports/hackerone-injection.html</loc>
+    <lastmod>2026-02-12</lastmod>
+    <changefreq>never</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+</urlset>
