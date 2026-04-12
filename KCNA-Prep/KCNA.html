@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KCNA Prep Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <h1>KCNA Prep</h1>
+    <p>Kubernetes &amp; Cloud Native</p>
+  </div>
+  <span class="nav-section-label">Study</span>
+  <div class="nav-item active" data-page="dashboard"><span class="icon">📊</span> Dashboard</div>
+  <div class="nav-item" data-page="flashcards"><span class="icon">🃏</span> Flashcards</div>
+  <div class="nav-item" data-page="quiz"><span class="icon">✏️</span> Quiz</div>
+  <div class="nav-item" data-page="quizio"><span class="icon">🗂️</span> Quizio Exams</div>
+  <div class="nav-item" data-page="notes"><span class="icon">📚</span> Notes</div>
+  <div class="nav-item" data-page="cheatsheet"><span class="icon">📋</span> Cheat Sheet</div>
+  <span class="nav-section-label">Exam</span>
+  <div class="nav-item" data-page="simulator"><span class="icon">🎓</span> Exam Simulator</div>
+  <div class="sidebar-footer">
+    <div class="exam-badge">
+      <div class="badge-label">Target Exam</div>
+      <div class="badge-name">KCNA</div>
+      <div class="badge-sub">Kubernetes &amp; Cloud Native Associate</div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+<!-- DASHBOARD -->
+<div id="page-dashboard" class="page active">
+  <div class="page-header">
+    <h2>Dashboard</h2>
+    <p>Track your progress and identify areas to improve</p>
+  </div>
+  <div class="grid-4">
+    <div class="stat-card"><div class="stat-label">Total Quizzes</div><div class="stat-value accent" id="stat-total">0</div><div class="stat-sub">completed sessions</div></div>
+    <div class="stat-card"><div class="stat-label">Average Score</div><div class="stat-value" id="stat-avg">—</div><div class="stat-sub">across all quizzes</div></div>
+    <div class="stat-card"><div class="stat-label">Best Score</div><div class="stat-value easy" id="stat-best">—</div><div class="stat-sub">personal record</div></div>
+    <div class="stat-card"><div class="stat-label">Study Streak</div><div class="stat-value medium" id="stat-streak">0</div><div class="stat-sub">days in a row</div></div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="section-title">Score Trend (last 10 quizzes)</div>
+      <div class="chart-wrap"><canvas id="trendChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="section-title">Weak Areas — Focus Here</div>
+      <div id="weak-areas"><div class="empty"><div class="empty-icon">🎯</div><p>Take a quiz to see your weak areas</p></div></div>
+    </div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="section-title">Topic Performance</div>
+      <div id="topic-bars"><div class="empty"><p style="font-size:13px">No data yet — take a quiz!</p></div></div>
+    </div>
+    <div class="card">
+      <div class="section-title">Difficulty Breakdown</div>
+      <div id="diff-bars"><div class="empty"><p style="font-size:13px">No data yet — take a quiz!</p></div></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="flex-between mb-4">
+      <div class="section-title" style="margin-bottom:0">Recent Quiz History</div>
+      <button class="btn btn-sm btn-danger" onclick="clearHistory()">Clear History</button>
+    </div>
+    <div id="quiz-history"><div class="empty"><div class="empty-icon">📝</div><p>No quizzes taken yet</p></div></div>
+  </div>
+</div>
+
+<!-- FLASHCARDS -->
+<div id="page-flashcards" class="page">
+  <div class="page-header">
+    <h2>Flashcards</h2>
+    <p>Click a card to reveal the answer. Mark your progress as you go.</p>
+  </div>
+  <div class="filter-row">
+    <select id="fc-topic-filter" onchange="renderFlashcards()">
+      <option value="all">All Topics</option>
+      <option value="containerBasics">Container Basics</option>
+      <option value="buildingImages">Building Images</option>
+      <option value="containerSecurity">Container Security</option>
+      <option value="orchestration">Orchestration</option>
+      <option value="networking">Networking</option>
+      <option value="serviceDiscovery">Service Discovery</option>
+      <option value="serviceMesh">Service Mesh</option>
+      <option value="storage">Storage</option>
+    </select>
+    <select id="fc-diff-filter" onchange="renderFlashcards()">
+      <option value="all">All Difficulties</option>
+      <option value="easy">Easy</option>
+      <option value="medium">Medium</option>
+      <option value="hard">Hard</option>
+    </select>
+    <button class="btn btn-secondary btn-sm" onclick="shuffleCards()">🔀 Shuffle</button>
+    <button class="btn btn-secondary btn-sm" onclick="resetProgress()">↺ Reset Progress</button>
+    <span class="text-muted text-sm" id="fc-stats-label"></span>
+  </div>
+  <div class="fc-area">
+    <div class="fc-counter">
+      <span id="fc-pos">Card 1 of 0</span>
+      <span class="badge badge-easy" id="fc-known-count">0 known</span>
+      <span class="badge badge-medium" id="fc-practice-count">0 to practice</span>
+    </div>
+    <div class="fc-wrap">
+      <div class="fc" id="flashcard" onclick="flipCard()">
+        <div class="fc-front">
+          <div class="fc-tag" id="fc-topic-tag">Topic</div>
+          <div class="fc-diff" id="fc-diff-tag"></div>
+          <div class="fc-hint">Tap to reveal answer</div>
+          <div class="fc-question" id="fc-question">Loading...</div>
+        </div>
+        <div class="fc-back">
+          <div class="fc-tag" id="fc-topic-tag-back">Topic</div>
+          <div class="fc-hint">Answer</div>
+          <div class="fc-answer" id="fc-answer">Loading...</div>
+        </div>
+      </div>
+    </div>
+    <div class="fc-controls">
+      <button class="btn btn-secondary" onclick="prevCard()">← Prev</button>
+      <button class="btn btn-success" onclick="markCard('known')">✓ Know It</button>
+      <button class="btn btn-warn" onclick="markCard('practice')">⟳ Practice</button>
+      <button class="btn btn-secondary" onclick="nextCard()">Next →</button>
+    </div>
+    <div class="fc-dots" id="fc-dots"></div>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div id="page-quiz" class="page">
+  <div class="page-header">
+    <h2>Quiz</h2>
+    <p>Test your knowledge. Results are saved and analysed automatically.</p>
+  </div>
+  <!-- Config -->
+  <div id="quiz-config" class="quiz-config">
+    <div class="cfg-grid">
+      <div class="cfg-field"><label>Topic</label>
+        <select id="q-topic">
+          <option value="all">All Topics</option>
+          <option value="containerBasics">Container Basics</option>
+          <option value="buildingImages">Building Images</option>
+          <option value="containerSecurity">Container Security</option>
+          <option value="orchestration">Orchestration</option>
+          <option value="networking">Networking</option>
+          <option value="serviceDiscovery">Service Discovery & DNS</option>
+          <option value="serviceMesh">Service Mesh</option>
+          <option value="storage">Container Storage</option>
+        </select>
+      </div>
+      <div class="cfg-field"><label>Difficulty</label>
+        <select id="q-diff">
+          <option value="mixed">Mixed</option>
+          <option value="easy">Easy Only</option>
+          <option value="medium">Medium Only</option>
+          <option value="hard">Hard Only</option>
+        </select>
+      </div>
+      <div class="cfg-field"><label>Number of Questions</label>
+        <select id="q-count">
+          <option value="10">10 questions</option>
+          <option value="15">15 questions</option>
+          <option value="20" selected>20 questions</option>
+          <option value="30">30 questions</option>
+          <option value="all">All available</option>
+        </select>
+      </div>
+      <div class="cfg-field"><label>Mode</label>
+        <select id="q-mode">
+          <option value="practice">Practice (show answers)</option>
+          <option value="exam">Exam (score at end)</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn btn-primary btn-lg" onclick="startQuiz()">▶ Start Quiz</button>
+  </div>
+  <!-- Active Quiz -->
+  <div id="quiz-active" class="quiz-active" style="display:none">
+    <div class="quiz-hdr">
+      <div class="quiz-prog-text"><span id="q-num">1</span> / <span id="q-total">20</span></div>
+      <div class="flex-gap">
+        <div id="q-timer" class="text-muted text-sm">⏱ 0:00</div>
+        <button class="btn btn-sm btn-secondary" onclick="endQuizEarly()">End Quiz</button>
+      </div>
+    </div>
+    <div class="quiz-meta">
+      <span class="badge" id="q-topic-badge"></span>
+      <span class="badge" id="q-diff-badge"></span>
+    </div>
+    <div class="prog-bg" style="margin-bottom:20px"><div class="prog-fill" id="q-progress" style="width:0%;background:var(--accent)"></div></div>
+    <div class="q-card">
+      <div class="q-text" id="q-question">Question text</div>
+      <div class="options" id="q-options"></div>
+      <div class="q-explain" id="q-explain"></div>
+    </div>
+    <div class="quiz-nav">
+      <button class="btn btn-primary" id="q-next-btn" onclick="nextQuestion()" disabled>Next →</button>
+    </div>
+  </div>
+  <!-- Results -->
+  <div id="quiz-results" style="display:none;max-width:660px">
+    <div class="results-score">
+      <div class="res-num" id="res-score-num">—</div>
+      <div class="res-label" id="res-score-label">correct answers</div>
+      <div style="margin-top:12px;display:flex;gap:8px;justify-content:center" id="res-badges"></div>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="section-title">By Topic</div>
+        <div id="res-by-topic"></div>
+      </div>
+      <div class="card">
+        <div class="section-title">By Difficulty</div>
+        <div id="res-by-diff"></div>
+      </div>
+    </div>
+    <div class="card mt-4">
+      <div class="section-title">Questions to Review</div>
+      <div id="res-review"></div>
+    </div>
+    <div class="flex-gap mt-4">
+      <button class="btn btn-primary" onclick="goToDashboard()">📊 View Dashboard</button>
+      <button class="btn btn-secondary" onclick="retryQuiz()">↺ Retry</button>
+      <button class="btn btn-secondary" onclick="newQuiz()">+ New Quiz</button>
+    </div>
+  </div>
+</div>
+
+<!-- QUIZIO EXAMS -->
+<div id="page-quizio" class="page">
+  <div class="page-header">
+    <h2>Quizio Exams</h2>
+    <p>Full exam sets — 20 exams · 880 questions across Study, Prep &amp; Mock formats. Includes multiple-choice and timed countdowns.</p>
+  </div>
+  <!-- Browser -->
+  <div id="quizio-browser">
+    <div class="filter-row" style="margin-bottom:20px">
+      <button class="qz-tab active" onclick="renderQuizioExams('all')">All</button>
+      <button class="qz-tab" onclick="renderQuizioExams('STUDY')">Study</button>
+      <button class="qz-tab" onclick="renderQuizioExams('PREP')">Prep</button>
+      <button class="qz-tab" onclick="renderQuizioExams('MOCK')">Mock</button>
+    </div>
+    <div id="quizio-cards" class="exam-grid">
+      <div class="empty" style="grid-column:1/-1"><div class="empty-icon">⏳</div><p>Loading exams...</p></div>
+    </div>
+  </div>
+  <!-- Active Exam -->
+  <div id="quizio-active" style="display:none" class="qz-active">
+    <div class="qz-hdr">
+      <div class="qz-exam-label" id="qz-exam-title">Exam</div>
+      <div class="flex-gap">
+        <div id="qz-timer" class="text-muted text-sm">⏱ —</div>
+        <button class="btn btn-sm btn-secondary" onclick="endQuizioEarly()">End Exam</button>
+      </div>
+    </div>
+    <div class="flex-between" style="margin-bottom:10px">
+      <div class="quiz-prog-text"><span id="qz-num">1</span> / <span id="qz-total">30</span></div>
+      <div id="qz-type-hint" class="qz-type-hint qz-type-single">Single Choice</div>
+    </div>
+    <div class="prog-bg" style="margin-bottom:18px"><div class="prog-fill" id="qz-progress" style="width:0%;background:var(--accent)"></div></div>
+    <div class="q-card">
+      <div class="q-text" id="qz-question">Question</div>
+      <div id="qz-options"></div>
+      <div class="q-explain" id="qz-explain"></div>
+    </div>
+    <div class="flex-gap mt-4" style="justify-content:flex-end">
+      <button class="btn btn-warn" id="qz-submit-btn" onclick="submitQuizioAnswer()" style="display:none">Submit Answer</button>
+      <button class="btn btn-primary" id="qz-next-btn" onclick="nextQuizioQuestion()" disabled>Next →</button>
+    </div>
+  </div>
+  <!-- Results -->
+  <div id="quizio-results" style="display:none;max-width:700px">
+    <div id="qz-pass-banner" style="margin-bottom:16px"></div>
+    <div class="results-score">
+      <div class="res-num" id="qz-res-score">—</div>
+      <div class="res-label" id="qz-res-label">correct answers</div>
+    </div>
+    <div class="card mt-4">
+      <div class="section-title">Questions to Review</div>
+      <div id="qz-res-review"></div>
+    </div>
+    <div class="flex-gap mt-4">
+      <button class="btn btn-primary" onclick="backToQuizioExams()">← All Exams</button>
+      <button class="btn btn-secondary" onclick="retryQuizioExam()">↺ Retry</button>
+    </div>
+  </div>
+</div>
+
+<!-- NOTES -->
+<div id="page-notes" class="page">
+  <div class="page-header">
+    <h2>Revision Notes</h2>
+    <p>Complete structured notes from your KCNA study material. Click a topic to expand.</p>
+  </div>
+  <div class="notes-search">
+    <input type="search" id="notes-search" placeholder="🔍 Search notes..." oninput="searchNotes()" />
+  </div>
+  <div id="notes-container"></div>
+</div>
+
+<!-- CHEAT SHEET -->
+<div id="page-cheatsheet" class="page">
+  <div class="page-header">
+    <h2>Cheat Sheet</h2>
+    <p>Critical facts, numbers, acronyms, and comparisons — everything you must know cold for the exam.</p>
+  </div>
+  <div id="cheatsheet-container"></div>
+</div>
+
+<!-- EXAM SIMULATOR -->
+<div id="page-simulator" class="page">
+  <div class="page-header">
+    <h2>Exam Simulator</h2>
+    <p>60 questions · 90 minutes · Pass at 75% — mirrors the real KCNA exam format.</p>
+  </div>
+  <!-- Ready state -->
+  <div id="sim-ready">
+    <div class="card" style="max-width:540px">
+      <div class="section-title">Exam Rules</div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:24px;font-size:13px;color:var(--muted)">
+        <div class="flex-gap"><span style="color:var(--accent-light);font-size:16px">⏱</span> 90-minute countdown — exam ends when time expires</div>
+        <div class="flex-gap"><span style="color:var(--accent-light);font-size:16px">🔇</span> No live feedback — answers revealed only at the end</div>
+        <div class="flex-gap"><span style="color:var(--accent-light);font-size:16px">🎯</span> Pass mark: 75% (45 / 60 correct)</div>
+        <div class="flex-gap"><span style="color:var(--accent-light);font-size:16px">🔀</span> Questions are randomised each attempt</div>
+        <div class="flex-gap"><span style="color:var(--accent-light);font-size:16px">📊</span> Full breakdown saved to your Dashboard on completion</div>
+      </div>
+      <div class="flex-gap">
+        <button class="btn btn-primary btn-lg" onclick="startSimulator()">▶ Start Exam</button>
+        <span class="text-muted text-sm" id="sim-pool-count"></span>
+      </div>
+    </div>
+  </div>
+  <!-- Active exam -->
+  <div id="sim-active" style="display:none;max-width:680px">
+    <div class="quiz-hdr">
+      <div class="quiz-prog-text"><span id="sim-num">1</span> / 60</div>
+      <div class="flex-gap">
+        <div id="sim-timer" style="font-size:15px;font-weight:700;color:var(--medium)">90:00</div>
+        <button class="btn btn-sm btn-danger" onclick="submitSimulator()">Submit Exam</button>
+      </div>
+    </div>
+    <div class="prog-bg" style="margin-bottom:20px"><div class="prog-fill" id="sim-progress" style="width:0%;background:var(--accent)"></div></div>
+    <div class="q-card">
+      <div class="quiz-meta" style="margin-bottom:12px">
+        <span class="badge" id="sim-topic-badge"></span>
+        <span class="badge" id="sim-diff-badge"></span>
+      </div>
+      <div class="q-text" id="sim-question">Question</div>
+      <div class="options" id="sim-options"></div>
+    </div>
+    <div class="quiz-nav" style="justify-content:space-between">
+      <button class="btn btn-secondary" id="sim-prev-btn" onclick="simPrev()">← Prev</button>
+      <span class="text-muted text-sm" id="sim-answered-count"></span>
+      <button class="btn btn-primary" id="sim-next-btn" onclick="simNext()">Next →</button>
+    </div>
+    <!-- Question nav grid -->
+    <div class="card mt-4" style="padding:16px">
+      <div class="section-title" style="margin-bottom:10px">Question Navigator</div>
+      <div id="sim-nav-grid" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+    </div>
+  </div>
+  <!-- Results -->
+  <div id="sim-results" style="display:none;max-width:680px">
+    <div class="results-score" id="sim-score-card"></div>
+    <div class="grid-2 mt-4">
+      <div class="card"><div class="section-title">By Topic</div><div id="sim-res-topic"></div></div>
+      <div class="card"><div class="section-title">By Difficulty</div><div id="sim-res-diff"></div></div>
+    </div>
+    <div class="card mt-4">
+      <div class="section-title">Questions to Review</div>
+      <div id="sim-res-review"></div>
+    </div>
+    <div class="flex-gap mt-4">
+      <button class="btn btn-primary" onclick="goToDashboard()">📊 Dashboard</button>
+      <button class="btn btn-secondary" onclick="retrySimulator()">↺ Retry Exam</button>
+      <button class="btn btn-secondary" onclick="resetSimulator()">✕ Exit</button>
+    </div>
+  </div>
+</div>
+
+</main>
+<div id="toast" class="toast"></div>
+
+<!-- Data -->
+<script src="data/topics.js"></script>
+<script src="data/questions.js"></script>
+<script src="data/flashcards.js"></script>
+<script src="data/notes.js"></script>
+<script src="data/diagrams.js"></script>
+<script src="data/cheatsheet.js"></script>
+
+<!-- App logic -->
+<script src="js/store.js"></script>
+<script src="js/dashboard.js"></script>
+<script src="js/flashcards.js"></script>
+<script src="js/quiz.js"></script>
+<script src="js/notes.js"></script>
+<script src="js/cheatsheet.js"></script>
+<script src="js/simulator.js"></script>
+<script src="js/quizio.js"></script>
+<script src="js/app.js"></script>
+
+</body>
+</html>
