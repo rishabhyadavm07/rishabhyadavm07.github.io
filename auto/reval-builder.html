@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DocSnap — Report Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg:       #0d0f12;
+    --surface:  #13171d;
+    --surface2: #1a1f28;
+    --border:   #252b35;
+    --border2:  #2e3744;
+    --accent:   #3b82f6;
+    --green:    #22c55e;
+    --red:      #ef4444;
+    --yellow:   #f59e0b;
+    --text:     #e2e8f0;
+    --text-dim: #64748b;
+    --text-mid: #94a3b8;
+    --mono:     'IBM Plex Mono', monospace;
+    --sans:     'IBM Plex Sans', sans-serif;
+  }
+  body { font-family: var(--sans); background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  header {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 14px 32px; display: flex; align-items: center; gap: 12px;
+    position: sticky; top: 0; z-index: 100;
+  }
+  header .logo   { font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--accent); letter-spacing: 0.08em; text-transform: uppercase; }
+  header .sep    { color: var(--border2); font-size: 18px; }
+  header .htitle { font-size: 13px; color: var(--text-mid); font-family: var(--mono); }
+  header .spacer { flex: 1; }
+  header .badge  { font-family: var(--mono); font-size: 11px; padding: 3px 10px; border-radius: 3px; background: #1e293b; color: var(--text-dim); border: 1px solid var(--border); }
+
+  .container { max-width: 860px; margin: 0 auto; padding: 36px 24px 80px; }
+
+  .section-label {
+    font-family: var(--mono); font-size: 10px; font-weight: 600; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--text-dim); margin-bottom: 8px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 20px 24px; margin-bottom: 16px; }
+
+  .folder-block { display: flex; align-items: center; gap: 12px; }
+  .folder-status {
+    flex: 1; font-family: var(--mono); font-size: 12px; color: var(--text-dim);
+    background: var(--bg); border: 1px solid var(--border); border-radius: 4px;
+    padding: 10px 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .folder-status.has-folder { color: var(--green); border-color: #166534; }
+
+  .btn {
+    font-family: var(--mono); font-size: 12px; font-weight: 600; letter-spacing: 0.06em;
+    padding: 10px 18px; border-radius: 4px; border: none; cursor: pointer;
+    transition: all 0.15s; white-space: nowrap; display: inline-flex; align-items: center; gap: 7px;
+  }
+  .btn-ghost  { background: var(--surface2); color: var(--text-mid); border: 1px solid var(--border2); }
+  .btn-ghost:hover { background: #222a36; color: var(--text); }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: #2563eb; }
+  .btn-primary:disabled { background: #1e3a5f; color: #475569; cursor: not-allowed; }
+  .btn-danger { background: transparent; color: var(--red); border: 1px solid #7f1d1d; padding: 6px 10px; font-size: 11px; }
+  .btn-danger:hover { background: #7f1d1d22; }
+
+  input[type="text"], textarea {
+    width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 4px;
+    color: var(--text); font-family: var(--sans); font-size: 14px; padding: 11px 14px;
+    outline: none; transition: border-color 0.15s; resize: none;
+  }
+  input[type="text"]:focus, textarea:focus { border-color: var(--accent); }
+  input[type="text"]::placeholder, textarea::placeholder { color: var(--text-dim); }
+  .input-hint { font-family: var(--mono); font-size: 10px; color: var(--text-dim); margin-top: 6px; }
+
+  .title-row { display: flex; gap: 10px; align-items: flex-start; }
+  .title-row input { flex: 1; }
+  .char-badge { font-family: var(--mono); font-size: 10px; padding: 5px 9px; border-radius: 3px; background: var(--surface2); color: var(--text-dim); border: 1px solid var(--border); white-space: nowrap; margin-top: 3px; }
+  .char-badge.warn { color: var(--yellow); border-color: #78350f; }
+
+  .snapshot-card { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 20px 24px; margin-bottom: 12px; }
+  .sc-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .sc-num { font-family: var(--mono); font-size: 11px; color: var(--accent); font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; }
+
+  .paste-zone {
+    background: var(--bg); border: 1.5px dashed var(--border2); border-radius: 4px;
+    min-height: 120px; display: flex; flex-direction: column; align-items: center;
+    justify-content: center; cursor: pointer; transition: all 0.15s; position: relative;
+    overflow: hidden; margin-bottom: 14px;
+  }
+  .paste-zone:hover, .paste-zone.focused { border-color: var(--accent); background: #0d1828; }
+  .paste-zone.has-image { border-style: solid; border-color: var(--border2); min-height: unset; cursor: default; }
+  .paste-zone .hint { font-family: var(--mono); font-size: 12px; color: var(--text-dim); text-align: center; padding: 20px; pointer-events: none; }
+  .paste-zone .hint .key { display: inline-block; background: var(--surface2); border: 1px solid var(--border2); border-radius: 3px; padding: 1px 7px; font-size: 11px; color: var(--text-mid); }
+  .paste-zone img { max-width: 100%; max-height: 400px; display: block; object-fit: contain; border-radius: 3px; }
+  .paste-zone .clear-btn {
+    position: absolute; top: 8px; right: 8px; background: #1a1f28cc; border: 1px solid var(--border2);
+    border-radius: 3px; color: var(--text-mid); font-size: 16px; width: 26px; height: 26px;
+    display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.1s; opacity: 0;
+  }
+  .paste-zone:hover .clear-btn { opacity: 1; }
+  .paste-zone .clear-btn:hover { background: #7f1d1d; color: #fff; }
+
+  .desc-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 6px; margin-top: 12px; }
+  .desc-label .tag { color: var(--yellow); font-size: 9px; background: #1c1400; border: 1px solid #78350f55; padding: 1px 6px; border-radius: 2px; margin-left: 6px; }
+  .desc-label .tag.normal { color: var(--text-dim); background: var(--surface2); border-color: var(--border); }
+
+  .add-section-btn {
+    width: 100%; background: transparent; border: 1.5px dashed var(--border2); border-radius: 6px;
+    color: var(--text-dim); font-family: var(--mono); font-size: 12px; font-weight: 600;
+    padding: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    gap: 8px; transition: all 0.15s; letter-spacing: 0.06em; margin-bottom: 28px;
+  }
+  .add-section-btn:hover { border-color: var(--accent); color: var(--accent); background: #0d1828; }
+  .plus-icon { width: 20px; height: 20px; border: 1.5px solid currentColor; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; line-height: 1; }
+
+  .process-bar {
+    position: fixed; bottom: 0; left: 0; right: 0; background: var(--surface);
+    border-top: 1px solid var(--border); padding: 14px 32px; display: flex;
+    align-items: center; gap: 16px; z-index: 200;
+  }
+  .process-bar .status { font-family: var(--mono); font-size: 11px; color: var(--text-dim); flex: 1; }
+  .process-bar .status.ok      { color: var(--green); }
+  .process-bar .status.err     { color: var(--red); }
+  .process-bar .status.working { color: var(--accent); }
+
+  #toast {
+    position: fixed; bottom: 80px; right: 24px; background: var(--surface2); border: 1px solid var(--border2);
+    border-radius: 6px; padding: 12px 18px; font-family: var(--mono); font-size: 12px; color: var(--text);
+    z-index: 300; transform: translateY(20px); opacity: 0; transition: all 0.25s; pointer-events: none; max-width: 360px;
+  }
+  #toast.show    { transform: translateY(0); opacity: 1; }
+  #toast.success { border-left: 3px solid var(--green); color: var(--green); }
+  #toast.error   { border-left: 3px solid var(--red);   color: var(--red);   }
+
+  .divider { height: 1px; background: var(--border); margin: 28px 0; }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="logo">DocSnap</span>
+  <span class="sep">·</span>
+  <span class="htitle">Report Builder</span>
+  <span class="spacer"></span>
+  <span class="badge" id="libStatus">Loading…</span>
+</header>
+
+<div class="container">
+
+  <div class="section-label">01 — Save Location</div>
+  <div class="card">
+    <div class="folder-block">
+      <button class="btn btn-ghost" onclick="selectFolder()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        Select Folder
+      </button>
+      <div class="folder-status" id="folderStatus">No folder selected</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="section-label">02 — Document Title</div>
+  <div class="card">
+    <div class="title-row">
+      <input type="text" id="docTitle" placeholder="e.g. Q3 Review — Infrastructure Summary" oninput="onTitleInput()" />
+      <span class="char-badge" id="titleBadge">0</span>
+    </div>
+    <div class="input-hint">Used as the filename. Characters invalid for filenames ( \ / : * ? " &lt; &gt; | ) will be stripped automatically.</div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="section-label">03 — Images &amp; Notes</div>
+  <div id="sections"></div>
+
+  <button class="add-section-btn" onclick="addSection()">
+    <span class="plus-icon">+</span>
+    Add Another Image
+  </button>
+
+</div>
+
+<div class="process-bar">
+  <span class="status" id="processStatus">Select a save location and enter a document title to get started.</span>
+  <button class="btn btn-primary" id="processBtn" disabled onclick="processDoc()">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+    Export Document
+  </button>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ── State ──────────────────────────────────────────────────────────────────
+let folderHandle = null;
+let sectionCount = 0;
+let sections     = [];
+
+// ── Library check ──────────────────────────────────────────────────────────
+window.addEventListener('load', () => {
+  const badge = document.getElementById('libStatus');
+  if (typeof JSZip !== 'undefined') {
+    badge.textContent = 'Chrome / Edge only';
+  } else {
+    badge.textContent = '⚠ Library error — reload';
+    badge.style.color = '#ef4444';
+  }
+});
+
+// ── Folder ─────────────────────────────────────────────────────────────────
+async function selectFolder() {
+  try {
+    folderHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
+    const el = document.getElementById('folderStatus');
+    el.textContent = '✓  ' + folderHandle.name;
+    el.classList.add('has-folder');
+    updateProcessBtn();
+  } catch(e) {
+    if (e.name !== 'AbortError') showToast('Folder access denied: ' + e.message, 'error');
+  }
+}
+
+// ── Title ──────────────────────────────────────────────────────────────────
+function sanitizeFilename(s) {
+  return s.replace(/[\\/:*?"<>|]/g, '');
+}
+function onTitleInput() {
+  const inp   = document.getElementById('docTitle');
+  const raw   = inp.value;
+  const clean = sanitizeFilename(raw);
+  if (raw !== clean) {
+    const pos = inp.selectionStart - (raw.length - clean.length);
+    inp.value = clean;
+    inp.selectionStart = inp.selectionEnd = Math.max(0, pos);
+  }
+  const badge = document.getElementById('titleBadge');
+  badge.textContent = clean.trim().length;
+  badge.className   = 'char-badge' + (clean.length > 200 ? ' warn' : '');
+  updateProcessBtn();
+}
+
+// ── Sections ───────────────────────────────────────────────────────────────
+function addSection() {
+  sectionCount++;
+  const id = 'sc' + Date.now();
+  sections.push({ id, imageData: null, imageType: null, imageW: 0, imageH: 0 });
+
+  const el = document.createElement('div');
+  el.className = 'snapshot-card';
+  el.id = 'card-' + id;
+  el.innerHTML = `
+    <div class="sc-header">
+      <span class="sc-num">Image ${sectionCount}</span>
+      ${sectionCount > 1 ? `<button class="btn btn-danger" onclick="removeSection('${id}')">✕ Remove</button>` : ''}
+    </div>
+    <div class="paste-zone" id="zone-${id}" tabindex="0"
+         onclick="focusPasteZone('${id}')"
+         onfocus="this.classList.add('focused')"
+         onblur="this.classList.remove('focused')">
+      <div class="hint">Click here, then press <span class="key">Ctrl + V</span> to paste image</div>
+    </div>
+    <div class="desc-label">Caption <span class="tag">italics in document</span></div>
+    <textarea id="imgdesc-${id}" rows="2" placeholder="Short caption for this image..."></textarea>
+    <div class="desc-label" style="margin-top:14px;">Notes <span class="tag normal">normal text</span></div>
+    <textarea id="adddesc-${id}" rows="3" placeholder="Additional notes or context..."></textarea>
+  `;
+  document.getElementById('sections').appendChild(el);
+
+  const zone = document.getElementById('zone-' + id);
+  zone.addEventListener('paste', (e) => handlePaste(e, id));
+  const docHandler = (e) => { if (document.activeElement === zone) handlePaste(e, id); };
+  zone._docHandler = docHandler;
+  document.addEventListener('paste', docHandler);
+
+  updateProcessBtn();
+}
+
+function focusPasteZone(id) { document.getElementById('zone-' + id).focus(); }
+
+function handlePaste(e, id) {
+  e.preventDefault();
+  const items   = Array.from((e.clipboardData || window.clipboardData).items);
+  const imgItem = items.find(i => i.type.startsWith('image/'));
+  if (!imgItem) { showToast('No image in clipboard. Copy an image first.', 'error'); return; }
+
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    const dataUrl = ev.target.result;
+    const img     = new Image();
+    img.onload = () => {
+      const sec = sections.find(s => s.id === id);
+      if (sec) {
+        sec.imageData = dataUrl.split(',')[1];
+        sec.imageType = imgItem.type;
+        sec.imageW    = img.naturalWidth;
+        sec.imageH    = img.naturalHeight;
+      }
+      const zone = document.getElementById('zone-' + id);
+      zone.innerHTML = `<img src="${dataUrl}" alt="preview"/><div class="clear-btn" onclick="clearZone('${id}')">✕</div>`;
+      zone.classList.add('has-image');
+      updateProcessBtn();
+    };
+    img.src = dataUrl;
+  };
+  reader.readAsDataURL(imgItem.getAsFile());
+}
+
+function clearZone(id) {
+  const sec = sections.find(s => s.id === id);
+  if (sec) { sec.imageData = null; sec.imageType = null; sec.imageW = 0; sec.imageH = 0; }
+  const zone = document.getElementById('zone-' + id);
+  zone.innerHTML = `<div class="hint">Click here, then press <span class="key">Ctrl + V</span> to paste image</div>`;
+  zone.classList.remove('has-image');
+  updateProcessBtn();
+}
+
+function removeSection(id) {
+  const zone = document.getElementById('zone-' + id);
+  if (zone && zone._docHandler) document.removeEventListener('paste', zone._docHandler);
+  sections = sections.filter(s => s.id !== id);
+  document.getElementById('card-' + id)?.remove();
+  let n = 1;
+  document.querySelectorAll('.sc-num').forEach(el => el.textContent = 'Image ' + n++);
+  updateProcessBtn();
+}
+
+// ── Validation ─────────────────────────────────────────────────────────────
+function updateProcessBtn() {
+  const btn    = document.getElementById('processBtn');
+  const status = document.getElementById('processStatus');
+  const title  = sanitizeFilename(document.getElementById('docTitle').value).trim();
+
+  if (!folderHandle) {
+    status.textContent = 'Waiting for a save location…'; status.className = 'status'; btn.disabled = true; return;
+  }
+  if (!title) {
+    status.textContent = 'Enter a document title to continue.'; status.className = 'status'; btn.disabled = true; return;
+  }
+  if (!sections.length) {
+    status.textContent = 'Add at least one image section.'; status.className = 'status'; btn.disabled = true; return;
+  }
+  const missing = sections.filter(s => !s.imageData).length;
+  if (missing) {
+    status.textContent = `${missing} section(s) missing a pasted image.`;
+    status.className = 'status err'; btn.disabled = true; return;
+  }
+  status.textContent = `Ready — "${title}.docx" → ${folderHandle.name}`;
+  status.className = 'status ok'; btn.disabled = false;
+}
+
+// ── DOCX builder — pure XML + JSZip ────────────────────────────────────────
+function escXml(s) {
+  return String(s)
+    .replace(/&/g,  '&amp;')
+    .replace(/</g,  '&lt;')
+    .replace(/>/g,  '&gt;')
+    .replace(/"/g,  '&quot;')
+    .replace(/'/g, '&apos;');
+}
+function b64toUint8(b64) {
+  const bin = atob(b64), arr = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+  return arr;
+}
+function pxToEmu(px) { return Math.round(px * 914400 / 96); }
+function fitImg(w, h, maxPx = 624) {
+  if (w <= maxPx) return { w, h };
+  return { w: maxPx, h: Math.round(h * maxPx / w) };
+}
+
+async function buildDocx(title, sectionData) {
+  const zip = new JSZip();
+
+  const imgRels = [];
+  sectionData.forEach((sec, i) => {
+    const ext = sec.imageType === 'image/jpeg' ? 'jpeg' : 'png';
+    const rId = 'rId' + (i + 10);
+    imgRels.push({ rId, ext, mime: sec.imageType || 'image/png', n: i + 1 });
+    zip.file(`word/media/img${i + 1}.${ext}`, b64toUint8(sec.imageData));
+  });
+
+  let body = `
+  <w:p>
+    <w:pPr><w:pStyle w:val="Heading1"/><w:spacing w:after="240"/></w:pPr>
+    <w:r><w:rPr><w:b/><w:sz w:val="36"/><w:color w:val="1F3864"/></w:rPr><w:t>${escXml(title)}</w:t></w:r>
+  </w:p>`;
+
+  sectionData.forEach((sec, i) => {
+    const rel  = imgRels[i];
+    const fit  = fitImg(sec.imageW, sec.imageH);
+    const cx   = pxToEmu(fit.w);
+    const cy   = pxToEmu(fit.h);
+    const dId  = i + 1;
+    const pId  = i + 100;
+
+    body += `
+  <w:p>
+    <w:pPr><w:spacing w:before="160" w:after="120"/></w:pPr>
+    <w:r>
+      <w:drawing>
+        <wp:inline distT="0" distB="0" distL="0" distR="0">
+          <wp:extent cx="${cx}" cy="${cy}"/>
+          <wp:effectExtent l="0" t="0" r="0" b="0"/>
+          <wp:docPr id="${dId}" name="Img${dId}"/>
+          <wp:cNvGraphicFramePr>
+            <a:graphicFrameLocks xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" noChangeAspect="1"/>
+          </wp:cNvGraphicFramePr>
+          <a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">
+            <a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">
+              <pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">
+                <pic:nvPicPr>
+                  <pic:cNvPr id="${pId}" name="Img${dId}"/>
+                  <pic:cNvPicPr><a:picLocks noChangeAspect="1"/></pic:cNvPicPr>
+                </pic:nvPicPr>
+                <pic:blipFill>
+                  <a:blip r:embed="${rel.rId}"/>
+                  <a:stretch><a:fillRect/></a:stretch>
+                </pic:blipFill>
+                <pic:spPr>
+                  <a:xfrm><a:off x="0" y="0"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm>
+                  <a:prstGeom prst="rect"><a:avLst/></a:prstGeom>
+                </pic:spPr>
+              </pic:pic>
+            </a:graphicData>
+          </a:graphic>
+        </wp:inline>
+      </w:drawing>
+    </w:r>
+  </w:p>`;
+
+    if (sec.imgDesc) {
+      body += `
+  <w:p>
+    <w:pPr><w:spacing w:after="160"/></w:pPr>
+    <w:r><w:rPr><w:i/><w:iCs/><w:color w:val="555555"/><w:sz w:val="22"/></w:rPr>
+      <w:t xml:space="preserve">${escXml(sec.imgDesc)}</w:t></w:r>
+  </w:p>`;
+    }
+
+    if (sec.addDesc) {
+      body += `
+  <w:p>
+    <w:pPr><w:spacing w:after="200"/></w:pPr>
+    <w:r><w:rPr><w:sz w:val="24"/></w:rPr>
+      <w:t xml:space="preserve">${escXml(sec.addDesc)}</w:t></w:r>
+  </w:p>`;
+    }
+
+    if (i < sectionData.length - 1) {
+      body += `\n  <w:p><w:pPr><w:spacing w:after="160"/></w:pPr></w:p>`;
+    }
+  });
+
+  zip.file('word/document.xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document
+  xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"
+  xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
+  xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006">
+  <w:body>
+${body}
+    <w:sectPr>
+      <w:pgSz w:w="12240" w:h="15840"/>
+      <w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440" w:header="720" w:footer="720" w:gutter="0"/>
+    </w:sectPr>
+  </w:body>
+</w:document>`);
+
+  zip.file('word/styles.xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:docDefaults>
+    <w:rPrDefault><w:rPr>
+      <w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri"/>
+      <w:sz w:val="24"/><w:szCs w:val="24"/>
+    </w:rPr></w:rPrDefault>
+  </w:docDefaults>
+  <w:style w:type="paragraph" w:default="1" w:styleId="Normal">
+    <w:name w:val="Normal"/>
+  </w:style>
+  <w:style w:type="paragraph" w:styleId="Heading1">
+    <w:name w:val="heading 1"/>
+    <w:basedOn w:val="Normal"/>
+    <w:pPr><w:outlineLvl w:val="0"/></w:pPr>
+    <w:rPr>
+      <w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/>
+      <w:b/><w:sz w:val="36"/><w:color w:val="1F3864"/>
+    </w:rPr>
+  </w:style>
+</w:styles>`);
+
+  let relLines = `  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>`;
+  imgRels.forEach(r => {
+    relLines += `\n  <Relationship Id="${r.rId}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/img${r.n}.${r.ext}"/>`;
+  });
+  zip.file('word/_rels/document.xml.rels', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+${relLines}
+</Relationships>`);
+
+  zip.file('_rels/.rels', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
+</Relationships>`);
+
+  const hasPng  = imgRels.some(r => r.ext === 'png');
+  const hasJpeg = imgRels.some(r => r.ext === 'jpeg');
+  zip.file('[Content_Types].xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+  <Default Extension="xml"  ContentType="application/xml"/>
+  ${hasPng  ? '<Default Extension="png"  ContentType="image/png"/>'  : ''}
+  ${hasJpeg ? '<Default Extension="jpeg" ContentType="image/jpeg"/>' : ''}
+  <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
+  <Override PartName="/word/styles.xml"   ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>
+</Types>`);
+
+  return zip.generateAsync({ type: 'arraybuffer', compression: 'DEFLATE' });
+}
+
+// ── Process ────────────────────────────────────────────────────────────────
+async function processDoc() {
+  if (typeof JSZip === 'undefined') {
+    showToast('Library not loaded. Check internet connection and reload.', 'error'); return;
+  }
+  const btn    = document.getElementById('processBtn');
+  const status = document.getElementById('processStatus');
+  btn.disabled = true;
+  status.textContent = 'Building document…';
+  status.className   = 'status working';
+
+  try {
+    const title = sanitizeFilename(document.getElementById('docTitle').value).trim();
+    const sectionData = sections.map(sec => ({
+      ...sec,
+      imgDesc: document.getElementById('imgdesc-' + sec.id).value.trim(),
+      addDesc: document.getElementById('adddesc-' + sec.id).value.trim(),
+    }));
+
+    const buffer   = await buildDocx(title, sectionData);
+    const filename = title + '.docx';
+
+    const fh = await folderHandle.getFileHandle(filename, { create: true });
+    const w  = await fh.createWritable();
+    await w.write(buffer);
+    await w.close();
+
+    showToast('✓ Saved: ' + filename, 'success');
+    status.textContent = `Saved "${filename}" to ${folderHandle.name}`;
+    status.className   = 'status ok';
+    resetUI();
+  } catch(err) {
+    console.error(err);
+    showToast('Error: ' + err.message, 'error');
+    status.textContent = 'Error generating document.';
+    status.className   = 'status err';
+  } finally {
+    updateProcessBtn();
+  }
+}
+
+// ── Reset after save ───────────────────────────────────────────────────────
+function resetUI() {
+  document.getElementById('docTitle').value = '';
+  document.getElementById('titleBadge').textContent = '0';
+  sections.forEach(sec => {
+    const zone = document.getElementById('zone-' + sec.id);
+    if (zone && zone._docHandler) document.removeEventListener('paste', zone._docHandler);
+    document.getElementById('card-' + sec.id)?.remove();
+  });
+  sections = [];
+  sectionCount = 0;
+  addSection();
+}
+
+// ── Toast ──────────────────────────────────────────────────────────────────
+let toastTimer;
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className   = 'show ' + type;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.className = ''; }, 4000);
+}
+
+// ── Init ───────────────────────────────────────────────────────────────────
+addSection();
+</script>
+</body>
+</html>
