@@ -263,11 +263,10 @@ input[type="text"]::placeholder,textarea::placeholder{color:var(--text-dim)}
   <!-- Folder path (click to copy) -->
   <div class="folder-path" id="folderPath" title="Click to copy path" onclick="copyFolderPath()">No output folder selected</div>
 
-  <!-- Excel upload -->
-  <button class="btn btn-ghost btn-icon" title="Upload tracker spreadsheet" onclick="document.getElementById('xlInput').click()">
+  <!-- Excel open -->
+  <button class="btn btn-ghost btn-icon" title="Open tracker spreadsheet" onclick="openExcel()">
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
   </button>
-  <input type="file" id="xlInput" accept=".xlsx,.xls" style="display:none" onchange="loadExcel(this)"/>
   <div class="xl-status" id="xlStatus">No tracker loaded</div>
 </div>
 
@@ -392,76 +391,68 @@ function copyFolderPath() {
 }
 
 // ═══════════════════════════════════════════════════════
-// EXCEL LOAD
+// EXCEL LOAD — uses showOpenFilePicker for read+write in one step
 // ═══════════════════════════════════════════════════════
-async function loadExcel(input) {
-  const file = input.files[0];
-  if (!file) return;
-  input.value = '';
+let xlRawFile = null, xlFileName = '';
+
+async function openExcel() {
+  try {
+    [xlFileHandle] = await window.showOpenFilePicker({
+      types: [{ description: 'Excel Spreadsheet', accept: { 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'] } }],
+      multiple: false
+    });
+  } catch(e) {
+    if (e.name !== 'AbortError') showToast('Could not open file: ' + e.message, 'error');
+    return;
+  }
 
   try {
-    // Get a persistent file handle for later writing
-    // We'll re-read the file handle via showOpenFilePicker if available,
-    // otherwise we store the raw File and re-read on save.
-    const buf = await file.arrayBuffer();
-    const wb  = XLSX.read(buf, { type: 'arraybuffer' });
-    const sn  = wb.SheetNames[0];
-    const ws  = wb.Sheets[sn];
-    const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
+    const file = await xlFileHandle.getFile();
+    xlFileName  = file.name;
+    const buf   = await file.arrayBuffer();
+    const wb    = XLSX.read(buf, { type: 'arraybuffer' });
+    const sn    = wb.SheetNames[0];
+    const ws    = wb.Sheets[sn];
+    const rows  = XLSX.utils.sheet_to_json(ws, { defval: '' });
 
     if (!rows.length) { showToast('Spreadsheet is empty.', 'error'); return; }
 
-    // Validate columns
-    const cols = Object.keys(rows[0]);
+    const cols    = Object.keys(rows[0]);
     const missing = REQUIRED_COLS.filter(c => !cols.includes(c));
     if (missing.length) {
       showToast(`Wrong format. Missing: ${missing.join(', ')}`, 'error');
       showFormatError(missing);
+      xlFileHandle = null;
       return;
     }
 
     xlWorkbook  = wb;
     xlSheetName = sn;
-    xlRawFile   = file;       // store raw file for re-reading
-    xlFileName  = file.name;
 
-    // Try to get a writable file handle via showOpenFilePicker
-    try {
-      [xlFileHandle] = await window.showOpenFilePicker({
-        types: [{ description: 'Excel', accept: { 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'] } }],
-        multiple: false
-      });
-    } catch(_) {
-      xlFileHandle = null; // fallback: download on save
-    }
-
-    // Parse controls
     controls = rows.map((row, i) => ({
-      rowIdx:    i + 2,  // 1-indexed, row 1 = header
-      id:        String(row['Control ID'] || '').trim(),
+      rowIdx:    i + 2,
+      id:        String(row['Control ID']    || '').trim(),
       title:     String(row['Control Title'] || '').trim(),
-      status:    String(row['Current Status'] || '').trim(),
-      completed: String(row['Completed?'] || '').trim(),
-      reason:    String(row['Reason'] || '').trim(),
+      status:    String(row['Current Status']|| '').trim(),
+      completed: String(row['Completed?']    || '').trim(),
+      reason:    String(row['Reason']        || '').trim(),
     }));
 
     document.getElementById('xlStatus').textContent = '📊 ' + file.name;
     document.getElementById('xlStatus').classList.add('active');
-    document.getElementById('noXlPrompt').style.display = 'none';
+    document.getElementById('noXlPrompt').style.display  = 'none';
     document.getElementById('formContent').style.display = 'block';
     document.getElementById('docTitle').readOnly = false;
 
     renderControlList();
-    addSection();
+    if (!sections.length) addSection();
     updateActionBar();
-    showToast(`Loaded ${controls.length} controls from ${file.name}`, 'success');
+    showToast(`Loaded ${controls.length} controls — writes go directly to file`, 'success');
   } catch(err) {
     console.error(err);
     showToast('Error reading file: ' + err.message, 'error');
   }
 }
-
-let xlRawFile = null, xlFileName = '';
 
 function showFormatError(missing) {
   const hint = document.createElement('div');
@@ -724,18 +715,20 @@ function updateActionBar() {
 // EXCEL WRITE
 // ═══════════════════════════════════════════════════════
 async function writeExcel() {
-  if (!xlWorkbook || !xlSheetName) return;
-  const ws   = xlWorkbook.Sheets[xlSheetName];
-  const rows = XLSX.utils.sheet_to_json(ws, { header: 1 });
+  if (!xlWorkbook || !xlSheetName || !xlFileHandle) {
+    showToast('No writable file handle — open the spreadsheet again via the toolbar.', 'error');
+    return;
+  }
 
-  // Find column indices from header row
+  const ws     = xlWorkbook.Sheets[xlSheetName];
+  const rows   = XLSX.utils.sheet_to_json(ws, { header: 1 });
   const header = rows[0];
   const colCompleted = header.indexOf('Completed?');
   const colReason    = header.indexOf('Reason');
 
-  // Update in-memory data for all controls
+  // Update rows in memory
   controls.forEach(c => {
-    const ri = c.rowIdx - 1; // 0-indexed in rows array
+    const ri = c.rowIdx - 1;
     if (!rows[ri]) return;
     rows[ri][colCompleted] = c.completed;
     rows[ri][colReason]    = c.reason;
@@ -744,47 +737,33 @@ async function writeExcel() {
   // Rebuild worksheet
   const newWs = XLSX.utils.aoa_to_sheet(rows);
 
-  // Apply colors via cell styles (xlsx doesn't support full styling without pro,
-  // so we use the sheetName approach — color is applied as fill using SheetJS community edition workaround)
+  // Apply row fill colours
   controls.forEach(c => {
     const ri = c.rowIdx - 1;
     const comp = c.completed.toLowerCase();
     let fgColor = null;
-    if (comp === 'valid')               fgColor = 'C6EFCE'; // light green
-    else if (comp === 'to be tested later') fgColor = 'FFEB9C'; // light yellow
-    else if (comp === 'updated')        fgColor = 'DDEEFF'; // light blue
-
+    if      (comp === 'valid')               fgColor = 'C6EFCE';
+    else if (comp === 'to be tested later')  fgColor = 'FFEB9C';
+    else if (comp === 'updated')             fgColor = 'DDEEFF';
     if (fgColor) {
-      // Apply fill to entire row cells
       header.forEach((_, ci) => {
-        const cellRef = XLSX.utils.encode_cell({ r: ri, c: ci });
-        if (!newWs[cellRef]) newWs[cellRef] = { v: '', t: 's' };
-        newWs[cellRef].s = { fill: { fgColor: { rgb: fgColor }, patternType: 'solid' } };
+        const ref = XLSX.utils.encode_cell({ r: ri, c: ci });
+        if (!newWs[ref]) newWs[ref] = { v: '', t: 's' };
+        newWs[ref].s = { fill: { fgColor: { rgb: fgColor }, patternType: 'solid' } };
       });
     }
   });
 
   xlWorkbook.Sheets[xlSheetName] = newWs;
-
-  // Write with cellStyles enabled
   const wbOut = XLSX.write(xlWorkbook, { bookType: 'xlsx', type: 'array', cellStyles: true });
 
-  if (xlFileHandle) {
-    try {
-      const w = await xlFileHandle.createWritable();
-      await w.write(new Uint8Array(wbOut));
-      await w.close();
-      return;
-    } catch(e) { /* fall through to download */ }
+  try {
+    const writable = await xlFileHandle.createWritable();
+    await writable.write(new Uint8Array(wbOut));
+    await writable.close();
+  } catch(e) {
+    showToast('Could not write to file: ' + e.message, 'error');
   }
-
-  // Fallback: download
-  const blob = new Blob([wbOut], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = xlFileName || 'tracker.xlsx';
-  a.click();
-  showToast('Excel saved via download (no file handle).', '');
 }
 
 function updateControlInMemory(id, fields) {
