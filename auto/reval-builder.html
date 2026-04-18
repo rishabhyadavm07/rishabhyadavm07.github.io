@@ -1,336 +1,472 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>DocSnap — Report Builder</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+/* ── DARK THEME (default) — black-red ── */
 :root{
-  --bg:#0d0f12;--surface:#13171d;--surface2:#1a1f28;
-  --border:#252b35;--border2:#2e3744;
-  --accent:#3b82f6;--green:#22c55e;--red:#ef4444;--yellow:#f59e0b;
-  --green-dim:#14532d;--yellow-dim:#713f12;--blue-dim:#1e3a5f;
-  --text:#e2e8f0;--text-dim:#64748b;--text-mid:#94a3b8;
+  --bg:#0a0608;--surface:#110a0c;--surface2:#1a0e10;--surface3:#241216;
+  --border:#3a1018;--border2:#541820;
+  --accent:#e01828;--accent-dim:#3a0a10;
+  --green:#22c55e;--green-bg:#0d3320;--green-border:#166534;
+  --yellow:#f59e0b;--yellow-bg:#3d2000;--yellow-border:#78350f;
+  --red:#ff2130;--red-bg:#500010;
+  --purple:#e06880;--purple-bg:#3a0a18;
+  --text:#f5e8ea;--text-dim:#6a3040;--text-mid:#b06070;
+  --shadow:0 4px 24px rgba(0,0,0,.7);
   --mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans',sans-serif;
 }
-body{font-family:var(--sans);background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column;overflow:hidden}
 
-/* ── Header ── */
+/* ── LIGHT THEME — "Powerful" palette ── */
+[data-theme="light"]{
+  --bg:#fdf0f2;--surface:#ffffff;--surface2:#fff0f2;--surface3:#fde0e4;
+  --border:#f5c0c8;--border2:#e89098;
+  --accent:#b0002e;--accent-dim:#fde0e5;
+  --green:#16a34a;--green-bg:#dcfce7;--green-border:#86efac;
+  --yellow:#d97706;--yellow-bg:#fef3c7;--yellow-border:#fcd34d;
+  --red:#b0002e;--red-bg:#fde0e5;
+  --purple:#640034;--purple-bg:#fce8f0;
+  --text:#1a0010;--text-dim:#b06070;--text-mid:#7a2040;
+  --shadow:0 4px 20px rgba(40,7,34,.12);
+}
+
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column;overflow:hidden;transition:background .2s,color .2s}
+
+/* ── HEADER ── */
 header{
   background:var(--surface);border-bottom:1px solid var(--border);
-  padding:10px 20px;display:flex;align-items:center;gap:10px;
-  flex-shrink:0;z-index:100;
+  padding:10px 20px;display:flex;align-items:center;gap:10px;flex-shrink:0;z-index:100;
+  box-shadow:0 1px 0 var(--border);
 }
 .logo{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--accent);letter-spacing:.08em;text-transform:uppercase}
 .sep{color:var(--border2);font-size:18px}
 .htitle{font-size:12px;color:var(--text-mid);font-family:var(--mono)}
 .spacer{flex:1}
-.badge{font-family:var(--mono);font-size:10px;padding:3px 9px;border-radius:3px;background:#1e293b;color:var(--text-dim);border:1px solid var(--border)}
+.badge{font-family:var(--mono);font-size:10px;padding:3px 9px;border-radius:3px;background:var(--surface2);color:var(--text-dim);border:1px solid var(--border)}
 
-/* ── Toolbar ── */
+/* theme toggle */
+.theme-toggle{
+  background:var(--surface2);border:1px solid var(--border2);border-radius:20px;
+  padding:4px 10px;cursor:pointer;display:flex;align-items:center;gap:6px;
+  font-family:var(--mono);font-size:11px;color:var(--text-mid);transition:all .15s;
+}
+.theme-toggle:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ── TOOLBAR ── */
 .toolbar{
   background:var(--surface);border-bottom:1px solid var(--border);
   padding:8px 20px;display:flex;align-items:center;gap:8px;flex-shrink:0;
 }
-.folder-path{
-  flex:1;font-family:var(--mono);font-size:11px;color:var(--text-dim);
-  background:var(--bg);border:1px solid var(--border);border-radius:4px;
-  padding:7px 12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-  cursor:pointer;transition:border-color .15s;
-}
-.folder-path.active{color:var(--green);border-color:#166534}
-.folder-path:hover{border-color:var(--border2)}
-.xl-status{
+.toolbar-info{
   font-family:var(--mono);font-size:11px;color:var(--text-dim);
-  background:var(--bg);border:1px solid var(--border);border-radius:4px;
-  padding:7px 12px;white-space:nowrap;max-width:200px;overflow:hidden;text-overflow:ellipsis;
+  background:var(--surface2);border:1px solid var(--border);border-radius:4px;
+  padding:7px 12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  max-width:260px;
 }
-.xl-status.active{color:#a78bfa;border-color:#4c1d95}
+.toolbar-info.active-green{color:var(--green);border-color:var(--green-border)}
+.toolbar-info.active-purple{color:var(--accent);border-color:var(--border2)}
+.toolbar-info.clickable{cursor:pointer;transition:border-color .15s}
+.toolbar-info.clickable:hover{border-color:var(--border2)}
 
-/* ── Buttons ── */
+/* ── BUTTONS ── */
 .btn{
-  font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.06em;
-  padding:7px 14px;border-radius:4px;border:none;cursor:pointer;
-  transition:all .15s;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;
+  font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.05em;
+  padding:7px 14px;border-radius:5px;border:none;cursor:pointer;
+  transition:all .15s;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;flex-shrink:0;
 }
 .btn-ghost{background:var(--surface2);color:var(--text-mid);border:1px solid var(--border2)}
-.btn-ghost:hover{background:#222a36;color:var(--text)}
+.btn-ghost:hover{background:var(--surface3);color:var(--text)}
 .btn-primary{background:var(--accent);color:#fff}
-.btn-primary:hover{background:#2563eb}
-.btn-primary:disabled{background:var(--blue-dim);color:#475569;cursor:not-allowed}
-.btn-green{background:#166534;color:var(--green);border:1px solid #14532d}
-.btn-green:hover{background:#15803d}
-.btn-green:disabled{background:#1a2e1a;color:#2d4a2d;cursor:not-allowed}
-.btn-yellow{background:#713f12;color:var(--yellow);border:1px solid #78350f}
-.btn-yellow:hover{background:#92400e}
-.btn-yellow:disabled{background:#2a1f0a;color:#4a3510;cursor:not-allowed}
-.btn-danger{background:transparent;color:var(--red);border:1px solid #7f1d1d;padding:5px 9px;font-size:10px}
-.btn-danger:hover{background:#7f1d1d22}
-.btn-icon{padding:7px;border-radius:4px}
+.btn-primary:hover{opacity:.9}
+.btn-primary:disabled{background:var(--accent-dim);color:var(--text-dim);cursor:not-allowed;opacity:.6}
+.btn-green{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
+.btn-green:hover{opacity:.85}
+.btn-green:disabled{opacity:.4;cursor:not-allowed}
+.btn-yellow{background:var(--yellow-bg);color:var(--yellow);border:1px solid var(--yellow-border)}
+.btn-yellow:hover{opacity:.85}
+.btn-yellow:disabled{opacity:.4;cursor:not-allowed}
+.btn-red{background:var(--red-bg);color:var(--red);border:1px solid var(--red);padding:5px 9px;font-size:10px}
+.btn-red:hover{opacity:.8}
+.btn-icon{padding:7px;border-radius:5px}
+.btn-complete{background:var(--surface2);color:var(--text-mid);border:1px solid var(--border2);font-size:10px;padding:5px 11px}
+.btn-complete:hover{background:var(--green-bg);color:var(--green);border-color:var(--green-border)}
 
-/* ── Main split layout ── */
+/* ── MAIN LAYOUT ── */
 .main{display:flex;flex:1;overflow:hidden;min-height:0;height:0}
 
-/* ── Left panel — control list ── */
+/* ── LEFT PANEL ── */
 .panel-left{
-  width:280px;min-width:220px;max-width:340px;
-  border-right:1px solid var(--border);
+  width:320px;min-width:260px;border-right:1px solid var(--border);
   display:flex;flex-direction:column;flex-shrink:0;
   background:var(--surface);overflow:hidden;min-height:0;
 }
-.panel-left-header{
-  padding:12px 14px;border-bottom:1px solid var(--border);
-  font-family:var(--mono);font-size:10px;font-weight:600;
-  letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);
-  display:flex;align-items:center;justify-content:space-between;
+.panel-header{
+  padding:12px 16px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;gap:8px;flex-shrink:0;
 }
-.control-count{
-  font-family:var(--mono);font-size:10px;color:var(--text-dim);
-  background:var(--surface2);border:1px solid var(--border);
-  padding:2px 7px;border-radius:10px;
-}
-.control-search{
-  padding:8px 10px;border-bottom:1px solid var(--border);
-}
-.control-search input{
+.panel-header-title{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim)}
+.panel-search{padding:8px 10px;border-bottom:1px solid var(--border);flex-shrink:0}
+.panel-search input{
   width:100%;background:var(--bg);border:1px solid var(--border);border-radius:4px;
-  color:var(--text);font-family:var(--mono);font-size:11px;padding:6px 10px;outline:none;
+  color:var(--text);font-family:var(--mono);font-size:11px;padding:7px 10px;outline:none;transition:border-color .15s;
 }
-.control-search input:focus{border-color:var(--accent)}
-.control-search input::placeholder{color:var(--text-dim)}
-.control-list{flex:1;overflow-y:auto;padding:6px}
-.control-list::-webkit-scrollbar{width:4px}
-.control-list::-webkit-scrollbar-track{background:transparent}
-.control-list::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.panel-search input:focus{border-color:var(--accent)}
+.panel-search input::placeholder{color:var(--text-dim)}
+.panel-list{flex:1;overflow-y:auto;padding:6px}
+.panel-list::-webkit-scrollbar{width:4px}
+.panel-list::-webkit-scrollbar-track{background:transparent}
+.panel-list::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
 
-.control-item{
-  padding:10px 12px;border-radius:5px;cursor:pointer;
-  margin-bottom:3px;border:1px solid transparent;
-  transition:all .12s;position:relative;
+/* breadcrumb */
+.breadcrumb{
+  padding:8px 16px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:6px;flex-shrink:0;
 }
-.control-item:hover{background:var(--surface2);border-color:var(--border)}
-.control-item.active{background:#0d1828;border-color:var(--accent)}
-.control-item.status-valid{border-left:3px solid var(--green)}
-.control-item.status-later{border-left:3px solid var(--yellow)}
-.control-item.status-updated{border-left:3px solid var(--accent)}
-.control-item .ctrl-id{
-  font-family:var(--mono);font-size:10px;color:var(--text-dim);
-  font-weight:600;margin-bottom:3px;letter-spacing:.06em;
+.breadcrumb-back{
+  background:none;border:none;cursor:pointer;color:var(--accent);
+  font-family:var(--mono);font-size:11px;display:flex;align-items:center;gap:4px;padding:2px 4px;border-radius:3px;
 }
-.control-item.status-valid .ctrl-id{color:var(--green)}
-.control-item.status-later .ctrl-id{color:var(--yellow)}
-.control-item.status-updated .ctrl-id{color:var(--accent)}
-.control-item .ctrl-title{font-size:12px;color:var(--text-mid);line-height:1.3}
-.control-item.active .ctrl-title{color:var(--text)}
-.status-pill{
+.breadcrumb-back:hover{background:var(--accent-dim)}
+.breadcrumb-sep{color:var(--text-dim);font-size:12px}
+.breadcrumb-app{font-family:var(--mono);font-size:11px;color:var(--text-mid);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ── APP ITEMS ── */
+.app-item{
+  padding:12px 14px;border-radius:6px;cursor:pointer;margin-bottom:4px;
+  border:1px solid transparent;transition:all .12s;
+}
+.app-item:hover{background:var(--surface2);border-color:var(--border)}
+.app-item.active{background:var(--accent-dim);border-color:var(--accent)}
+.app-item-name{font-size:13px;color:var(--text);font-weight:500;margin-bottom:5px}
+.app-item-progress{display:flex;align-items:center;gap:8px}
+.progress-bar-wrap{flex:1;height:4px;background:var(--surface3);border-radius:2px;overflow:hidden}
+.progress-bar-fill{height:100%;border-radius:2px;background:var(--accent);transition:width .3s}
+.progress-bar-fill.done{background:var(--green)}
+.app-item-stats{font-family:var(--mono);font-size:9px;color:var(--text-dim);white-space:nowrap}
+.app-status-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  font-family:var(--mono);font-size:9px;font-weight:600;
+  padding:2px 7px;border-radius:10px;margin-top:6px;
+}
+.badge-complete{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
+.badge-inprog{background:var(--accent-dim);color:var(--accent);border:1px solid var(--border2)}
+.badge-pending{background:var(--surface2);color:var(--text-dim);border:1px solid var(--border)}
+
+/* folder indicator per app */
+.app-folder{
+  font-family:var(--mono);font-size:9px;color:var(--text-dim);margin-top:3px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.app-folder.set{color:var(--green)}
+
+/* ── CONTROL ITEMS ── */
+.ctrl-item{
+  padding:10px 12px;border-radius:5px;cursor:pointer;margin-bottom:3px;
+  border:1px solid transparent;transition:all .12s;position:relative;
+}
+.ctrl-item:hover{background:var(--surface2);border-color:var(--border)}
+.ctrl-item:hover .ctrl-clear{opacity:1}
+.ctrl-item.active{background:var(--accent-dim);border-color:var(--accent)}
+.ctrl-item.s-valid{border-left:3px solid var(--green)}
+.ctrl-item.s-later{border-left:3px solid var(--yellow)}
+.ctrl-item.s-updated{border-left:3px solid var(--purple)}
+.ctrl-item.s-notchecked{border-left:3px solid var(--text-dim);opacity:.65}
+.ctrl-id{font-family:var(--mono);font-size:10px;font-weight:600;color:var(--text-dim);margin-bottom:2px;letter-spacing:.05em}
+.ctrl-item.s-valid .ctrl-id{color:var(--green)}
+.ctrl-item.s-later .ctrl-id{color:var(--yellow)}
+.ctrl-item.s-updated .ctrl-id{color:var(--purple)}
+.ctrl-title-text{font-size:12px;color:var(--text-mid);line-height:1.3}
+.ctrl-item.active .ctrl-title-text{color:var(--text)}
+.ctrl-pill{
   display:inline-block;font-family:var(--mono);font-size:9px;font-weight:600;
-  padding:1px 6px;border-radius:10px;margin-top:5px;text-transform:uppercase;letter-spacing:.06em;
+  padding:1px 6px;border-radius:10px;margin-top:5px;text-transform:uppercase;letter-spacing:.05em;
 }
-.pill-valid{background:#14532d;color:var(--green)}
-.pill-later{background:#713f12;color:var(--yellow)}
-.pill-updated{background:#1e3a5f;color:#60a5fa}
+.pill-valid{background:var(--green-bg);color:var(--green)}
+.pill-later{background:var(--yellow-bg);color:var(--yellow)}
+.pill-updated{background:var(--purple-bg);color:var(--purple)}
+.pill-notchecked{background:var(--surface3);color:var(--text-dim)}
 
-.no-controls{
-  padding:32px 16px;text-align:center;
-  font-family:var(--mono);font-size:11px;color:var(--text-dim);line-height:1.8;
+/* clear status button on control item */
+.ctrl-clear{
+  position:absolute;top:8px;right:8px;opacity:0;
+  background:var(--red-bg);color:var(--red);border:none;border-radius:3px;
+  font-size:10px;padding:2px 6px;cursor:pointer;font-family:var(--mono);
+  transition:opacity .1s;
 }
+.ctrl-clear:hover{opacity:1 !important;filter:brightness(1.2)}
 
-/* ── Right panel — form ── */
+.no-items{padding:24px 12px;text-align:center;font-family:var(--mono);font-size:11px;color:var(--text-dim);line-height:1.8}
+
+/* ── RIGHT PANEL ── */
 .panel-right{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
-.form-scroll{flex:1;overflow-y:auto;padding:20px 24px 100px}
-.form-scroll::-webkit-scrollbar{width:4px}
+.form-scroll{flex:1;overflow-y:auto;padding:24px 32px 110px}
+.form-scroll::-webkit-scrollbar{width:5px}
 .form-scroll::-webkit-scrollbar-track{background:transparent}
 .form-scroll::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
 
-.section-label{
+/* welcome screen */
+.welcome{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:16px;padding:48px;text-align:center;
+}
+.welcome-icon{font-size:48px;opacity:.25}
+.welcome-title{font-size:18px;font-weight:600;color:var(--text-mid)}
+.welcome-sub{font-family:var(--mono);font-size:12px;color:var(--text-dim);line-height:1.8;max-width:340px}
+.format-box{
+  background:var(--surface);border:1px solid var(--border2);border-radius:6px;
+  padding:12px 18px;font-family:var(--mono);font-size:11px;color:var(--text-mid);
+  text-align:left;line-height:2;margin-top:4px;
+}
+.format-box span{color:var(--accent)}
+
+/* section label */
+.sec-label{
   font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.14em;
-  text-transform:uppercase;color:var(--text-dim);margin-bottom:8px;
+  text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;
   display:flex;align-items:center;gap:8px;
 }
-.section-label::after{content:'';flex:1;height:1px;background:var(--border)}
-.divider{height:1px;background:var(--border);margin:20px 0}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:18px 20px;margin-bottom:14px}
+.sec-label::after{content:'';flex:1;height:1px;background:var(--border)}
+.divider{height:1px;background:var(--border);margin:22px 0}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:20px 22px;margin-bottom:14px}
 
+/* title */
 .title-row{display:flex;gap:8px;align-items:flex-start}
 .title-row input{flex:1}
-.char-badge{font-family:var(--mono);font-size:10px;padding:4px 8px;border-radius:3px;background:var(--surface2);color:var(--text-dim);border:1px solid var(--border);white-space:nowrap;margin-top:2px}
-.char-badge.warn{color:var(--yellow);border-color:#78350f}
+.char-badge{font-family:var(--mono);font-size:10px;padding:4px 8px;border-radius:3px;background:var(--surface2);color:var(--text-dim);border:1px solid var(--border);white-space:nowrap;margin-top:3px}
+.char-badge.warn{color:var(--yellow);border-color:var(--yellow-border)}
 .input-hint{font-family:var(--mono);font-size:10px;color:var(--text-dim);margin-top:5px}
 
 input[type="text"],textarea{
-  width:100%;background:var(--bg);border:1px solid var(--border);border-radius:4px;
-  color:var(--text);font-family:var(--sans);font-size:13px;padding:10px 12px;
+  width:100%;background:var(--bg);border:1px solid var(--border);border-radius:5px;
+  color:var(--text);font-family:var(--sans);font-size:13px;padding:10px 13px;
   outline:none;transition:border-color .15s;resize:none;
 }
 input[type="text"]:focus,textarea:focus{border-color:var(--accent)}
 input[type="text"]::placeholder,textarea::placeholder{color:var(--text-dim)}
+input[readonly]{opacity:.6;cursor:default}
 
-/* ── Snapshot cards ── */
-.snapshot-card{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:18px 20px;margin-bottom:10px}
-.sc-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
-.sc-num{font-family:var(--mono);font-size:11px;color:var(--accent);font-weight:600;letter-spacing:.1em;text-transform:uppercase}
+/* snapshot cards */
+.snap-card{background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:18px 22px;margin-bottom:12px}
+.snap-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.snap-num{font-family:var(--mono);font-size:11px;color:var(--accent);font-weight:600;letter-spacing:.08em;text-transform:uppercase}
 
 .paste-zone{
-  background:var(--bg);border:1.5px dashed var(--border2);border-radius:4px;
-  min-height:110px;display:flex;flex-direction:column;align-items:center;
+  background:var(--bg);border:2px dashed var(--border2);border-radius:5px;
+  min-height:120px;display:flex;flex-direction:column;align-items:center;
   justify-content:center;cursor:pointer;transition:all .15s;position:relative;
   overflow:hidden;margin-bottom:12px;
 }
-.paste-zone:hover{border-color:var(--accent);background:#0a1220}
+.paste-zone:hover{border-color:var(--accent);background:var(--accent-dim)}
 .paste-zone.has-image{border-style:solid;border-color:var(--border2);min-height:unset;cursor:default}
-.paste-zone .hint{font-family:var(--mono);font-size:11px;color:var(--text-dim);text-align:center;padding:16px;pointer-events:none}
-.paste-zone .hint .key{display:inline-block;background:var(--surface2);border:1px solid var(--border2);border-radius:3px;padding:1px 6px;font-size:10px;color:var(--text-mid)}
-.paste-zone img{max-width:100%;max-height:380px;display:block;object-fit:contain;border-radius:3px}
-.paste-zone .clear-btn{
-  position:absolute;top:7px;right:7px;background:#1a1f28cc;border:1px solid var(--border2);
-  border-radius:3px;color:var(--text-mid);font-size:14px;width:24px;height:24px;
+.paste-zone .hint{font-family:var(--mono);font-size:11px;color:var(--text-dim);text-align:center;padding:18px;pointer-events:none}
+.paste-zone .hint .key{display:inline-block;background:var(--surface2);border:1px solid var(--border2);border-radius:3px;padding:1px 7px;font-size:10px;color:var(--text-mid)}
+.paste-zone img{max-width:100%;max-height:420px;display:block;object-fit:contain;border-radius:4px}
+.paste-zone .clear-img{
+  position:absolute;top:8px;right:8px;background:var(--red-bg);border:1px solid var(--red);
+  border-radius:4px;color:var(--red);font-size:13px;width:26px;height:26px;
   display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .1s;opacity:0;
 }
-.paste-zone:hover .clear-btn{opacity:1}
-.paste-zone .clear-btn:hover{background:#7f1d1d;color:#fff}
+.paste-zone:hover .clear-img{opacity:1}
 
-.desc-label{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:5px;margin-top:10px}
-.desc-label .tag{color:var(--yellow);font-size:9px;background:#1c1400;border:1px solid #78350f55;padding:1px 5px;border-radius:2px;margin-left:5px}
-.desc-label .tag.normal{color:var(--text-dim);background:var(--surface2);border-color:var(--border)}
+.desc-label{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:5px;margin-top:11px}
+.desc-label .tag{font-size:9px;padding:1px 5px;border-radius:2px;margin-left:5px}
+.tag-italic{color:var(--yellow);background:var(--yellow-bg);border:1px solid var(--yellow-border)}
+.tag-normal{color:var(--text-dim);background:var(--surface2);border:1px solid var(--border)}
 
-.add-section-btn{
-  width:100%;background:transparent;border:1.5px dashed var(--border2);border-radius:6px;
+.add-snap-btn{
+  width:100%;background:transparent;border:2px dashed var(--border2);border-radius:7px;
   color:var(--text-dim);font-family:var(--mono);font-size:11px;font-weight:600;
-  padding:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;
-  gap:8px;transition:all .15s;letter-spacing:.06em;margin-bottom:20px;
+  padding:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  gap:8px;transition:all .15s;letter-spacing:.05em;margin-bottom:20px;
 }
-.add-section-btn:hover{border-color:var(--accent);color:var(--accent);background:#0a1220}
-.plus-icon{width:18px;height:18px;border:1.5px solid currentColor;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;line-height:1}
+.add-snap-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-dim)}
+.plus-icon{width:18px;height:18px;border:1.5px solid currentColor;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px}
 
-/* ── Bottom action bar ── */
+/* ── ACTION BAR ── */
 .action-bar{
-  position:fixed;bottom:0;left:280px;right:0;
+  position:fixed;bottom:0;left:320px;right:0;
   background:var(--surface);border-top:1px solid var(--border);
-  padding:11px 24px;display:flex;align-items:center;gap:10px;z-index:200;
+  padding:11px 28px;display:flex;align-items:center;gap:10px;z-index:200;
+  box-shadow:0 -2px 12px rgba(0,0,0,.15);
 }
-.action-bar .status{font-family:var(--mono);font-size:11px;color:var(--text-dim);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.action-bar .status.ok{color:var(--green)}
-.action-bar .status.err{color:var(--red)}
-.action-bar .status.working{color:var(--accent)}
+.action-status{font-family:var(--mono);font-size:11px;color:var(--text-dim);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.action-status.ok{color:var(--green)}
+.action-status.err{color:var(--red)}
+.action-status.working{color:var(--accent)}
 
-/* ── Toast ── */
+/* ── APP VIEW — folder row ── */
+.app-folder-row{
+  display:flex;align-items:center;gap:10px;padding:12px 16px;
+  border-bottom:1px solid var(--border);flex-shrink:0;background:var(--surface2);
+}
+.app-folder-status{
+  flex:1;font-family:var(--mono);font-size:11px;color:var(--text-dim);
+  background:var(--bg);border:1px solid var(--border);border-radius:4px;
+  padding:7px 12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;
+}
+.app-folder-status.set{color:var(--green);border-color:var(--green-border)}
+
+/* ── TOAST ── */
 #toast{
-  position:fixed;bottom:72px;right:20px;background:var(--surface2);border:1px solid var(--border2);
-  border-radius:6px;padding:10px 16px;font-family:var(--mono);font-size:11px;color:var(--text);
-  z-index:400;transform:translateY(16px);opacity:0;transition:all .2s;pointer-events:none;max-width:340px;
+  position:fixed;bottom:76px;right:20px;background:var(--surface);border:1px solid var(--border2);
+  border-radius:7px;padding:11px 16px;font-family:var(--mono);font-size:11px;color:var(--text);
+  z-index:500;transform:translateY(16px);opacity:0;transition:all .22s;pointer-events:none;
+  max-width:360px;box-shadow:var(--shadow);
 }
 #toast.show{transform:translateY(0);opacity:1}
 #toast.success{border-left:3px solid var(--green);color:var(--green)}
 #toast.error{border-left:3px solid var(--red);color:var(--red)}
 #toast.warn{border-left:3px solid var(--yellow);color:var(--yellow)}
 
-/* ── No-xl placeholder ── */
-.no-xl-prompt{
-  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:12px;padding:40px;text-align:center;
+/* ── MODAL ── */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:900;
+  display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px);
 }
-.no-xl-prompt .big-icon{font-size:40px;opacity:.3}
-.no-xl-prompt p{font-family:var(--mono);font-size:12px;color:var(--text-dim);line-height:1.7;max-width:280px}
-.format-hint{
-  background:var(--surface2);border:1px solid var(--border2);border-radius:5px;
-  padding:10px 14px;font-family:var(--mono);font-size:10px;color:var(--text-mid);
-  text-align:left;line-height:1.9;
+.modal{
+  background:var(--surface);border:1px solid var(--border2);border-radius:10px;
+  padding:28px 32px;max-width:440px;width:90%;box-shadow:var(--shadow);
 }
-.format-hint span{color:var(--accent)}
+.modal h3{font-size:15px;font-weight:600;margin-bottom:10px;color:var(--text)}
+.modal p{font-family:var(--mono);font-size:12px;color:var(--text-mid);line-height:1.7;margin-bottom:18px}
+.modal-cols{display:flex;gap:8px;justify-content:flex-end}
+.format-list{background:var(--bg);border-radius:5px;padding:10px 14px;font-family:var(--mono);font-size:11px;color:var(--accent);line-height:2;margin-bottom:16px}
 </style>
 </head>
 <body>
 
-<!-- Header -->
+<!-- HEADER -->
 <header>
   <span class="logo">DocSnap</span>
   <span class="sep">·</span>
   <span class="htitle">Report Builder</span>
   <span class="spacer"></span>
+  <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙 Dark</button>
   <span class="badge" id="libStatus">Loading…</span>
 </header>
 
-<!-- Toolbar -->
+<!-- TOOLBAR -->
 <div class="toolbar">
-  <!-- Folder select -->
-  <button class="btn btn-ghost btn-icon" title="Select output folder" onclick="selectFolder()">
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
-  </button>
-  <!-- Folder path (click to copy) -->
-  <div class="folder-path" id="folderPath" title="Click to copy path" onclick="copyFolderPath()">No output folder selected</div>
-
-  <!-- Excel open -->
-  <button class="btn btn-ghost btn-icon" title="Open tracker spreadsheet" onclick="openExcel()">
+  <button class="btn btn-ghost btn-icon" title="Open tracker workbook" onclick="openExcel()">
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
   </button>
-  <div class="xl-status" id="xlStatus">No tracker loaded</div>
+  <div class="toolbar-info active-purple" id="xlStatus" style="flex:1">No workbook loaded — click the grid icon to open</div>
 </div>
 
-<!-- Main -->
+<!-- MAIN -->
 <div class="main">
 
-  <!-- Left: control list -->
-  <div class="panel-left">
-    <div class="panel-left-header">
-      Controls
-      <span class="control-count" id="controlCount">0</span>
+  <!-- LEFT PANEL -->
+  <div class="panel-left" id="panelLeft">
+
+    <!-- APP LIST VIEW -->
+    <div id="viewApps" style="display:flex;flex-direction:column;flex:1;overflow:hidden;min-height:0">
+      <div class="panel-header">
+        <span class="panel-header-title">Applications</span>
+        <span class="badge" id="appCount">0</span>
+      </div>
+      <div class="panel-search">
+        <input type="text" id="appSearch" placeholder="Search applications…" oninput="renderAppList()"/>
+      </div>
+      <div class="panel-list" id="appList">
+        <div class="no-items">Open a workbook to see applications.</div>
+      </div>
     </div>
-    <div class="control-search">
-      <input type="text" id="searchInput" placeholder="Search controls…" oninput="renderControlList()"/>
+
+    <!-- CONTROL LIST VIEW (hidden until app selected) -->
+    <div id="viewControls" style="display:none;flex-direction:column;flex:1;overflow:hidden;min-height:0">
+      <div class="breadcrumb">
+        <button class="breadcrumb-back" onclick="backToApps()">← Apps</button>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-app" id="breadcrumbApp">—</span>
+      </div>
+      <div class="panel-header" style="gap:6px">
+        <span class="panel-header-title" id="ctrlPanelTitle">Controls</span>
+        <span class="badge" id="ctrlCount">0</span>
+        <button class="btn-complete" onclick="markAppComplete()" id="btnAppComplete" title="Mark all pending as Not Checked / App Completed">✓ Complete App</button>
+      </div>
+      <div class="panel-search">
+        <input type="text" id="ctrlSearch" placeholder="Search controls…" oninput="renderCtrlList()"/>
+      </div>
+      <div class="panel-list" id="ctrlList"></div>
     </div>
-    <div class="control-list" id="controlList">
-      <div class="no-controls">Load a tracker<br/>spreadsheet to see controls.</div>
-    </div>
+
   </div>
 
-  <!-- Right: form -->
+  <!-- RIGHT PANEL -->
   <div class="panel-right">
-    <div class="form-scroll" id="formScroll">
 
-      <!-- No-excel state -->
-      <div class="no-xl-prompt" id="noXlPrompt">
-        <div class="big-icon">📋</div>
-        <p>Load a tracker spreadsheet from the toolbar to get started.</p>
-        <div class="format-hint">
-          Required columns:<br/>
-          <span>Control ID</span> · <span>Control Title</span> · <span>Current Status</span> · <span>Completed?</span> · <span>Reason</span>
+    <!-- Welcome / no-app state -->
+    <div class="welcome" id="welcomeView">
+      <div class="welcome-icon">📋</div>
+      <div class="welcome-title">DocSnap Report Builder</div>
+      <div class="welcome-sub">Open a tracker workbook, select an application, then click a control to begin.</div>
+      <div class="format-box">
+        Each sheet = one application.<br/>
+        Required columns per sheet:<br/>
+        <span>Control ID · Control Title · Current Status · Completed? · Reason</span>
+      </div>
+    </div>
+
+    <!-- App folder selection view (shown when app is selected, before control) -->
+    <div id="appView" style="display:none;flex-direction:column;flex:1;overflow:hidden">
+      <div class="app-folder-row">
+        <button class="btn btn-ghost btn-icon" onclick="selectAppFolder()" title="Select output folder for this app">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        </button>
+        <div class="app-folder-status" id="appFolderStatus" onclick="copyAppFolder()">No output folder selected for this app</div>
+      </div>
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;padding:32px;text-align:center">
+        <div style="font-size:36px;opacity:.2">📂</div>
+        <div style="font-family:var(--mono);font-size:12px;color:var(--text-dim);line-height:1.8">
+          Select an output folder above,<br/>then click a control from the left panel.
         </div>
       </div>
+    </div>
 
-      <!-- Form (hidden until excel loaded) -->
-      <div id="formContent" style="display:none">
-        <div class="section-label">Document Title</div>
+    <!-- Form view -->
+    <div id="formView" style="display:none;flex-direction:column;flex:1;overflow:hidden">
+      <div class="app-folder-row">
+        <button class="btn btn-ghost btn-icon" onclick="selectAppFolder()" title="Select output folder">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        </button>
+        <div class="app-folder-status" id="formFolderStatus" onclick="copyAppFolder()">No output folder selected</div>
+      </div>
+      <div class="form-scroll" id="formScroll">
+        <div class="sec-label">Document Title</div>
         <div class="card">
           <div class="title-row">
-            <input type="text" id="docTitle" placeholder="Select a control from the left panel…" oninput="onTitleInput()" readonly/>
+            <input type="text" id="docTitle" placeholder="Select a control…" oninput="onTitleInput()" readonly/>
             <span class="char-badge" id="titleBadge">0</span>
           </div>
-          <div class="input-hint">Auto-filled from selected control. Characters invalid for filenames will be stripped.</div>
+          <div class="input-hint">Auto-filled from selected control. Invalid filename characters are stripped.</div>
         </div>
-
         <div class="divider"></div>
-        <div class="section-label">Images &amp; Notes</div>
+        <div class="sec-label">Images &amp; Notes</div>
         <div id="sections"></div>
-        <button class="add-section-btn" onclick="addSection()">
-          <span class="plus-icon">+</span>
-          Add Another Image
+        <button class="add-snap-btn" onclick="addSection()">
+          <span class="plus-icon">+</span> Add Another Image
         </button>
       </div>
-
     </div>
+
   </div>
 </div>
 
-<!-- Action bar -->
+<!-- ACTION BAR -->
 <div class="action-bar" id="actionBar">
-  <span class="status" id="processStatus">Load a tracker to get started.</span>
-  <button class="btn btn-yellow" id="laterBtn" disabled onclick="markLater()">Later</button>
-  <button class="btn btn-green"  id="validBtn" disabled onclick="markValid()">✓ Valid</button>
-  <button class="btn btn-primary" id="processBtn" disabled onclick="processDoc()">
+  <span class="action-status" id="actionStatus">Open a workbook to get started.</span>
+  <button class="btn btn-yellow" id="btnLater"   disabled onclick="markLater()">Later</button>
+  <button class="btn btn-green"  id="btnValid"   disabled onclick="markValid()">✓ Valid</button>
+  <button class="btn btn-primary" id="btnExport" disabled onclick="processDoc()">
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
     Export Document
   </button>
@@ -339,543 +475,549 @@ input[type="text"]::placeholder,textarea::placeholder{color:var(--text-dim)}
 <div id="toast"></div>
 
 <script>
-// ═══════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════
 // STATE
-// ═══════════════════════════════════════════════════════
-let folderHandle   = null;
-let xlFileHandle   = null;   // FileSystemFileHandle for the xlsx
-let xlWorkbook     = null;   // parsed XLSX workbook (SheetJS)
-let xlSheetName    = null;   // name of the first sheet
-let controls       = [];     // [{rowIdx, id, title, status, completed, reason}]
-let selectedCtrl   = null;   // currently selected control object
-let sections       = [];
-let sectionCount   = 0;
+// ════════════════════════════════════════════════════════════
+let xlFileHandle  = null;
+let xlWorkbook    = null;
+let apps          = [];        // [{name, controls:[{rowIdx,id,title,status,completed,reason}], folderHandle}]
+let currentApp    = null;      // app object currently open
+let selectedCtrl  = null;      // control object
+let sections      = [];
+let sectionCount  = 0;
 
 const REQUIRED_COLS = ['Control ID','Control Title','Current Status','Completed?','Reason'];
 
-// ═══════════════════════════════════════════════════════
-// LIBRARY CHECK
-// ═══════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════
+// THEME
+// ════════════════════════════════════════════════════════════
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  const btn = document.getElementById('themeBtn');
+  btn.textContent = t === 'dark' ? '☀️ Light' : '🌙 Dark';
+  localStorage.setItem('ds-theme', t);
+}
+function toggleTheme(){
+  const cur = document.documentElement.getAttribute('data-theme');
+  applyTheme(cur === 'dark' ? 'light' : 'dark');
+}
+applyTheme(localStorage.getItem('ds-theme') || 'dark');
+
+// ════════════════════════════════════════════════════════════
+// LIB CHECK
+// ════════════════════════════════════════════════════════════
 window.addEventListener('load', () => {
-  const badge = document.getElementById('libStatus');
-  if (typeof JSZip !== 'undefined' && typeof XLSX !== 'undefined') {
-    badge.textContent = 'Chrome / Edge only';
-  } else {
-    badge.textContent = '⚠ Library error';
-    badge.style.color = '#ef4444';
-  }
+  const b = document.getElementById('libStatus');
+  b.textContent = (typeof JSZip !== 'undefined' && typeof XLSX !== 'undefined') ? 'Chrome / Edge' : '⚠ Library error';
 });
 
-// ═══════════════════════════════════════════════════════
-// FOLDER
-// ═══════════════════════════════════════════════════════
-async function selectFolder() {
-  try {
-    folderHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
-    const el = document.getElementById('folderPath');
-    el.textContent = '📁 ' + folderHandle.name;
-    el.classList.add('active');
-    el.title = 'Click to copy: ' + folderHandle.name;
-    updateActionBar();
-    showToast('Output folder set: ' + folderHandle.name, 'success');
-  } catch(e) {
-    if (e.name !== 'AbortError') showToast('Folder access denied.', 'error');
-  }
-}
-
-function copyFolderPath() {
-  if (!folderHandle) return;
-  navigator.clipboard.writeText(folderHandle.name).then(() => {
-    showToast('Folder name copied to clipboard.', '');
-  });
-}
-
-// ═══════════════════════════════════════════════════════
-// EXCEL LOAD — uses showOpenFilePicker for read+write in one step
-// ═══════════════════════════════════════════════════════
-let xlRawFile = null, xlFileName = '';
-
-async function openExcel() {
+// ════════════════════════════════════════════════════════════
+// EXCEL OPEN
+// ════════════════════════════════════════════════════════════
+async function openExcel(){
   try {
     [xlFileHandle] = await window.showOpenFilePicker({
-      types: [{ description: 'Excel Spreadsheet', accept: { 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'] } }],
-      multiple: false
+      types:[{description:'Excel Workbook',accept:{'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':['.xlsx']}}],
+      multiple:false
     });
-  } catch(e) {
-    if (e.name !== 'AbortError') showToast('Could not open file: ' + e.message, 'error');
-    return;
-  }
+  } catch(e){ if(e.name!=='AbortError') showToast('Could not open file: '+e.message,'error'); return; }
 
   try {
     const file = await xlFileHandle.getFile();
-    xlFileName  = file.name;
-    const buf   = await file.arrayBuffer();
-    const wb    = XLSX.read(buf, { type: 'arraybuffer' });
-    const sn    = wb.SheetNames[0];
-    const ws    = wb.Sheets[sn];
-    const rows  = XLSX.utils.sheet_to_json(ws, { defval: '' });
+    const buf  = await file.arrayBuffer();
+    const wb   = XLSX.read(buf,{type:'arraybuffer'});
+    xlWorkbook = wb;
 
-    if (!rows.length) { showToast('Spreadsheet is empty.', 'error'); return; }
-
-    const cols    = Object.keys(rows[0]);
-    const missing = REQUIRED_COLS.filter(c => !cols.includes(c));
-    if (missing.length) {
-      showToast(`Wrong format. Missing: ${missing.join(', ')}`, 'error');
-      showFormatError(missing);
-      xlFileHandle = null;
-      return;
-    }
-
-    xlWorkbook  = wb;
-    xlSheetName = sn;
-
-    controls = rows.map((row, i) => ({
-      rowIdx:    i + 2,
-      id:        String(row['Control ID']    || '').trim(),
-      title:     String(row['Control Title'] || '').trim(),
-      status:    String(row['Current Status']|| '').trim(),
-      completed: String(row['Completed?']    || '').trim(),
-      reason:    String(row['Reason']        || '').trim(),
-    }));
-
-    document.getElementById('xlStatus').textContent = '📊 ' + file.name;
-    document.getElementById('xlStatus').classList.add('active');
-    document.getElementById('noXlPrompt').style.display  = 'none';
-    document.getElementById('formContent').style.display = 'block';
-    document.getElementById('docTitle').readOnly = false;
-
-    renderControlList();
-    if (!sections.length) addSection();
-    updateActionBar();
-    showToast(`Loaded ${controls.length} controls — writes go directly to file`, 'success');
-  } catch(err) {
-    console.error(err);
-    showToast('Error reading file: ' + err.message, 'error');
-  }
-}
-
-function showFormatError(missing) {
-  const hint = document.createElement('div');
-  hint.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#13171d;border:1px solid #ef4444;border-radius:8px;padding:24px 28px;z-index:999;max-width:400px;font-family:monospace;font-size:12px;color:#e2e8f0;line-height:1.8';
-  hint.innerHTML = `
-    <div style="color:#ef4444;font-weight:600;margin-bottom:12px;font-size:13px">⚠ Invalid Spreadsheet Format</div>
-    <div style="color:#94a3b8;margin-bottom:8px">Missing columns: <span style="color:#f59e0b">${missing.join(', ')}</span></div>
-    <div style="color:#64748b;margin-bottom:16px">Your spreadsheet must have exactly these columns:</div>
-    <div style="background:#0d0f12;border-radius:4px;padding:10px 14px;color:#60a5fa">${REQUIRED_COLS.join('<br/>')}</div>
-    <button onclick="this.parentElement.remove()" style="margin-top:16px;width:100%;padding:8px;background:#1e3a5f;border:none;border-radius:4px;color:#fff;font-family:monospace;cursor:pointer">Close</button>
-  `;
-  document.body.appendChild(hint);
-}
-
-// ═══════════════════════════════════════════════════════
-// CONTROL LIST
-// ═══════════════════════════════════════════════════════
-function renderControlList() {
-  const q    = document.getElementById('searchInput').value.toLowerCase();
-  const list = document.getElementById('controlList');
-  const filtered = controls.filter(c =>
-    c.id.toLowerCase().includes(q) || c.title.toLowerCase().includes(q)
-  );
-  document.getElementById('controlCount').textContent = controls.length;
-
-  if (!filtered.length) {
-    list.innerHTML = '<div class="no-controls">No controls match.</div>';
-    return;
-  }
-
-  list.innerHTML = filtered.map(c => {
-    const comp = c.completed.toLowerCase();
-    let statusClass = '', pill = '';
-    if (comp === 'valid') {
-      statusClass = 'status-valid';
-      pill = '<span class="status-pill pill-valid">Valid</span>';
-    } else if (comp === 'to be tested later') {
-      statusClass = 'status-later';
-      pill = '<span class="status-pill pill-later">Later</span>';
-    } else if (comp === 'updated') {
-      statusClass = 'status-updated';
-      pill = '<span class="status-pill pill-updated">Updated</span>';
-    }
-    const isActive = selectedCtrl && selectedCtrl.id === c.id ? 'active' : '';
-    return `
-      <div class="control-item ${statusClass} ${isActive}" onclick="selectControl('${escHtml(c.id)}')">
-        <div class="ctrl-id">${escHtml(c.id)}</div>
-        <div class="ctrl-title">${escHtml(c.title)}</div>
-        ${pill}
-      </div>`;
-  }).join('');
-}
-
-function escHtml(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-function selectControl(id) {
-  selectedCtrl = controls.find(c => c.id === id) || null;
-  if (!selectedCtrl) return;
-
-  // Fill title
-  const combined = sanitizeFilename(selectedCtrl.id + ' ' + selectedCtrl.title);
-  document.getElementById('docTitle').value = combined;
-  document.getElementById('titleBadge').textContent = combined.trim().length;
-
-  renderControlList();
-  updateActionBar();
-
-  // Scroll form to top
-  document.getElementById('formScroll').scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-// ═══════════════════════════════════════════════════════
-// TITLE
-// ═══════════════════════════════════════════════════════
-function sanitizeFilename(s) { return s.replace(/[\\/:*?"<>|]/g, ''); }
-function onTitleInput() {
-  const inp = document.getElementById('docTitle');
-  const raw = inp.value;
-  const clean = sanitizeFilename(raw);
-  if (raw !== clean) {
-    const pos = inp.selectionStart - (raw.length - clean.length);
-    inp.value = clean;
-    inp.selectionStart = inp.selectionEnd = Math.max(0, pos);
-  }
-  document.getElementById('titleBadge').textContent = clean.trim().length;
-  document.getElementById('titleBadge').className = 'char-badge' + (clean.length > 200 ? ' warn' : '');
-  updateActionBar();
-}
-
-// ═══════════════════════════════════════════════════════
-// SECTIONS / PASTE
-// ═══════════════════════════════════════════════════════
-function addSection() {
-  sectionCount++;
-  const id = 'sc' + Date.now();
-  sections.push({ id, imageData: null, imageType: null, imageW: 0, imageH: 0 });
-
-  const el = document.createElement('div');
-  el.className = 'snapshot-card';
-  el.id = 'card-' + id;
-  el.innerHTML = `
-    <div class="sc-header">
-      <span class="sc-num">Image ${sectionCount}</span>
-      ${sectionCount > 1 ? `<button class="btn btn-danger" onclick="removeSection('${id}')">✕ Remove</button>` : ''}
-    </div>
-    <div class="paste-zone" id="zone-${id}" tabindex="0"
-         onclick="pasteFromClipboard('${id}')"
-         onfocus="this.classList.add('focused')"
-         onblur="this.classList.remove('focused')">
-      <div class="hint">Click to paste image from clipboard</div>
-    </div>
-    <div class="desc-label">Caption <span class="tag">italics in document</span></div>
-    <textarea id="imgdesc-${id}" rows="2" placeholder="Short caption for this image..."></textarea>
-    <div class="desc-label" style="margin-top:10px;">Notes <span class="tag normal">normal text</span></div>
-    <textarea id="adddesc-${id}" rows="3" placeholder="Additional notes or context..."></textarea>
-  `;
-  document.getElementById('sections').appendChild(el);
-
-  // Also support Ctrl+V when zone is focused
-  const zone = document.getElementById('zone-' + id);
-  const docHandler = (e) => { if (document.activeElement === zone) { e.preventDefault(); pasteFromClipboard(id); } };
-  zone._docHandler = docHandler;
-  document.addEventListener('paste', docHandler);
-
-  updateActionBar();
-}
-
-// Auto-paste on click: read clipboard directly
-async function pasteFromClipboard(id) {
-  const zone = document.getElementById('zone-' + id);
-  zone.focus();
-  try {
-    const items = await navigator.clipboard.read();
-    for (const item of items) {
-      const imgType = item.types.find(t => t.startsWith('image/'));
-      if (imgType) {
-        const blob = await item.getType(imgType);
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-          const dataUrl = ev.target.result;
-          const img = new Image();
-          img.onload = () => {
-            const sec = sections.find(s => s.id === id);
-            if (sec) {
-              sec.imageData = dataUrl.split(',')[1];
-              sec.imageType = imgType;
-              sec.imageW = img.naturalWidth;
-              sec.imageH = img.naturalHeight;
-            }
-            zone.innerHTML = `<img src="${dataUrl}" alt="preview"/><div class="clear-btn" onclick="clearZone('${id}')">✕</div>`;
-            zone.classList.add('has-image');
-            updateActionBar();
-          };
-          img.src = dataUrl;
-        };
-        reader.readAsDataURL(blob);
-        return;
+    // Parse each sheet as an app
+    const parsed = [];
+    for(const sn of wb.SheetNames){
+      const ws   = wb.Sheets[sn];
+      const rows = XLSX.utils.sheet_to_json(ws,{defval:''});
+      if(!rows.length) continue;
+      const cols    = Object.keys(rows[0]);
+      const missing = REQUIRED_COLS.filter(c=>!cols.includes(c));
+      if(missing.length){
+        showToast(`Sheet "${sn}" skipped — missing: ${missing.join(', ')}`,'warn');
+        continue;
       }
+      parsed.push({
+        name: sn,
+        folderHandle: null,
+        controls: rows.map((r,i)=>({
+          rowIdx: i+2,
+          id:        String(r['Control ID']    ||'').trim(),
+          title:     String(r['Control Title'] ||'').trim(),
+          status:    String(r['Current Status']||'').trim(),
+          completed: String(r['Completed?']    ||'').trim(),
+          reason:    String(r['Reason']        ||'').trim(),
+        }))
+      });
     }
-    showToast('No image found in clipboard.', 'error');
-  } catch(err) {
-    // Fallback: fire paste event approach
-    showToast('Click the zone then press Ctrl+V (clipboard permission denied).', 'warn');
+
+    if(!parsed.length){ showToast('No valid sheets found in workbook.','error'); return; }
+
+    apps = parsed;
+    document.getElementById('xlStatus').textContent = `📊 ${file.name} — ${apps.length} app${apps.length!==1?'s':''}`;
+    showView('apps');
+    renderAppList();
+    updateActionBar();
+    showToast(`Loaded ${apps.length} application${apps.length!==1?'s':''} from ${file.name}`,'success');
+  } catch(err){
+    console.error(err);
+    showToast('Error reading workbook: '+err.message,'error');
   }
 }
 
-// Fallback via paste event (Ctrl+V)
-function setupPasteEvent(id) {
-  const zone = document.getElementById('zone-' + id);
-  zone.addEventListener('paste', (e) => {
-    e.preventDefault();
-    const items = Array.from((e.clipboardData || window.clipboardData).items);
-    const imgItem = items.find(i => i.type.startsWith('image/'));
-    if (!imgItem) { showToast('No image in clipboard.', 'error'); return; }
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const dataUrl = ev.target.result;
-      const img = new Image();
-      img.onload = () => {
-        const sec = sections.find(s => s.id === id);
-        if (sec) { sec.imageData = dataUrl.split(',')[1]; sec.imageType = imgItem.type; sec.imageW = img.naturalWidth; sec.imageH = img.naturalHeight; }
-        zone.innerHTML = `<img src="${dataUrl}" alt="preview"/><div class="clear-btn" onclick="clearZone('${id}')">✕</div>`;
-        zone.classList.add('has-image');
-        updateActionBar();
-      };
-      img.src = dataUrl;
-    };
-    reader.readAsDataURL(imgItem.getAsFile());
+// ════════════════════════════════════════════════════════════
+// VIEW MANAGEMENT
+// ════════════════════════════════════════════════════════════
+// leftView: 'apps' | 'controls'
+// rightView: 'welcome' | 'appView' | 'formView'
+function showView(leftView, rightView){
+  document.getElementById('viewApps').style.display     = leftView==='apps'     ? 'flex':'none';
+  document.getElementById('viewControls').style.display = leftView==='controls' ? 'flex':'none';
+  document.getElementById('welcomeView').style.display  = rightView==='welcome' ? 'flex':'none';
+  document.getElementById('appView').style.display      = rightView==='appView' ? 'flex':'none';
+  document.getElementById('formView').style.display     = rightView==='formView'? 'flex':'none';
+}
+
+// ════════════════════════════════════════════════════════════
+// APP LIST
+// ════════════════════════════════════════════════════════════
+function appProgress(app){
+  const total = app.controls.length;
+  if(!total) return {done:0,total:0,pct:0};
+  const done = app.controls.filter(c=>{
+    const v = c.completed.toLowerCase();
+    return v==='valid'||v==='updated'||v==='to be tested later'||v==='not checked';
+  }).length;
+  return {done,total,pct:Math.round(done/total*100)};
+}
+
+function appCompleted(app){
+  return app.controls.every(c=>{
+    const v=c.completed.toLowerCase();
+    return v==='valid'||v==='updated'||v==='to be tested later'||v==='not checked';
   });
 }
 
-function clearZone(id) {
-  const sec = sections.find(s => s.id === id);
-  if (sec) { sec.imageData = null; sec.imageType = null; sec.imageW = 0; sec.imageH = 0; }
-  const zone = document.getElementById('zone-' + id);
-  zone.innerHTML = `<div class="hint">Click to paste image from clipboard</div>`;
+function renderAppList(){
+  const q    = document.getElementById('appSearch').value.toLowerCase();
+  const list = document.getElementById('appList');
+  document.getElementById('appCount').textContent = apps.length;
+  const filtered = apps.filter(a=>a.name.toLowerCase().includes(q));
+  if(!filtered.length){list.innerHTML='<div class="no-items">No applications match.</div>';return;}
+  list.innerHTML = filtered.map(a=>{
+    const prog  = appProgress(a);
+    const comp  = appCompleted(a);
+    const inProg= prog.done>0 && !comp;
+    const badgeHtml = comp
+      ? '<span class="app-status-badge badge-complete">✓ Complete</span>'
+      : inProg
+        ? `<span class="app-status-badge badge-inprog">${prog.done}/${prog.total} done</span>`
+        : `<span class="app-status-badge badge-pending">0/${prog.total} done</span>`;
+    const folderHtml = a.folderHandle
+      ? `<div class="app-folder set">📁 ${escH(a.folderHandle.name)}</div>`
+      : `<div class="app-folder">No folder set</div>`;
+    const isActive = currentApp && currentApp.name===a.name ? 'active':'';
+    return `<div class="app-item ${isActive}" onclick="selectApp('${escH(a.name)}')">
+      <div class="app-item-name">${escH(a.name)}</div>
+      <div class="app-item-progress">
+        <div class="progress-bar-wrap"><div class="progress-bar-fill ${comp?'done':''}" style="width:${prog.pct}%"></div></div>
+        <span class="app-item-stats">${prog.pct}%</span>
+      </div>
+      ${badgeHtml}
+      ${folderHtml}
+    </div>`;
+  }).join('');
+}
+
+function selectApp(name){
+  currentApp   = apps.find(a=>a.name===name)||null;
+  selectedCtrl = null;
+  if(!currentApp) return;
+  document.getElementById('breadcrumbApp').textContent = currentApp.name;
+  document.getElementById('ctrlPanelTitle').textContent = 'Controls';
+  document.getElementById('viewApps').style.display    = 'none';
+  document.getElementById('viewControls').style.display= 'flex';
+  renderCtrlList();
+  updateFolderUI();
+  showView('controls', 'appView');
+  updateActionBar();
+  renderAppList();
+}
+
+function backToApps(){
+  currentApp   = null;
+  selectedCtrl = null;
+  clearForm();
+  showView('apps','welcome');
+  updateActionBar();
+  renderAppList();
+}
+
+// ════════════════════════════════════════════════════════════
+// PER-APP FOLDER
+// ════════════════════════════════════════════════════════════
+async function selectAppFolder(){
+  if(!currentApp){showToast('Select an application first.','error');return;}
+  try {
+    currentApp.folderHandle = await window.showDirectoryPicker({mode:'readwrite'});
+    updateFolderUI();
+    renderAppList();
+    updateActionBar();
+    showToast(`Output folder set: ${currentApp.folderHandle.name}`,'success');
+  } catch(e){if(e.name!=='AbortError') showToast('Folder access denied.','error');}
+}
+
+function updateFolderUI(){
+  const fh = currentApp?.folderHandle;
+  const txt = fh ? `📁 ${fh.name} — click to copy` : 'No output folder selected — click folder icon';
+  ['appFolderStatus','formFolderStatus'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el){ el.textContent=txt; el.className='app-folder-status'+(fh?' set':''); }
+  });
+}
+
+function copyAppFolder(){
+  if(!currentApp?.folderHandle) return;
+  navigator.clipboard.writeText(currentApp.folderHandle.name)
+    .then(()=>showToast('Folder name copied.',''));
+}
+
+// ════════════════════════════════════════════════════════════
+// CONTROL LIST
+// ════════════════════════════════════════════════════════════
+function ctrlStatusClass(c){
+  const v = c.completed.toLowerCase();
+  if(v==='valid')              return 's-valid';
+  if(v==='to be tested later') return 's-later';
+  if(v==='updated')            return 's-updated';
+  if(v==='not checked')        return 's-notchecked';
+  return '';
+}
+function ctrlPill(c){
+  const v = c.completed.toLowerCase();
+  if(v==='valid')              return '<span class="ctrl-pill pill-valid">Valid</span>';
+  if(v==='to be tested later') return '<span class="ctrl-pill pill-later">Later</span>';
+  if(v==='updated')            return '<span class="ctrl-pill pill-updated">Updated</span>';
+  if(v==='not checked')        return '<span class="ctrl-pill pill-notchecked">Not Checked</span>';
+  return '';
+}
+
+function renderCtrlList(){
+  if(!currentApp) return;
+  const q    = document.getElementById('ctrlSearch').value.toLowerCase();
+  const list = document.getElementById('ctrlList');
+  const filtered = currentApp.controls.filter(c=>
+    c.id.toLowerCase().includes(q)||c.title.toLowerCase().includes(q)
+  );
+  document.getElementById('ctrlCount').textContent = currentApp.controls.length;
+  if(!filtered.length){list.innerHTML='<div class="no-items">No controls match.</div>';return;}
+
+  list.innerHTML = filtered.map(c=>{
+    const sc  = ctrlStatusClass(c);
+    const pill= ctrlPill(c);
+    const isActive = selectedCtrl&&selectedCtrl.id===c.id?'active':'';
+    const canClear = c.completed && c.completed.toLowerCase()!=='updated';
+    const clearBtn = canClear
+      ? `<button class="ctrl-clear" onclick="clearCtrlStatus(event,'${escH(c.id)}')" title="Remove status">✕</button>`
+      : '';
+    return `<div class="ctrl-item ${sc} ${isActive}" onclick="selectCtrl('${escH(c.id)}')">
+      <div class="ctrl-id">${escH(c.id)}</div>
+      <div class="ctrl-title-text">${escH(c.title)}</div>
+      ${pill}
+      ${clearBtn}
+    </div>`;
+  }).join('');
+}
+
+function selectCtrl(id){
+  if(!currentApp) return;
+  selectedCtrl = currentApp.controls.find(c=>c.id===id)||null;
+  if(!selectedCtrl) return;
+  const combined = sanitizeFilename(selectedCtrl.id+' '+selectedCtrl.title);
+  document.getElementById('docTitle').value = combined;
+  document.getElementById('titleBadge').textContent = combined.trim().length;
+  document.getElementById('docTitle').readOnly = false;
+  showView('controls','formView');
+  updateFolderUI();
+  renderCtrlList();
+  updateActionBar();
+  document.getElementById('formScroll').scrollTo({top:0,behavior:'smooth'});
+}
+
+// ════════════════════════════════════════════════════════════
+// CLEAR CONTROL STATUS
+// ════════════════════════════════════════════════════════════
+async function clearCtrlStatus(e, id){
+  e.stopPropagation();
+  const ctrl = currentApp.controls.find(c=>c.id===id);
+  if(!ctrl||ctrl.completed.toLowerCase()==='updated') return;
+  ctrl.completed = '';
+  ctrl.reason    = '';
+  if(selectedCtrl&&selectedCtrl.id===id){
+    selectedCtrl.completed=''; selectedCtrl.reason='';
+  }
+  renderCtrlList();
+  renderAppList();
+  updateActionBar();
+  await writeExcel();
+  showToast(`Status cleared for ${id}`,'');
+}
+
+// ════════════════════════════════════════════════════════════
+// MARK VALID / LATER / APP COMPLETE
+// ════════════════════════════════════════════════════════════
+async function markValid(){
+  if(!selectedCtrl) return;
+  selectedCtrl.completed='Valid';
+  syncCtrl(selectedCtrl);
+  renderCtrlList(); renderAppList(); updateActionBar();
+  await writeExcel();
+  showToast(`✓ ${selectedCtrl.id} marked Valid`,'success');
+}
+
+async function markLater(){
+  if(!selectedCtrl) return;
+  selectedCtrl.completed='To Be Tested Later';
+  syncCtrl(selectedCtrl);
+  renderCtrlList(); renderAppList(); updateActionBar();
+  await writeExcel();
+  showToast(`${selectedCtrl.id} — To Be Tested Later`,'warn');
+}
+
+async function markAppComplete(){
+  if(!currentApp) return;
+  currentApp.controls.forEach(c=>{
+    if(!c.completed) c.completed='Not Checked';
+  });
+  renderCtrlList(); renderAppList(); updateActionBar();
+  await writeExcel();
+  showToast(`${currentApp.name} marked complete`,'success');
+}
+
+function syncCtrl(ctrl){
+  if(!currentApp) return;
+  const c = currentApp.controls.find(x=>x.id===ctrl.id);
+  if(c) Object.assign(c,{completed:ctrl.completed,reason:ctrl.reason});
+}
+
+// ════════════════════════════════════════════════════════════
+// TITLE
+// ════════════════════════════════════════════════════════════
+function sanitizeFilename(s){return s.replace(/[\\/:*?"<>|]/g,'');}
+function onTitleInput(){
+  const inp=document.getElementById('docTitle');
+  const raw=inp.value, clean=sanitizeFilename(raw);
+  if(raw!==clean){const p=inp.selectionStart-(raw.length-clean.length);inp.value=clean;inp.selectionStart=inp.selectionEnd=Math.max(0,p);}
+  document.getElementById('titleBadge').textContent=clean.trim().length;
+  document.getElementById('titleBadge').className='char-badge'+(clean.length>200?' warn':'');
+  updateActionBar();
+}
+
+// ════════════════════════════════════════════════════════════
+// SECTIONS
+// ════════════════════════════════════════════════════════════
+function addSection(){
+  sectionCount++;
+  const id='sc'+Date.now();
+  sections.push({id,imageData:null,imageType:null,imageW:0,imageH:0});
+  const el=document.createElement('div');
+  el.className='snap-card'; el.id='card-'+id;
+  el.innerHTML=`
+    <div class="snap-header">
+      <span class="snap-num">Image ${sectionCount}</span>
+      ${sectionCount>1?`<button class="btn btn-red" onclick="removeSection('${id}')">✕ Remove</button>`:''}
+    </div>
+    <div class="paste-zone" id="zone-${id}" tabindex="0"
+         onclick="pasteFromClipboard('${id}')"
+         onfocus="this.classList.add('focused')" onblur="this.classList.remove('focused')">
+      <div class="hint">Click to paste image from clipboard</div>
+    </div>
+    <div class="desc-label">Caption <span class="tag tag-italic">italics in doc</span></div>
+    <textarea id="imgdesc-${id}" rows="2" placeholder="Short caption for this image..."></textarea>
+    <div class="desc-label" style="margin-top:11px">Notes <span class="tag tag-normal">normal text</span></div>
+    <textarea id="adddesc-${id}" rows="3" placeholder="Additional notes or context..."></textarea>
+  `;
+  document.getElementById('sections').appendChild(el);
+  const zone=document.getElementById('zone-'+id);
+  const dh=(e)=>{if(document.activeElement===zone){e.preventDefault();pasteFromClipboard(id);}};
+  zone._dh=dh; document.addEventListener('paste',dh);
+  updateActionBar();
+}
+
+async function pasteFromClipboard(id){
+  const zone=document.getElementById('zone-'+id); zone.focus();
+  try{
+    const items=await navigator.clipboard.read();
+    for(const item of items){
+      const t=item.types.find(x=>x.startsWith('image/'));
+      if(t){
+        const blob=await item.getType(t);
+        await loadImageBlob(blob,t,id); return;
+      }
+    }
+    showToast('No image in clipboard.','error');
+  }catch(e){
+    showToast('Clipboard read failed — press Ctrl+V while zone is focused.','warn');
+  }
+}
+
+function loadImageBlob(blob,type,id){
+  return new Promise(res=>{
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      const dataUrl=ev.target.result;
+      const img=new Image();
+      img.onload=()=>{
+        const sec=sections.find(s=>s.id===id);
+        if(sec){sec.imageData=dataUrl.split(',')[1];sec.imageType=type;sec.imageW=img.naturalWidth;sec.imageH=img.naturalHeight;}
+        const zone=document.getElementById('zone-'+id);
+        zone.innerHTML=`<img src="${dataUrl}" alt="preview"/><div class="clear-img" onclick="clearZone('${id}')">✕</div>`;
+        zone.classList.add('has-image');
+        updateActionBar(); res();
+      };
+      img.src=dataUrl;
+    };
+    reader.readAsDataURL(blob);
+  });
+}
+
+function clearZone(id){
+  const sec=sections.find(s=>s.id===id);
+  if(sec){sec.imageData=null;sec.imageType=null;sec.imageW=0;sec.imageH=0;}
+  const zone=document.getElementById('zone-'+id);
+  zone.innerHTML='<div class="hint">Click to paste image from clipboard</div>';
   zone.classList.remove('has-image');
   updateActionBar();
 }
 
-function removeSection(id) {
-  const zone = document.getElementById('zone-' + id);
-  if (zone && zone._docHandler) document.removeEventListener('paste', zone._docHandler);
-  sections = sections.filter(s => s.id !== id);
-  document.getElementById('card-' + id)?.remove();
-  let n = 1;
-  document.querySelectorAll('.sc-num').forEach(el => el.textContent = 'Image ' + n++);
+function removeSection(id){
+  const zone=document.getElementById('zone-'+id);
+  if(zone&&zone._dh) document.removeEventListener('paste',zone._dh);
+  sections=sections.filter(s=>s.id!==id);
+  document.getElementById('card-'+id)?.remove();
+  let n=1; document.querySelectorAll('.snap-num').forEach(el=>el.textContent='Image '+n++);
   updateActionBar();
 }
 
-// ═══════════════════════════════════════════════════════
-// ACTION BAR STATE
-// ═══════════════════════════════════════════════════════
-function updateActionBar() {
-  const status  = document.getElementById('processStatus');
-  const expBtn  = document.getElementById('processBtn');
-  const valBtn  = document.getElementById('validBtn');
-  const latBtn  = document.getElementById('laterBtn');
-  const title   = sanitizeFilename(document.getElementById('docTitle').value).trim();
-  const hasCtrl = !!selectedCtrl;
-  const hasFolder = !!folderHandle;
-  const hasXl   = !!xlWorkbook;
+// ════════════════════════════════════════════════════════════
+// ACTION BAR
+// ════════════════════════════════════════════════════════════
+function updateActionBar(){
+  const st=document.getElementById('actionStatus');
+  const bExp=document.getElementById('btnExport');
+  const bVal=document.getElementById('btnValid');
+  const bLat=document.getElementById('btnLater');
+  const title=sanitizeFilename(document.getElementById('docTitle').value).trim();
+  const hasCtrl=!!selectedCtrl, hasApp=!!currentApp;
+  const hasFoldr=!!(currentApp?.folderHandle);
+  const hasXl=!!xlWorkbook;
 
-  // Valid / Later only need a selected control
-  valBtn.disabled = !hasCtrl;
-  latBtn.disabled = !hasCtrl;
+  bVal.disabled=!hasCtrl; bLat.disabled=!hasCtrl;
 
-  if (!hasXl) {
-    status.textContent = 'Load a tracker spreadsheet to get started.';
-    status.className = 'status'; expBtn.disabled = true; return;
-  }
-  if (!hasCtrl) {
-    status.textContent = 'Select a control from the left panel.';
-    status.className = 'status'; expBtn.disabled = true; return;
-  }
-  if (!hasFolder) {
-    status.textContent = 'Select an output folder in the toolbar.';
-    status.className = 'status'; expBtn.disabled = true; return;
-  }
-  if (!title) {
-    status.textContent = 'Title is empty.';
-    status.className = 'status'; expBtn.disabled = true; return;
-  }
-  if (!sections.length) {
-    status.textContent = 'Add at least one image section.';
-    status.className = 'status'; expBtn.disabled = true; return;
-  }
-  const missing = sections.filter(s => !s.imageData).length;
-  if (missing) {
-    status.textContent = `${missing} section(s) missing an image.`;
-    status.className = 'status err'; expBtn.disabled = true; return;
-  }
-  status.textContent = `Ready — "${title}.docx" → ${folderHandle.name}`;
-  status.className = 'status ok'; expBtn.disabled = false;
+  if(!hasXl){st.textContent='Open a workbook to get started.';st.className='action-status';bExp.disabled=true;return;}
+  if(!hasApp){st.textContent='Select an application from the left panel.';st.className='action-status';bExp.disabled=true;return;}
+  if(!hasFoldr){st.textContent='Select an output folder for this application.';st.className='action-status';bExp.disabled=true;return;}
+  if(!hasCtrl){st.textContent='Select a control to document.';st.className='action-status';bExp.disabled=true;return;}
+  if(!title){st.textContent='Title is empty.';st.className='action-status';bExp.disabled=true;return;}
+  if(!sections.length){st.textContent='Add at least one image section.';st.className='action-status';bExp.disabled=true;return;}
+  const miss=sections.filter(s=>!s.imageData).length;
+  if(miss){st.textContent=`${miss} section(s) missing an image.`;st.className='action-status err';bExp.disabled=true;return;}
+  st.textContent=`Ready — "${title}.docx" → ${currentApp.folderHandle.name}`;
+  st.className='action-status ok'; bExp.disabled=false;
 }
 
-// ═══════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════
 // EXCEL WRITE
-// ═══════════════════════════════════════════════════════
-async function writeExcel() {
-  if (!xlWorkbook || !xlSheetName || !xlFileHandle) {
-    showToast('No writable file handle — open the spreadsheet again via the toolbar.', 'error');
-    return;
-  }
-
-  const ws     = xlWorkbook.Sheets[xlSheetName];
-  const rows   = XLSX.utils.sheet_to_json(ws, { header: 1 });
-  const header = rows[0];
-  const colCompleted = header.indexOf('Completed?');
-  const colReason    = header.indexOf('Reason');
-
-  // Update rows in memory
-  controls.forEach(c => {
-    const ri = c.rowIdx - 1;
-    if (!rows[ri]) return;
-    rows[ri][colCompleted] = c.completed;
-    rows[ri][colReason]    = c.reason;
-  });
-
-  // Rebuild worksheet
-  const newWs = XLSX.utils.aoa_to_sheet(rows);
-
-  // Apply row fill colours
-  controls.forEach(c => {
-    const ri = c.rowIdx - 1;
-    const comp = c.completed.toLowerCase();
-    let fgColor = null;
-    if      (comp === 'valid')               fgColor = 'C6EFCE';
-    else if (comp === 'to be tested later')  fgColor = 'FFEB9C';
-    else if (comp === 'updated')             fgColor = 'DDEEFF';
-    if (fgColor) {
-      header.forEach((_, ci) => {
-        const ref = XLSX.utils.encode_cell({ r: ri, c: ci });
-        if (!newWs[ref]) newWs[ref] = { v: '', t: 's' };
-        newWs[ref].s = { fill: { fgColor: { rgb: fgColor }, patternType: 'solid' } };
+// ════════════════════════════════════════════════════════════
+async function writeExcel(){
+  if(!xlWorkbook||!xlFileHandle){showToast('No workbook file handle — reopen the file.','error');return;}
+  try{
+    // Rebuild all sheets from apps data
+    for(const app of apps){
+      const ws=xlWorkbook.Sheets[app.name];
+      if(!ws) continue;
+      const rows=XLSX.utils.sheet_to_json(ws,{header:1});
+      const hdr=rows[0];
+      const colC=hdr.indexOf('Completed?'), colR=hdr.indexOf('Reason');
+      app.controls.forEach(c=>{
+        const ri=c.rowIdx-1;
+        if(!rows[ri]) return;
+        rows[ri][colC]=c.completed;
+        rows[ri][colR]=c.reason;
       });
+      const newWs=XLSX.utils.aoa_to_sheet(rows);
+      // Row fill colours
+      app.controls.forEach(c=>{
+        const ri=c.rowIdx-1;
+        const v=c.completed.toLowerCase();
+        let fg=null;
+        if(v==='valid')              fg='C6EFCE';
+        else if(v==='to be tested later') fg='FFEB9C';
+        else if(v==='updated')       fg='DDEEFF';
+        else if(v==='not checked')   fg='F0F0F0';
+        if(fg){
+          hdr.forEach((_,ci)=>{
+            const ref=XLSX.utils.encode_cell({r:ri,c:ci});
+            if(!newWs[ref]) newWs[ref]={v:'',t:'s'};
+            newWs[ref].s={fill:{fgColor:{rgb:fg},patternType:'solid'}};
+          });
+        }
+      });
+      xlWorkbook.Sheets[app.name]=newWs;
     }
-  });
-
-  xlWorkbook.Sheets[xlSheetName] = newWs;
-  const wbOut = XLSX.write(xlWorkbook, { bookType: 'xlsx', type: 'array', cellStyles: true });
-
-  try {
-    const writable = await xlFileHandle.createWritable();
-    await writable.write(new Uint8Array(wbOut));
-    await writable.close();
-  } catch(e) {
-    showToast('Could not write to file: ' + e.message, 'error');
+    const out=XLSX.write(xlWorkbook,{bookType:'xlsx',type:'array',cellStyles:true});
+    const w=await xlFileHandle.createWritable();
+    await w.write(new Uint8Array(out));
+    await w.close();
+  }catch(e){
+    console.error(e);
+    showToast('Excel write failed: '+e.message,'error');
   }
 }
 
-function updateControlInMemory(id, fields) {
-  const c = controls.find(x => x.id === id);
-  if (!c) return;
-  Object.assign(c, fields);
-}
+// ════════════════════════════════════════════════════════════
+// DOCX BUILD
+// ════════════════════════════════════════════════════════════
+function escXml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');}
+function escH(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function b64u8(b64){const bin=atob(b64),a=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)a[i]=bin.charCodeAt(i);return a;}
+function pxEmu(px){return Math.round(px*914400/96);}
+function fitImg(w,h,max=624){return w<=max?{w,h}:{w:max,h:Math.round(h*max/w)};}
 
-// ═══════════════════════════════════════════════════════
-// MARK VALID
-// ═══════════════════════════════════════════════════════
-async function markValid() {
-  if (!selectedCtrl) return;
-  updateControlInMemory(selectedCtrl.id, { completed: 'Valid' });
-  selectedCtrl.completed = 'Valid';
-  renderControlList();
-  updateActionBar();
-  await writeExcel();
-  showToast(`✓ ${selectedCtrl.id} marked Valid`, 'success');
-}
-
-// ═══════════════════════════════════════════════════════
-// MARK LATER
-// ═══════════════════════════════════════════════════════
-async function markLater() {
-  if (!selectedCtrl) return;
-  updateControlInMemory(selectedCtrl.id, { completed: 'To Be Tested Later' });
-  selectedCtrl.completed = 'To Be Tested Later';
-  renderControlList();
-  updateActionBar();
-  await writeExcel();
-  showToast(`${selectedCtrl.id} marked — To Be Tested Later`, 'warn');
-}
-
-// ═══════════════════════════════════════════════════════
-// EXPORT DOCX
-// ═══════════════════════════════════════════════════════
-function escXml(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');
-}
-function b64toUint8(b64) {
-  const bin = atob(b64), arr = new Uint8Array(bin.length);
-  for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
-  return arr;
-}
-function pxToEmu(px) { return Math.round(px * 914400 / 96); }
-function fitImg(w, h, max = 624) {
-  if (w <= max) return { w, h };
-  return { w: max, h: Math.round(h * max / w) };
-}
-
-async function buildDocx(title, sectionData) {
-  const zip = new JSZip();
-  const imgRels = [];
-  sectionData.forEach((sec, i) => {
-    const ext = sec.imageType === 'image/jpeg' ? 'jpeg' : 'png';
-    imgRels.push({ rId: 'rId' + (i + 10), ext, n: i + 1 });
-    zip.file(`word/media/img${i+1}.${ext}`, b64toUint8(sec.imageData));
+async function buildDocx(title,sectionData){
+  const zip=new JSZip(), imgRels=[];
+  sectionData.forEach((sec,i)=>{
+    const ext=sec.imageType==='image/jpeg'?'jpeg':'png';
+    imgRels.push({rId:'rId'+(i+10),ext,n:i+1});
+    zip.file(`word/media/img${i+1}.${ext}`,b64u8(sec.imageData));
   });
-
-  let body = `
-  <w:p>
-    <w:pPr><w:pStyle w:val="Heading1"/><w:spacing w:after="240"/></w:pPr>
-    <w:r><w:rPr><w:b/><w:sz w:val="36"/><w:color w:val="1F3864"/></w:rPr><w:t>${escXml(title)}</w:t></w:r>
-  </w:p>`;
-
-  sectionData.forEach((sec, i) => {
-    const rel = imgRels[i];
-    const fit = fitImg(sec.imageW, sec.imageH);
-    const cx  = pxToEmu(fit.w), cy = pxToEmu(fit.h);
-    body += `
-  <w:p>
-    <w:pPr><w:spacing w:before="160" w:after="120"/></w:pPr>
-    <w:r><w:drawing>
+  let body=`\n  <w:p><w:pPr><w:pStyle w:val="Heading1"/><w:spacing w:after="240"/></w:pPr><w:r><w:rPr><w:b/><w:sz w:val="36"/><w:color w:val="1F3864"/></w:rPr><w:t>${escXml(title)}</w:t></w:r></w:p>`;
+  sectionData.forEach((sec,i)=>{
+    const rel=imgRels[i],fit=fitImg(sec.imageW,sec.imageH),cx=pxEmu(fit.w),cy=pxEmu(fit.h);
+    body+=`\n  <w:p><w:pPr><w:spacing w:before="160" w:after="120"/></w:pPr><w:r><w:drawing>
       <wp:inline distT="0" distB="0" distL="0" distR="0">
-        <wp:extent cx="${cx}" cy="${cy}"/>
-        <wp:effectExtent l="0" t="0" r="0" b="0"/>
+        <wp:extent cx="${cx}" cy="${cy}"/><wp:effectExtent l="0" t="0" r="0" b="0"/>
         <wp:docPr id="${i+1}" name="Img${i+1}"/>
         <wp:cNvGraphicFramePr><a:graphicFrameLocks xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" noChangeAspect="1"/></wp:cNvGraphicFramePr>
         <a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">
           <a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">
             <pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">
-              <pic:nvPicPr>
-                <pic:cNvPr id="${i+100}" name="Img${i+1}"/>
-                <pic:cNvPicPr><a:picLocks noChangeAspect="1"/></pic:cNvPicPr>
-              </pic:nvPicPr>
-              <pic:blipFill>
-                <a:blip r:embed="${rel.rId}"/>
-                <a:stretch><a:fillRect/></a:stretch>
-              </pic:blipFill>
-              <pic:spPr>
-                <a:xfrm><a:off x="0" y="0"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm>
-                <a:prstGeom prst="rect"><a:avLst/></a:prstGeom>
-              </pic:spPr>
+              <pic:nvPicPr><pic:cNvPr id="${i+100}" name="Img${i+1}"/><pic:cNvPicPr><a:picLocks noChangeAspect="1"/></pic:cNvPicPr></pic:nvPicPr>
+              <pic:blipFill><a:blip r:embed="${rel.rId}"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill>
+              <pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr>
             </pic:pic>
           </a:graphicData>
         </a:graphic>
       </wp:inline>
-    </w:drawing></w:r>
-  </w:p>`;
-    if (sec.imgDesc) body += `
-  <w:p><w:pPr><w:spacing w:after="160"/></w:pPr>
-    <w:r><w:rPr><w:i/><w:iCs/><w:color w:val="555555"/><w:sz w:val="22"/></w:rPr>
-      <w:t xml:space="preserve">${escXml(sec.imgDesc)}</w:t></w:r></w:p>`;
-    if (sec.addDesc) body += `
-  <w:p><w:pPr><w:spacing w:after="200"/></w:pPr>
-    <w:r><w:rPr><w:sz w:val="24"/></w:rPr>
-      <w:t xml:space="preserve">${escXml(sec.addDesc)}</w:t></w:r></w:p>`;
-    if (i < sectionData.length - 1) body += `\n  <w:p><w:pPr><w:spacing w:after="160"/></w:pPr></w:p>`;
+    </w:drawing></w:r></w:p>`;
+    if(sec.imgDesc) body+=`\n  <w:p><w:pPr><w:spacing w:after="160"/></w:pPr><w:r><w:rPr><w:i/><w:iCs/><w:color w:val="555555"/><w:sz w:val="22"/></w:rPr><w:t xml:space="preserve">${escXml(sec.imgDesc)}</w:t></w:r></w:p>`;
+    if(sec.addDesc) body+=`\n  <w:p><w:pPr><w:spacing w:after="200"/></w:pPr><w:r><w:rPr><w:sz w:val="24"/></w:rPr><w:t xml:space="preserve">${escXml(sec.addDesc)}</w:t></w:r></w:p>`;
+    if(i<sectionData.length-1) body+=`\n  <w:p><w:pPr><w:spacing w:after="160"/></w:pPr></w:p>`;
   });
-
-  zip.file('word/document.xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+  zip.file('word/document.xml',`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <w:document xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"
   xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
   xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
@@ -885,124 +1027,92 @@ async function buildDocx(title, sectionData) {
     </w:sectPr>
   </w:body>
 </w:document>`);
-
-  zip.file('word/styles.xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+  zip.file('word/styles.xml',`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
-  <w:docDefaults><w:rPrDefault><w:rPr>
-    <w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri"/>
-    <w:sz w:val="24"/><w:szCs w:val="24"/>
-  </w:rPr></w:rPrDefault></w:docDefaults>
+  <w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri"/><w:sz w:val="24"/><w:szCs w:val="24"/></w:rPr></w:rPrDefault></w:docDefaults>
   <w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/></w:style>
-  <w:style w:type="paragraph" w:styleId="Heading1">
-    <w:name w:val="heading 1"/><w:basedOn w:val="Normal"/>
+  <w:style w:type="paragraph" w:styleId="Heading1"><w:name w:val="heading 1"/><w:basedOn w:val="Normal"/>
     <w:pPr><w:outlineLvl w:val="0"/></w:pPr>
     <w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/><w:b/><w:sz w:val="36"/><w:color w:val="1F3864"/></w:rPr>
   </w:style>
 </w:styles>`);
-
-  let relLines = `  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>`;
-  imgRels.forEach(r => { relLines += `\n  <Relationship Id="${r.rId}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/img${r.n}.${r.ext}"/>`; });
-  zip.file('word/_rels/document.xml.rels', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${relLines}</Relationships>`);
-
-  zip.file('_rels/.rels', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
-</Relationships>`);
-
-  const hasPng = imgRels.some(r => r.ext==='png'), hasJpeg = imgRels.some(r => r.ext==='jpeg');
-  zip.file('[Content_Types].xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
-  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
-  <Default Extension="xml" ContentType="application/xml"/>
-  ${hasPng ? '<Default Extension="png" ContentType="image/png"/>' : ''}
-  ${hasJpeg ? '<Default Extension="jpeg" ContentType="image/jpeg"/>' : ''}
-  <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
-  <Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>
-</Types>`);
-
-  return zip.generateAsync({ type: 'arraybuffer', compression: 'DEFLATE' });
+  let rels=`  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>`;
+  imgRels.forEach(r=>{rels+=`\n  <Relationship Id="${r.rId}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/img${r.n}.${r.ext}"/>`;});
+  zip.file('word/_rels/document.xml.rels',`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">\n${rels}\n</Relationships>`);
+  zip.file('_rels/.rels',`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">\n  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>\n</Relationships>`);
+  const hasPng=imgRels.some(r=>r.ext==='png'),hasJpeg=imgRels.some(r=>r.ext==='jpeg');
+  zip.file('[Content_Types].xml',`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">\n  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>\n  <Default Extension="xml" ContentType="application/xml"/>\n  ${hasPng?'<Default Extension="png" ContentType="image/png"/>\n':''} ${hasJpeg?'<Default Extension="jpeg" ContentType="image/jpeg"/>\n':''} <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>\n  <Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>\n</Types>`);
+  return zip.generateAsync({type:'arraybuffer',compression:'DEFLATE'});
 }
 
-async function processDoc() {
-  if (typeof JSZip === 'undefined') { showToast('Library not loaded.', 'error'); return; }
-  const btn = document.getElementById('processBtn');
-  const status = document.getElementById('processStatus');
-  btn.disabled = true;
-  status.textContent = 'Building document…';
-  status.className = 'status working';
-
-  try {
-    const title = sanitizeFilename(document.getElementById('docTitle').value).trim();
-    const sectionData = sections.map(sec => ({
-      ...sec,
-      imgDesc: document.getElementById('imgdesc-' + sec.id).value.trim(),
-      addDesc: document.getElementById('adddesc-' + sec.id).value.trim(),
+// ════════════════════════════════════════════════════════════
+// EXPORT
+// ════════════════════════════════════════════════════════════
+async function processDoc(){
+  if(!selectedCtrl||!currentApp?.folderHandle) return;
+  const btn=document.getElementById('btnExport');
+  const st=document.getElementById('actionStatus');
+  btn.disabled=true; st.textContent='Building document…'; st.className='action-status working';
+  try{
+    const title=sanitizeFilename(document.getElementById('docTitle').value).trim();
+    const secData=sections.map(s=>({
+      ...s,
+      imgDesc:document.getElementById('imgdesc-'+s.id).value.trim(),
+      addDesc:document.getElementById('adddesc-'+s.id).value.trim(),
     }));
+    const buf=await buildDocx(title,secData);
+    const fh=await currentApp.folderHandle.getFileHandle(title+'.docx',{create:true});
+    const w=await fh.createWritable();
+    await w.write(buf); await w.close();
 
-    const buffer = await buildDocx(title, sectionData);
-    const fh = await folderHandle.getFileHandle(title + '.docx', { create: true });
-    const w  = await fh.createWritable();
-    await w.write(buffer); await w.close();
-
-    // Build reason text from all captions
-    const reasonParts = sectionData
-      .map((s, i) => s.imgDesc ? `[Image ${i+1}] ${s.imgDesc}` : '')
-      .filter(Boolean);
-    const reasonText = reasonParts.join(' | ');
-
-    // Update control in memory & write excel
-    updateControlInMemory(selectedCtrl.id, { completed: 'Updated', reason: reasonText });
-    selectedCtrl.completed = 'Updated';
-    selectedCtrl.reason    = reasonText;
+    // Update control
+    const reason=secData.map((s,i)=>s.imgDesc?`[Image ${i+1}] ${s.imgDesc}`:'').filter(Boolean).join(' | ');
+    selectedCtrl.completed='Updated'; selectedCtrl.reason=reason;
+    syncCtrl(selectedCtrl);
     await writeExcel();
 
-    renderControlList();
-    showToast(`✓ Saved: ${title}.docx`, 'success');
-    status.textContent = `Saved "${title}.docx" → ${folderHandle.name}`;
-    status.className = 'status ok';
-    resetForm();
-  } catch(err) {
-    console.error(err);
-    showToast('Error: ' + err.message, 'error');
-    status.textContent = 'Error generating document.';
-    status.className = 'status err';
-  } finally {
-    updateActionBar();
-  }
+    renderCtrlList(); renderAppList();
+    showToast(`✓ Saved: ${title}.docx`,'success');
+    st.textContent=`Saved "${title}.docx" → ${currentApp.folderHandle.name}`;
+    st.className='action-status ok';
+    clearForm();
+  }catch(e){
+    console.error(e);
+    showToast('Error: '+e.message,'error');
+    st.textContent='Error generating document.'; st.className='action-status err';
+  }finally{updateActionBar();}
 }
 
-// ═══════════════════════════════════════════════════════
-// RESET FORM (keep control selected)
-// ═══════════════════════════════════════════════════════
-function resetForm() {
-  document.getElementById('docTitle').value = '';
-  document.getElementById('titleBadge').textContent = '0';
-  sections.forEach(sec => {
-    const zone = document.getElementById('zone-' + sec.id);
-    if (zone && zone._docHandler) document.removeEventListener('paste', zone._docHandler);
-    document.getElementById('card-' + sec.id)?.remove();
+// ════════════════════════════════════════════════════════════
+// RESET FORM
+// ════════════════════════════════════════════════════════════
+function clearForm(){
+  document.getElementById('docTitle').value='';
+  document.getElementById('titleBadge').textContent='0';
+  sections.forEach(s=>{
+    const z=document.getElementById('zone-'+s.id);
+    if(z&&z._dh) document.removeEventListener('paste',z._dh);
+    document.getElementById('card-'+s.id)?.remove();
   });
-  sections = []; sectionCount = 0;
-  selectedCtrl = null;
+  sections=[]; sectionCount=0; selectedCtrl=null;
   addSection();
+  showView('controls','appView');
 }
 
-// ═══════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════
 // TOAST
-// ═══════════════════════════════════════════════════════
-let toastTimer;
-function showToast(msg, type = '') {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'show ' + type;
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => { t.className = ''; }, 4000);
+// ════════════════════════════════════════════════════════════
+let _tt;
+function showToast(msg,type=''){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='show '+(type||'');
+  clearTimeout(_tt); _tt=setTimeout(()=>t.className='',4000);
 }
 
-// ═══════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════
 // INIT
-// ═══════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════
+showView('apps','welcome');
 updateActionBar();
 </script>
 </body>
