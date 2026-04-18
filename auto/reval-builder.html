@@ -1,148 +1,251 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>DocSnap — Report Builder</title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {
-    --bg:       #0d0f12;
-    --surface:  #13171d;
-    --surface2: #1a1f28;
-    --border:   #252b35;
-    --border2:  #2e3744;
-    --accent:   #3b82f6;
-    --green:    #22c55e;
-    --red:      #ef4444;
-    --yellow:   #f59e0b;
-    --text:     #e2e8f0;
-    --text-dim: #64748b;
-    --text-mid: #94a3b8;
-    --mono:     'IBM Plex Mono', monospace;
-    --sans:     'IBM Plex Sans', sans-serif;
-  }
-  body { font-family: var(--sans); background: var(--bg); color: var(--text); min-height: 100vh; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0f12;--surface:#13171d;--surface2:#1a1f28;
+  --border:#252b35;--border2:#2e3744;
+  --accent:#3b82f6;--green:#22c55e;--red:#ef4444;--yellow:#f59e0b;
+  --green-dim:#14532d;--yellow-dim:#713f12;--blue-dim:#1e3a5f;
+  --text:#e2e8f0;--text-dim:#64748b;--text-mid:#94a3b8;
+  --mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans',sans-serif;
+}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column;overflow:hidden}
 
-  header {
-    background: var(--surface); border-bottom: 1px solid var(--border);
-    padding: 14px 32px; display: flex; align-items: center; gap: 12px;
-    position: sticky; top: 0; z-index: 100;
-  }
-  header .logo   { font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--accent); letter-spacing: 0.08em; text-transform: uppercase; }
-  header .sep    { color: var(--border2); font-size: 18px; }
-  header .htitle { font-size: 13px; color: var(--text-mid); font-family: var(--mono); }
-  header .spacer { flex: 1; }
-  header .badge  { font-family: var(--mono); font-size: 11px; padding: 3px 10px; border-radius: 3px; background: #1e293b; color: var(--text-dim); border: 1px solid var(--border); }
+/* ── Header ── */
+header{
+  background:var(--surface);border-bottom:1px solid var(--border);
+  padding:10px 20px;display:flex;align-items:center;gap:10px;
+  flex-shrink:0;z-index:100;
+}
+.logo{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--accent);letter-spacing:.08em;text-transform:uppercase}
+.sep{color:var(--border2);font-size:18px}
+.htitle{font-size:12px;color:var(--text-mid);font-family:var(--mono)}
+.spacer{flex:1}
+.badge{font-family:var(--mono);font-size:10px;padding:3px 9px;border-radius:3px;background:#1e293b;color:var(--text-dim);border:1px solid var(--border)}
 
-  .container { max-width: 860px; margin: 0 auto; padding: 36px 24px 80px; }
+/* ── Toolbar ── */
+.toolbar{
+  background:var(--surface);border-bottom:1px solid var(--border);
+  padding:8px 20px;display:flex;align-items:center;gap:8px;flex-shrink:0;
+}
+.folder-path{
+  flex:1;font-family:var(--mono);font-size:11px;color:var(--text-dim);
+  background:var(--bg);border:1px solid var(--border);border-radius:4px;
+  padding:7px 12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  cursor:pointer;transition:border-color .15s;
+}
+.folder-path.active{color:var(--green);border-color:#166534}
+.folder-path:hover{border-color:var(--border2)}
+.xl-status{
+  font-family:var(--mono);font-size:11px;color:var(--text-dim);
+  background:var(--bg);border:1px solid var(--border);border-radius:4px;
+  padding:7px 12px;white-space:nowrap;max-width:200px;overflow:hidden;text-overflow:ellipsis;
+}
+.xl-status.active{color:#a78bfa;border-color:#4c1d95}
 
-  .section-label {
-    font-family: var(--mono); font-size: 10px; font-weight: 600; letter-spacing: 0.14em;
-    text-transform: uppercase; color: var(--text-dim); margin-bottom: 8px;
-    display: flex; align-items: center; gap: 8px;
-  }
-  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+/* ── Buttons ── */
+.btn{
+  font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.06em;
+  padding:7px 14px;border-radius:4px;border:none;cursor:pointer;
+  transition:all .15s;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;
+}
+.btn-ghost{background:var(--surface2);color:var(--text-mid);border:1px solid var(--border2)}
+.btn-ghost:hover{background:#222a36;color:var(--text)}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:#2563eb}
+.btn-primary:disabled{background:var(--blue-dim);color:#475569;cursor:not-allowed}
+.btn-green{background:#166534;color:var(--green);border:1px solid #14532d}
+.btn-green:hover{background:#15803d}
+.btn-green:disabled{background:#1a2e1a;color:#2d4a2d;cursor:not-allowed}
+.btn-yellow{background:#713f12;color:var(--yellow);border:1px solid #78350f}
+.btn-yellow:hover{background:#92400e}
+.btn-yellow:disabled{background:#2a1f0a;color:#4a3510;cursor:not-allowed}
+.btn-danger{background:transparent;color:var(--red);border:1px solid #7f1d1d;padding:5px 9px;font-size:10px}
+.btn-danger:hover{background:#7f1d1d22}
+.btn-icon{padding:7px;border-radius:4px}
 
-  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 20px 24px; margin-bottom: 16px; }
+/* ── Main split layout ── */
+.main{display:flex;flex:1;overflow:hidden;min-height:0;height:0}
 
-  .folder-block { display: flex; align-items: center; gap: 12px; }
-  .folder-status {
-    flex: 1; font-family: var(--mono); font-size: 12px; color: var(--text-dim);
-    background: var(--bg); border: 1px solid var(--border); border-radius: 4px;
-    padding: 10px 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  }
-  .folder-status.has-folder { color: var(--green); border-color: #166534; }
+/* ── Left panel — control list ── */
+.panel-left{
+  width:280px;min-width:220px;max-width:340px;
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;flex-shrink:0;
+  background:var(--surface);overflow:hidden;min-height:0;
+}
+.panel-left-header{
+  padding:12px 14px;border-bottom:1px solid var(--border);
+  font-family:var(--mono);font-size:10px;font-weight:600;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.control-count{
+  font-family:var(--mono);font-size:10px;color:var(--text-dim);
+  background:var(--surface2);border:1px solid var(--border);
+  padding:2px 7px;border-radius:10px;
+}
+.control-search{
+  padding:8px 10px;border-bottom:1px solid var(--border);
+}
+.control-search input{
+  width:100%;background:var(--bg);border:1px solid var(--border);border-radius:4px;
+  color:var(--text);font-family:var(--mono);font-size:11px;padding:6px 10px;outline:none;
+}
+.control-search input:focus{border-color:var(--accent)}
+.control-search input::placeholder{color:var(--text-dim)}
+.control-list{flex:1;overflow-y:auto;padding:6px}
+.control-list::-webkit-scrollbar{width:4px}
+.control-list::-webkit-scrollbar-track{background:transparent}
+.control-list::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
 
-  .btn {
-    font-family: var(--mono); font-size: 12px; font-weight: 600; letter-spacing: 0.06em;
-    padding: 10px 18px; border-radius: 4px; border: none; cursor: pointer;
-    transition: all 0.15s; white-space: nowrap; display: inline-flex; align-items: center; gap: 7px;
-  }
-  .btn-ghost  { background: var(--surface2); color: var(--text-mid); border: 1px solid var(--border2); }
-  .btn-ghost:hover { background: #222a36; color: var(--text); }
-  .btn-primary { background: var(--accent); color: #fff; }
-  .btn-primary:hover { background: #2563eb; }
-  .btn-primary:disabled { background: #1e3a5f; color: #475569; cursor: not-allowed; }
-  .btn-danger { background: transparent; color: var(--red); border: 1px solid #7f1d1d; padding: 6px 10px; font-size: 11px; }
-  .btn-danger:hover { background: #7f1d1d22; }
+.control-item{
+  padding:10px 12px;border-radius:5px;cursor:pointer;
+  margin-bottom:3px;border:1px solid transparent;
+  transition:all .12s;position:relative;
+}
+.control-item:hover{background:var(--surface2);border-color:var(--border)}
+.control-item.active{background:#0d1828;border-color:var(--accent)}
+.control-item.status-valid{border-left:3px solid var(--green)}
+.control-item.status-later{border-left:3px solid var(--yellow)}
+.control-item.status-updated{border-left:3px solid var(--accent)}
+.control-item .ctrl-id{
+  font-family:var(--mono);font-size:10px;color:var(--text-dim);
+  font-weight:600;margin-bottom:3px;letter-spacing:.06em;
+}
+.control-item.status-valid .ctrl-id{color:var(--green)}
+.control-item.status-later .ctrl-id{color:var(--yellow)}
+.control-item.status-updated .ctrl-id{color:var(--accent)}
+.control-item .ctrl-title{font-size:12px;color:var(--text-mid);line-height:1.3}
+.control-item.active .ctrl-title{color:var(--text)}
+.status-pill{
+  display:inline-block;font-family:var(--mono);font-size:9px;font-weight:600;
+  padding:1px 6px;border-radius:10px;margin-top:5px;text-transform:uppercase;letter-spacing:.06em;
+}
+.pill-valid{background:#14532d;color:var(--green)}
+.pill-later{background:#713f12;color:var(--yellow)}
+.pill-updated{background:#1e3a5f;color:#60a5fa}
 
-  input[type="text"], textarea {
-    width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 4px;
-    color: var(--text); font-family: var(--sans); font-size: 14px; padding: 11px 14px;
-    outline: none; transition: border-color 0.15s; resize: none;
-  }
-  input[type="text"]:focus, textarea:focus { border-color: var(--accent); }
-  input[type="text"]::placeholder, textarea::placeholder { color: var(--text-dim); }
-  .input-hint { font-family: var(--mono); font-size: 10px; color: var(--text-dim); margin-top: 6px; }
+.no-controls{
+  padding:32px 16px;text-align:center;
+  font-family:var(--mono);font-size:11px;color:var(--text-dim);line-height:1.8;
+}
 
-  .title-row { display: flex; gap: 10px; align-items: flex-start; }
-  .title-row input { flex: 1; }
-  .char-badge { font-family: var(--mono); font-size: 10px; padding: 5px 9px; border-radius: 3px; background: var(--surface2); color: var(--text-dim); border: 1px solid var(--border); white-space: nowrap; margin-top: 3px; }
-  .char-badge.warn { color: var(--yellow); border-color: #78350f; }
+/* ── Right panel — form ── */
+.panel-right{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.form-scroll{flex:1;overflow-y:auto;padding:20px 24px 100px}
+.form-scroll::-webkit-scrollbar{width:4px}
+.form-scroll::-webkit-scrollbar-track{background:transparent}
+.form-scroll::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
 
-  .snapshot-card { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 20px 24px; margin-bottom: 12px; }
-  .sc-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-  .sc-num { font-family: var(--mono); font-size: 11px; color: var(--accent); font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; }
+.section-label{
+  font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--text-dim);margin-bottom:8px;
+  display:flex;align-items:center;gap:8px;
+}
+.section-label::after{content:'';flex:1;height:1px;background:var(--border)}
+.divider{height:1px;background:var(--border);margin:20px 0}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:18px 20px;margin-bottom:14px}
 
-  .paste-zone {
-    background: var(--bg); border: 1.5px dashed var(--border2); border-radius: 4px;
-    min-height: 120px; display: flex; flex-direction: column; align-items: center;
-    justify-content: center; cursor: pointer; transition: all 0.15s; position: relative;
-    overflow: hidden; margin-bottom: 14px;
-  }
-  .paste-zone:hover, .paste-zone.focused { border-color: var(--accent); background: #0d1828; }
-  .paste-zone.has-image { border-style: solid; border-color: var(--border2); min-height: unset; cursor: default; }
-  .paste-zone .hint { font-family: var(--mono); font-size: 12px; color: var(--text-dim); text-align: center; padding: 20px; pointer-events: none; }
-  .paste-zone .hint .key { display: inline-block; background: var(--surface2); border: 1px solid var(--border2); border-radius: 3px; padding: 1px 7px; font-size: 11px; color: var(--text-mid); }
-  .paste-zone img { max-width: 100%; max-height: 400px; display: block; object-fit: contain; border-radius: 3px; }
-  .paste-zone .clear-btn {
-    position: absolute; top: 8px; right: 8px; background: #1a1f28cc; border: 1px solid var(--border2);
-    border-radius: 3px; color: var(--text-mid); font-size: 16px; width: 26px; height: 26px;
-    display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.1s; opacity: 0;
-  }
-  .paste-zone:hover .clear-btn { opacity: 1; }
-  .paste-zone .clear-btn:hover { background: #7f1d1d; color: #fff; }
+.title-row{display:flex;gap:8px;align-items:flex-start}
+.title-row input{flex:1}
+.char-badge{font-family:var(--mono);font-size:10px;padding:4px 8px;border-radius:3px;background:var(--surface2);color:var(--text-dim);border:1px solid var(--border);white-space:nowrap;margin-top:2px}
+.char-badge.warn{color:var(--yellow);border-color:#78350f}
+.input-hint{font-family:var(--mono);font-size:10px;color:var(--text-dim);margin-top:5px}
 
-  .desc-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 6px; margin-top: 12px; }
-  .desc-label .tag { color: var(--yellow); font-size: 9px; background: #1c1400; border: 1px solid #78350f55; padding: 1px 6px; border-radius: 2px; margin-left: 6px; }
-  .desc-label .tag.normal { color: var(--text-dim); background: var(--surface2); border-color: var(--border); }
+input[type="text"],textarea{
+  width:100%;background:var(--bg);border:1px solid var(--border);border-radius:4px;
+  color:var(--text);font-family:var(--sans);font-size:13px;padding:10px 12px;
+  outline:none;transition:border-color .15s;resize:none;
+}
+input[type="text"]:focus,textarea:focus{border-color:var(--accent)}
+input[type="text"]::placeholder,textarea::placeholder{color:var(--text-dim)}
 
-  .add-section-btn {
-    width: 100%; background: transparent; border: 1.5px dashed var(--border2); border-radius: 6px;
-    color: var(--text-dim); font-family: var(--mono); font-size: 12px; font-weight: 600;
-    padding: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center;
-    gap: 8px; transition: all 0.15s; letter-spacing: 0.06em; margin-bottom: 28px;
-  }
-  .add-section-btn:hover { border-color: var(--accent); color: var(--accent); background: #0d1828; }
-  .plus-icon { width: 20px; height: 20px; border: 1.5px solid currentColor; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; line-height: 1; }
+/* ── Snapshot cards ── */
+.snapshot-card{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:18px 20px;margin-bottom:10px}
+.sc-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.sc-num{font-family:var(--mono);font-size:11px;color:var(--accent);font-weight:600;letter-spacing:.1em;text-transform:uppercase}
 
-  .process-bar {
-    position: fixed; bottom: 0; left: 0; right: 0; background: var(--surface);
-    border-top: 1px solid var(--border); padding: 14px 32px; display: flex;
-    align-items: center; gap: 16px; z-index: 200;
-  }
-  .process-bar .status { font-family: var(--mono); font-size: 11px; color: var(--text-dim); flex: 1; }
-  .process-bar .status.ok      { color: var(--green); }
-  .process-bar .status.err     { color: var(--red); }
-  .process-bar .status.working { color: var(--accent); }
+.paste-zone{
+  background:var(--bg);border:1.5px dashed var(--border2);border-radius:4px;
+  min-height:110px;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;cursor:pointer;transition:all .15s;position:relative;
+  overflow:hidden;margin-bottom:12px;
+}
+.paste-zone:hover{border-color:var(--accent);background:#0a1220}
+.paste-zone.has-image{border-style:solid;border-color:var(--border2);min-height:unset;cursor:default}
+.paste-zone .hint{font-family:var(--mono);font-size:11px;color:var(--text-dim);text-align:center;padding:16px;pointer-events:none}
+.paste-zone .hint .key{display:inline-block;background:var(--surface2);border:1px solid var(--border2);border-radius:3px;padding:1px 6px;font-size:10px;color:var(--text-mid)}
+.paste-zone img{max-width:100%;max-height:380px;display:block;object-fit:contain;border-radius:3px}
+.paste-zone .clear-btn{
+  position:absolute;top:7px;right:7px;background:#1a1f28cc;border:1px solid var(--border2);
+  border-radius:3px;color:var(--text-mid);font-size:14px;width:24px;height:24px;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .1s;opacity:0;
+}
+.paste-zone:hover .clear-btn{opacity:1}
+.paste-zone .clear-btn:hover{background:#7f1d1d;color:#fff}
 
-  #toast {
-    position: fixed; bottom: 80px; right: 24px; background: var(--surface2); border: 1px solid var(--border2);
-    border-radius: 6px; padding: 12px 18px; font-family: var(--mono); font-size: 12px; color: var(--text);
-    z-index: 300; transform: translateY(20px); opacity: 0; transition: all 0.25s; pointer-events: none; max-width: 360px;
-  }
-  #toast.show    { transform: translateY(0); opacity: 1; }
-  #toast.success { border-left: 3px solid var(--green); color: var(--green); }
-  #toast.error   { border-left: 3px solid var(--red);   color: var(--red);   }
+.desc-label{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:5px;margin-top:10px}
+.desc-label .tag{color:var(--yellow);font-size:9px;background:#1c1400;border:1px solid #78350f55;padding:1px 5px;border-radius:2px;margin-left:5px}
+.desc-label .tag.normal{color:var(--text-dim);background:var(--surface2);border-color:var(--border)}
 
-  .divider { height: 1px; background: var(--border); margin: 28px 0; }
+.add-section-btn{
+  width:100%;background:transparent;border:1.5px dashed var(--border2);border-radius:6px;
+  color:var(--text-dim);font-family:var(--mono);font-size:11px;font-weight:600;
+  padding:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  gap:8px;transition:all .15s;letter-spacing:.06em;margin-bottom:20px;
+}
+.add-section-btn:hover{border-color:var(--accent);color:var(--accent);background:#0a1220}
+.plus-icon{width:18px;height:18px;border:1.5px solid currentColor;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;line-height:1}
+
+/* ── Bottom action bar ── */
+.action-bar{
+  position:fixed;bottom:0;left:280px;right:0;
+  background:var(--surface);border-top:1px solid var(--border);
+  padding:11px 24px;display:flex;align-items:center;gap:10px;z-index:200;
+}
+.action-bar .status{font-family:var(--mono);font-size:11px;color:var(--text-dim);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.action-bar .status.ok{color:var(--green)}
+.action-bar .status.err{color:var(--red)}
+.action-bar .status.working{color:var(--accent)}
+
+/* ── Toast ── */
+#toast{
+  position:fixed;bottom:72px;right:20px;background:var(--surface2);border:1px solid var(--border2);
+  border-radius:6px;padding:10px 16px;font-family:var(--mono);font-size:11px;color:var(--text);
+  z-index:400;transform:translateY(16px);opacity:0;transition:all .2s;pointer-events:none;max-width:340px;
+}
+#toast.show{transform:translateY(0);opacity:1}
+#toast.success{border-left:3px solid var(--green);color:var(--green)}
+#toast.error{border-left:3px solid var(--red);color:var(--red)}
+#toast.warn{border-left:3px solid var(--yellow);color:var(--yellow)}
+
+/* ── No-xl placeholder ── */
+.no-xl-prompt{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:12px;padding:40px;text-align:center;
+}
+.no-xl-prompt .big-icon{font-size:40px;opacity:.3}
+.no-xl-prompt p{font-family:var(--mono);font-size:12px;color:var(--text-dim);line-height:1.7;max-width:280px}
+.format-hint{
+  background:var(--surface2);border:1px solid var(--border2);border-radius:5px;
+  padding:10px 14px;font-family:var(--mono);font-size:10px;color:var(--text-mid);
+  text-align:left;line-height:1.9;
+}
+.format-hint span{color:var(--accent)}
 </style>
 </head>
 <body>
 
+<!-- Header -->
 <header>
   <span class="logo">DocSnap</span>
   <span class="sep">·</span>
@@ -151,46 +254,85 @@
   <span class="badge" id="libStatus">Loading…</span>
 </header>
 
-<div class="container">
-
-  <div class="section-label">01 — Save Location</div>
-  <div class="card">
-    <div class="folder-block">
-      <button class="btn btn-ghost" onclick="selectFolder()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
-        Select Folder
-      </button>
-      <div class="folder-status" id="folderStatus">No folder selected</div>
-    </div>
-  </div>
-
-  <div class="divider"></div>
-
-  <div class="section-label">02 — Document Title</div>
-  <div class="card">
-    <div class="title-row">
-      <input type="text" id="docTitle" placeholder="e.g. Q3 Review — Infrastructure Summary" oninput="onTitleInput()" />
-      <span class="char-badge" id="titleBadge">0</span>
-    </div>
-    <div class="input-hint">Used as the filename. Characters invalid for filenames ( \ / : * ? " &lt; &gt; | ) will be stripped automatically.</div>
-  </div>
-
-  <div class="divider"></div>
-
-  <div class="section-label">03 — Images &amp; Notes</div>
-  <div id="sections"></div>
-
-  <button class="add-section-btn" onclick="addSection()">
-    <span class="plus-icon">+</span>
-    Add Another Image
+<!-- Toolbar -->
+<div class="toolbar">
+  <!-- Folder select -->
+  <button class="btn btn-ghost btn-icon" title="Select output folder" onclick="selectFolder()">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
   </button>
+  <!-- Folder path (click to copy) -->
+  <div class="folder-path" id="folderPath" title="Click to copy path" onclick="copyFolderPath()">No output folder selected</div>
 
+  <!-- Excel upload -->
+  <button class="btn btn-ghost btn-icon" title="Upload tracker spreadsheet" onclick="document.getElementById('xlInput').click()">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+  </button>
+  <input type="file" id="xlInput" accept=".xlsx,.xls" style="display:none" onchange="loadExcel(this)"/>
+  <div class="xl-status" id="xlStatus">No tracker loaded</div>
 </div>
 
-<div class="process-bar">
-  <span class="status" id="processStatus">Select a save location and enter a document title to get started.</span>
+<!-- Main -->
+<div class="main">
+
+  <!-- Left: control list -->
+  <div class="panel-left">
+    <div class="panel-left-header">
+      Controls
+      <span class="control-count" id="controlCount">0</span>
+    </div>
+    <div class="control-search">
+      <input type="text" id="searchInput" placeholder="Search controls…" oninput="renderControlList()"/>
+    </div>
+    <div class="control-list" id="controlList">
+      <div class="no-controls">Load a tracker<br/>spreadsheet to see controls.</div>
+    </div>
+  </div>
+
+  <!-- Right: form -->
+  <div class="panel-right">
+    <div class="form-scroll" id="formScroll">
+
+      <!-- No-excel state -->
+      <div class="no-xl-prompt" id="noXlPrompt">
+        <div class="big-icon">📋</div>
+        <p>Load a tracker spreadsheet from the toolbar to get started.</p>
+        <div class="format-hint">
+          Required columns:<br/>
+          <span>Control ID</span> · <span>Control Title</span> · <span>Current Status</span> · <span>Completed?</span> · <span>Reason</span>
+        </div>
+      </div>
+
+      <!-- Form (hidden until excel loaded) -->
+      <div id="formContent" style="display:none">
+        <div class="section-label">Document Title</div>
+        <div class="card">
+          <div class="title-row">
+            <input type="text" id="docTitle" placeholder="Select a control from the left panel…" oninput="onTitleInput()" readonly/>
+            <span class="char-badge" id="titleBadge">0</span>
+          </div>
+          <div class="input-hint">Auto-filled from selected control. Characters invalid for filenames will be stripped.</div>
+        </div>
+
+        <div class="divider"></div>
+        <div class="section-label">Images &amp; Notes</div>
+        <div id="sections"></div>
+        <button class="add-section-btn" onclick="addSection()">
+          <span class="plus-icon">+</span>
+          Add Another Image
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Action bar -->
+<div class="action-bar" id="actionBar">
+  <span class="status" id="processStatus">Load a tracker to get started.</span>
+  <button class="btn btn-yellow" id="laterBtn" disabled onclick="markLater()">Later</button>
+  <button class="btn btn-green"  id="validBtn" disabled onclick="markValid()">✓ Valid</button>
   <button class="btn btn-primary" id="processBtn" disabled onclick="processDoc()">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
     Export Document
   </button>
 </div>
@@ -198,55 +340,222 @@
 <div id="toast"></div>
 
 <script>
-// ── State ──────────────────────────────────────────────────────────────────
-let folderHandle = null;
-let sectionCount = 0;
-let sections     = [];
+// ═══════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════
+let folderHandle   = null;
+let xlFileHandle   = null;   // FileSystemFileHandle for the xlsx
+let xlWorkbook     = null;   // parsed XLSX workbook (SheetJS)
+let xlSheetName    = null;   // name of the first sheet
+let controls       = [];     // [{rowIdx, id, title, status, completed, reason}]
+let selectedCtrl   = null;   // currently selected control object
+let sections       = [];
+let sectionCount   = 0;
 
-// ── Library check ──────────────────────────────────────────────────────────
+const REQUIRED_COLS = ['Control ID','Control Title','Current Status','Completed?','Reason'];
+
+// ═══════════════════════════════════════════════════════
+// LIBRARY CHECK
+// ═══════════════════════════════════════════════════════
 window.addEventListener('load', () => {
   const badge = document.getElementById('libStatus');
-  if (typeof JSZip !== 'undefined') {
+  if (typeof JSZip !== 'undefined' && typeof XLSX !== 'undefined') {
     badge.textContent = 'Chrome / Edge only';
   } else {
-    badge.textContent = '⚠ Library error — reload';
+    badge.textContent = '⚠ Library error';
     badge.style.color = '#ef4444';
   }
 });
 
-// ── Folder ─────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════
+// FOLDER
+// ═══════════════════════════════════════════════════════
 async function selectFolder() {
   try {
     folderHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
-    const el = document.getElementById('folderStatus');
-    el.textContent = '✓  ' + folderHandle.name;
-    el.classList.add('has-folder');
-    updateProcessBtn();
+    const el = document.getElementById('folderPath');
+    el.textContent = '📁 ' + folderHandle.name;
+    el.classList.add('active');
+    el.title = 'Click to copy: ' + folderHandle.name;
+    updateActionBar();
+    showToast('Output folder set: ' + folderHandle.name, 'success');
   } catch(e) {
-    if (e.name !== 'AbortError') showToast('Folder access denied: ' + e.message, 'error');
+    if (e.name !== 'AbortError') showToast('Folder access denied.', 'error');
   }
 }
 
-// ── Title ──────────────────────────────────────────────────────────────────
-function sanitizeFilename(s) {
-  return s.replace(/[\\/:*?"<>|]/g, '');
+function copyFolderPath() {
+  if (!folderHandle) return;
+  navigator.clipboard.writeText(folderHandle.name).then(() => {
+    showToast('Folder name copied to clipboard.', '');
+  });
 }
+
+// ═══════════════════════════════════════════════════════
+// EXCEL LOAD
+// ═══════════════════════════════════════════════════════
+async function loadExcel(input) {
+  const file = input.files[0];
+  if (!file) return;
+  input.value = '';
+
+  try {
+    // Get a persistent file handle for later writing
+    // We'll re-read the file handle via showOpenFilePicker if available,
+    // otherwise we store the raw File and re-read on save.
+    const buf = await file.arrayBuffer();
+    const wb  = XLSX.read(buf, { type: 'arraybuffer' });
+    const sn  = wb.SheetNames[0];
+    const ws  = wb.Sheets[sn];
+    const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
+
+    if (!rows.length) { showToast('Spreadsheet is empty.', 'error'); return; }
+
+    // Validate columns
+    const cols = Object.keys(rows[0]);
+    const missing = REQUIRED_COLS.filter(c => !cols.includes(c));
+    if (missing.length) {
+      showToast(`Wrong format. Missing: ${missing.join(', ')}`, 'error');
+      showFormatError(missing);
+      return;
+    }
+
+    xlWorkbook  = wb;
+    xlSheetName = sn;
+    xlRawFile   = file;       // store raw file for re-reading
+    xlFileName  = file.name;
+
+    // Try to get a writable file handle via showOpenFilePicker
+    try {
+      [xlFileHandle] = await window.showOpenFilePicker({
+        types: [{ description: 'Excel', accept: { 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'] } }],
+        multiple: false
+      });
+    } catch(_) {
+      xlFileHandle = null; // fallback: download on save
+    }
+
+    // Parse controls
+    controls = rows.map((row, i) => ({
+      rowIdx:    i + 2,  // 1-indexed, row 1 = header
+      id:        String(row['Control ID'] || '').trim(),
+      title:     String(row['Control Title'] || '').trim(),
+      status:    String(row['Current Status'] || '').trim(),
+      completed: String(row['Completed?'] || '').trim(),
+      reason:    String(row['Reason'] || '').trim(),
+    }));
+
+    document.getElementById('xlStatus').textContent = '📊 ' + file.name;
+    document.getElementById('xlStatus').classList.add('active');
+    document.getElementById('noXlPrompt').style.display = 'none';
+    document.getElementById('formContent').style.display = 'block';
+    document.getElementById('docTitle').readOnly = false;
+
+    renderControlList();
+    addSection();
+    updateActionBar();
+    showToast(`Loaded ${controls.length} controls from ${file.name}`, 'success');
+  } catch(err) {
+    console.error(err);
+    showToast('Error reading file: ' + err.message, 'error');
+  }
+}
+
+let xlRawFile = null, xlFileName = '';
+
+function showFormatError(missing) {
+  const hint = document.createElement('div');
+  hint.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#13171d;border:1px solid #ef4444;border-radius:8px;padding:24px 28px;z-index:999;max-width:400px;font-family:monospace;font-size:12px;color:#e2e8f0;line-height:1.8';
+  hint.innerHTML = `
+    <div style="color:#ef4444;font-weight:600;margin-bottom:12px;font-size:13px">⚠ Invalid Spreadsheet Format</div>
+    <div style="color:#94a3b8;margin-bottom:8px">Missing columns: <span style="color:#f59e0b">${missing.join(', ')}</span></div>
+    <div style="color:#64748b;margin-bottom:16px">Your spreadsheet must have exactly these columns:</div>
+    <div style="background:#0d0f12;border-radius:4px;padding:10px 14px;color:#60a5fa">${REQUIRED_COLS.join('<br/>')}</div>
+    <button onclick="this.parentElement.remove()" style="margin-top:16px;width:100%;padding:8px;background:#1e3a5f;border:none;border-radius:4px;color:#fff;font-family:monospace;cursor:pointer">Close</button>
+  `;
+  document.body.appendChild(hint);
+}
+
+// ═══════════════════════════════════════════════════════
+// CONTROL LIST
+// ═══════════════════════════════════════════════════════
+function renderControlList() {
+  const q    = document.getElementById('searchInput').value.toLowerCase();
+  const list = document.getElementById('controlList');
+  const filtered = controls.filter(c =>
+    c.id.toLowerCase().includes(q) || c.title.toLowerCase().includes(q)
+  );
+  document.getElementById('controlCount').textContent = controls.length;
+
+  if (!filtered.length) {
+    list.innerHTML = '<div class="no-controls">No controls match.</div>';
+    return;
+  }
+
+  list.innerHTML = filtered.map(c => {
+    const comp = c.completed.toLowerCase();
+    let statusClass = '', pill = '';
+    if (comp === 'valid') {
+      statusClass = 'status-valid';
+      pill = '<span class="status-pill pill-valid">Valid</span>';
+    } else if (comp === 'to be tested later') {
+      statusClass = 'status-later';
+      pill = '<span class="status-pill pill-later">Later</span>';
+    } else if (comp === 'updated') {
+      statusClass = 'status-updated';
+      pill = '<span class="status-pill pill-updated">Updated</span>';
+    }
+    const isActive = selectedCtrl && selectedCtrl.id === c.id ? 'active' : '';
+    return `
+      <div class="control-item ${statusClass} ${isActive}" onclick="selectControl('${escHtml(c.id)}')">
+        <div class="ctrl-id">${escHtml(c.id)}</div>
+        <div class="ctrl-title">${escHtml(c.title)}</div>
+        ${pill}
+      </div>`;
+  }).join('');
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function selectControl(id) {
+  selectedCtrl = controls.find(c => c.id === id) || null;
+  if (!selectedCtrl) return;
+
+  // Fill title
+  const combined = sanitizeFilename(selectedCtrl.id + ' ' + selectedCtrl.title);
+  document.getElementById('docTitle').value = combined;
+  document.getElementById('titleBadge').textContent = combined.trim().length;
+
+  renderControlList();
+  updateActionBar();
+
+  // Scroll form to top
+  document.getElementById('formScroll').scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ═══════════════════════════════════════════════════════
+// TITLE
+// ═══════════════════════════════════════════════════════
+function sanitizeFilename(s) { return s.replace(/[\\/:*?"<>|]/g, ''); }
 function onTitleInput() {
-  const inp   = document.getElementById('docTitle');
-  const raw   = inp.value;
+  const inp = document.getElementById('docTitle');
+  const raw = inp.value;
   const clean = sanitizeFilename(raw);
   if (raw !== clean) {
     const pos = inp.selectionStart - (raw.length - clean.length);
     inp.value = clean;
     inp.selectionStart = inp.selectionEnd = Math.max(0, pos);
   }
-  const badge = document.getElementById('titleBadge');
-  badge.textContent = clean.trim().length;
-  badge.className   = 'char-badge' + (clean.length > 200 ? ' warn' : '');
-  updateProcessBtn();
+  document.getElementById('titleBadge').textContent = clean.trim().length;
+  document.getElementById('titleBadge').className = 'char-badge' + (clean.length > 200 ? ' warn' : '');
+  updateActionBar();
 }
 
-// ── Sections ───────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════
+// SECTIONS / PASTE
+// ═══════════════════════════════════════════════════════
 function addSection() {
   sectionCount++;
   const id = 'sc' + Date.now();
@@ -261,64 +570,98 @@ function addSection() {
       ${sectionCount > 1 ? `<button class="btn btn-danger" onclick="removeSection('${id}')">✕ Remove</button>` : ''}
     </div>
     <div class="paste-zone" id="zone-${id}" tabindex="0"
-         onclick="focusPasteZone('${id}')"
+         onclick="pasteFromClipboard('${id}')"
          onfocus="this.classList.add('focused')"
          onblur="this.classList.remove('focused')">
-      <div class="hint">Click here, then press <span class="key">Ctrl + V</span> to paste image</div>
+      <div class="hint">Click to paste image from clipboard</div>
     </div>
     <div class="desc-label">Caption <span class="tag">italics in document</span></div>
     <textarea id="imgdesc-${id}" rows="2" placeholder="Short caption for this image..."></textarea>
-    <div class="desc-label" style="margin-top:14px;">Notes <span class="tag normal">normal text</span></div>
+    <div class="desc-label" style="margin-top:10px;">Notes <span class="tag normal">normal text</span></div>
     <textarea id="adddesc-${id}" rows="3" placeholder="Additional notes or context..."></textarea>
   `;
   document.getElementById('sections').appendChild(el);
 
+  // Also support Ctrl+V when zone is focused
   const zone = document.getElementById('zone-' + id);
-  zone.addEventListener('paste', (e) => handlePaste(e, id));
-  const docHandler = (e) => { if (document.activeElement === zone) handlePaste(e, id); };
+  const docHandler = (e) => { if (document.activeElement === zone) { e.preventDefault(); pasteFromClipboard(id); } };
   zone._docHandler = docHandler;
   document.addEventListener('paste', docHandler);
 
-  updateProcessBtn();
+  updateActionBar();
 }
 
-function focusPasteZone(id) { document.getElementById('zone-' + id).focus(); }
-
-function handlePaste(e, id) {
-  e.preventDefault();
-  const items   = Array.from((e.clipboardData || window.clipboardData).items);
-  const imgItem = items.find(i => i.type.startsWith('image/'));
-  if (!imgItem) { showToast('No image in clipboard. Copy an image first.', 'error'); return; }
-
-  const reader = new FileReader();
-  reader.onload = (ev) => {
-    const dataUrl = ev.target.result;
-    const img     = new Image();
-    img.onload = () => {
-      const sec = sections.find(s => s.id === id);
-      if (sec) {
-        sec.imageData = dataUrl.split(',')[1];
-        sec.imageType = imgItem.type;
-        sec.imageW    = img.naturalWidth;
-        sec.imageH    = img.naturalHeight;
+// Auto-paste on click: read clipboard directly
+async function pasteFromClipboard(id) {
+  const zone = document.getElementById('zone-' + id);
+  zone.focus();
+  try {
+    const items = await navigator.clipboard.read();
+    for (const item of items) {
+      const imgType = item.types.find(t => t.startsWith('image/'));
+      if (imgType) {
+        const blob = await item.getType(imgType);
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          const dataUrl = ev.target.result;
+          const img = new Image();
+          img.onload = () => {
+            const sec = sections.find(s => s.id === id);
+            if (sec) {
+              sec.imageData = dataUrl.split(',')[1];
+              sec.imageType = imgType;
+              sec.imageW = img.naturalWidth;
+              sec.imageH = img.naturalHeight;
+            }
+            zone.innerHTML = `<img src="${dataUrl}" alt="preview"/><div class="clear-btn" onclick="clearZone('${id}')">✕</div>`;
+            zone.classList.add('has-image');
+            updateActionBar();
+          };
+          img.src = dataUrl;
+        };
+        reader.readAsDataURL(blob);
+        return;
       }
-      const zone = document.getElementById('zone-' + id);
-      zone.innerHTML = `<img src="${dataUrl}" alt="preview"/><div class="clear-btn" onclick="clearZone('${id}')">✕</div>`;
-      zone.classList.add('has-image');
-      updateProcessBtn();
+    }
+    showToast('No image found in clipboard.', 'error');
+  } catch(err) {
+    // Fallback: fire paste event approach
+    showToast('Click the zone then press Ctrl+V (clipboard permission denied).', 'warn');
+  }
+}
+
+// Fallback via paste event (Ctrl+V)
+function setupPasteEvent(id) {
+  const zone = document.getElementById('zone-' + id);
+  zone.addEventListener('paste', (e) => {
+    e.preventDefault();
+    const items = Array.from((e.clipboardData || window.clipboardData).items);
+    const imgItem = items.find(i => i.type.startsWith('image/'));
+    if (!imgItem) { showToast('No image in clipboard.', 'error'); return; }
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const dataUrl = ev.target.result;
+      const img = new Image();
+      img.onload = () => {
+        const sec = sections.find(s => s.id === id);
+        if (sec) { sec.imageData = dataUrl.split(',')[1]; sec.imageType = imgItem.type; sec.imageW = img.naturalWidth; sec.imageH = img.naturalHeight; }
+        zone.innerHTML = `<img src="${dataUrl}" alt="preview"/><div class="clear-btn" onclick="clearZone('${id}')">✕</div>`;
+        zone.classList.add('has-image');
+        updateActionBar();
+      };
+      img.src = dataUrl;
     };
-    img.src = dataUrl;
-  };
-  reader.readAsDataURL(imgItem.getAsFile());
+    reader.readAsDataURL(imgItem.getAsFile());
+  });
 }
 
 function clearZone(id) {
   const sec = sections.find(s => s.id === id);
   if (sec) { sec.imageData = null; sec.imageType = null; sec.imageW = 0; sec.imageH = 0; }
   const zone = document.getElementById('zone-' + id);
-  zone.innerHTML = `<div class="hint">Click here, then press <span class="key">Ctrl + V</span> to paste image</div>`;
+  zone.innerHTML = `<div class="hint">Click to paste image from clipboard</div>`;
   zone.classList.remove('has-image');
-  updateProcessBtn();
+  updateActionBar();
 }
 
 function removeSection(id) {
@@ -328,41 +671,159 @@ function removeSection(id) {
   document.getElementById('card-' + id)?.remove();
   let n = 1;
   document.querySelectorAll('.sc-num').forEach(el => el.textContent = 'Image ' + n++);
-  updateProcessBtn();
+  updateActionBar();
 }
 
-// ── Validation ─────────────────────────────────────────────────────────────
-function updateProcessBtn() {
-  const btn    = document.getElementById('processBtn');
-  const status = document.getElementById('processStatus');
-  const title  = sanitizeFilename(document.getElementById('docTitle').value).trim();
+// ═══════════════════════════════════════════════════════
+// ACTION BAR STATE
+// ═══════════════════════════════════════════════════════
+function updateActionBar() {
+  const status  = document.getElementById('processStatus');
+  const expBtn  = document.getElementById('processBtn');
+  const valBtn  = document.getElementById('validBtn');
+  const latBtn  = document.getElementById('laterBtn');
+  const title   = sanitizeFilename(document.getElementById('docTitle').value).trim();
+  const hasCtrl = !!selectedCtrl;
+  const hasFolder = !!folderHandle;
+  const hasXl   = !!xlWorkbook;
 
-  if (!folderHandle) {
-    status.textContent = 'Waiting for a save location…'; status.className = 'status'; btn.disabled = true; return;
+  // Valid / Later only need a selected control
+  valBtn.disabled = !hasCtrl;
+  latBtn.disabled = !hasCtrl;
+
+  if (!hasXl) {
+    status.textContent = 'Load a tracker spreadsheet to get started.';
+    status.className = 'status'; expBtn.disabled = true; return;
+  }
+  if (!hasCtrl) {
+    status.textContent = 'Select a control from the left panel.';
+    status.className = 'status'; expBtn.disabled = true; return;
+  }
+  if (!hasFolder) {
+    status.textContent = 'Select an output folder in the toolbar.';
+    status.className = 'status'; expBtn.disabled = true; return;
   }
   if (!title) {
-    status.textContent = 'Enter a document title to continue.'; status.className = 'status'; btn.disabled = true; return;
+    status.textContent = 'Title is empty.';
+    status.className = 'status'; expBtn.disabled = true; return;
   }
   if (!sections.length) {
-    status.textContent = 'Add at least one image section.'; status.className = 'status'; btn.disabled = true; return;
+    status.textContent = 'Add at least one image section.';
+    status.className = 'status'; expBtn.disabled = true; return;
   }
   const missing = sections.filter(s => !s.imageData).length;
   if (missing) {
-    status.textContent = `${missing} section(s) missing a pasted image.`;
-    status.className = 'status err'; btn.disabled = true; return;
+    status.textContent = `${missing} section(s) missing an image.`;
+    status.className = 'status err'; expBtn.disabled = true; return;
   }
   status.textContent = `Ready — "${title}.docx" → ${folderHandle.name}`;
-  status.className = 'status ok'; btn.disabled = false;
+  status.className = 'status ok'; expBtn.disabled = false;
 }
 
-// ── DOCX builder — pure XML + JSZip ────────────────────────────────────────
+// ═══════════════════════════════════════════════════════
+// EXCEL WRITE
+// ═══════════════════════════════════════════════════════
+async function writeExcel() {
+  if (!xlWorkbook || !xlSheetName) return;
+  const ws   = xlWorkbook.Sheets[xlSheetName];
+  const rows = XLSX.utils.sheet_to_json(ws, { header: 1 });
+
+  // Find column indices from header row
+  const header = rows[0];
+  const colCompleted = header.indexOf('Completed?');
+  const colReason    = header.indexOf('Reason');
+
+  // Update in-memory data for all controls
+  controls.forEach(c => {
+    const ri = c.rowIdx - 1; // 0-indexed in rows array
+    if (!rows[ri]) return;
+    rows[ri][colCompleted] = c.completed;
+    rows[ri][colReason]    = c.reason;
+  });
+
+  // Rebuild worksheet
+  const newWs = XLSX.utils.aoa_to_sheet(rows);
+
+  // Apply colors via cell styles (xlsx doesn't support full styling without pro,
+  // so we use the sheetName approach — color is applied as fill using SheetJS community edition workaround)
+  controls.forEach(c => {
+    const ri = c.rowIdx - 1;
+    const comp = c.completed.toLowerCase();
+    let fgColor = null;
+    if (comp === 'valid')               fgColor = 'C6EFCE'; // light green
+    else if (comp === 'to be tested later') fgColor = 'FFEB9C'; // light yellow
+    else if (comp === 'updated')        fgColor = 'DDEEFF'; // light blue
+
+    if (fgColor) {
+      // Apply fill to entire row cells
+      header.forEach((_, ci) => {
+        const cellRef = XLSX.utils.encode_cell({ r: ri, c: ci });
+        if (!newWs[cellRef]) newWs[cellRef] = { v: '', t: 's' };
+        newWs[cellRef].s = { fill: { fgColor: { rgb: fgColor }, patternType: 'solid' } };
+      });
+    }
+  });
+
+  xlWorkbook.Sheets[xlSheetName] = newWs;
+
+  // Write with cellStyles enabled
+  const wbOut = XLSX.write(xlWorkbook, { bookType: 'xlsx', type: 'array', cellStyles: true });
+
+  if (xlFileHandle) {
+    try {
+      const w = await xlFileHandle.createWritable();
+      await w.write(new Uint8Array(wbOut));
+      await w.close();
+      return;
+    } catch(e) { /* fall through to download */ }
+  }
+
+  // Fallback: download
+  const blob = new Blob([wbOut], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = xlFileName || 'tracker.xlsx';
+  a.click();
+  showToast('Excel saved via download (no file handle).', '');
+}
+
+function updateControlInMemory(id, fields) {
+  const c = controls.find(x => x.id === id);
+  if (!c) return;
+  Object.assign(c, fields);
+}
+
+// ═══════════════════════════════════════════════════════
+// MARK VALID
+// ═══════════════════════════════════════════════════════
+async function markValid() {
+  if (!selectedCtrl) return;
+  updateControlInMemory(selectedCtrl.id, { completed: 'Valid' });
+  selectedCtrl.completed = 'Valid';
+  renderControlList();
+  updateActionBar();
+  await writeExcel();
+  showToast(`✓ ${selectedCtrl.id} marked Valid`, 'success');
+}
+
+// ═══════════════════════════════════════════════════════
+// MARK LATER
+// ═══════════════════════════════════════════════════════
+async function markLater() {
+  if (!selectedCtrl) return;
+  updateControlInMemory(selectedCtrl.id, { completed: 'To Be Tested Later' });
+  selectedCtrl.completed = 'To Be Tested Later';
+  renderControlList();
+  updateActionBar();
+  await writeExcel();
+  showToast(`${selectedCtrl.id} marked — To Be Tested Later`, 'warn');
+}
+
+// ═══════════════════════════════════════════════════════
+// EXPORT DOCX
+// ═══════════════════════════════════════════════════════
 function escXml(s) {
-  return String(s)
-    .replace(/&/g,  '&amp;')
-    .replace(/</g,  '&lt;')
-    .replace(/>/g,  '&gt;')
-    .replace(/"/g,  '&quot;')
-    .replace(/'/g, '&apos;');
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');
 }
 function b64toUint8(b64) {
   const bin = atob(b64), arr = new Uint8Array(bin.length);
@@ -370,20 +831,18 @@ function b64toUint8(b64) {
   return arr;
 }
 function pxToEmu(px) { return Math.round(px * 914400 / 96); }
-function fitImg(w, h, maxPx = 624) {
-  if (w <= maxPx) return { w, h };
-  return { w: maxPx, h: Math.round(h * maxPx / w) };
+function fitImg(w, h, max = 624) {
+  if (w <= max) return { w, h };
+  return { w: max, h: Math.round(h * max / w) };
 }
 
 async function buildDocx(title, sectionData) {
   const zip = new JSZip();
-
   const imgRels = [];
   sectionData.forEach((sec, i) => {
     const ext = sec.imageType === 'image/jpeg' ? 'jpeg' : 'png';
-    const rId = 'rId' + (i + 10);
-    imgRels.push({ rId, ext, mime: sec.imageType || 'image/png', n: i + 1 });
-    zip.file(`word/media/img${i + 1}.${ext}`, b64toUint8(sec.imageData));
+    imgRels.push({ rId: 'rId' + (i + 10), ext, n: i + 1 });
+    zip.file(`word/media/img${i+1}.${ext}`, b64toUint8(sec.imageData));
   });
 
   let body = `
@@ -393,81 +852,56 @@ async function buildDocx(title, sectionData) {
   </w:p>`;
 
   sectionData.forEach((sec, i) => {
-    const rel  = imgRels[i];
-    const fit  = fitImg(sec.imageW, sec.imageH);
-    const cx   = pxToEmu(fit.w);
-    const cy   = pxToEmu(fit.h);
-    const dId  = i + 1;
-    const pId  = i + 100;
-
+    const rel = imgRels[i];
+    const fit = fitImg(sec.imageW, sec.imageH);
+    const cx  = pxToEmu(fit.w), cy = pxToEmu(fit.h);
     body += `
   <w:p>
     <w:pPr><w:spacing w:before="160" w:after="120"/></w:pPr>
-    <w:r>
-      <w:drawing>
-        <wp:inline distT="0" distB="0" distL="0" distR="0">
-          <wp:extent cx="${cx}" cy="${cy}"/>
-          <wp:effectExtent l="0" t="0" r="0" b="0"/>
-          <wp:docPr id="${dId}" name="Img${dId}"/>
-          <wp:cNvGraphicFramePr>
-            <a:graphicFrameLocks xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" noChangeAspect="1"/>
-          </wp:cNvGraphicFramePr>
-          <a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">
-            <a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">
-              <pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">
-                <pic:nvPicPr>
-                  <pic:cNvPr id="${pId}" name="Img${dId}"/>
-                  <pic:cNvPicPr><a:picLocks noChangeAspect="1"/></pic:cNvPicPr>
-                </pic:nvPicPr>
-                <pic:blipFill>
-                  <a:blip r:embed="${rel.rId}"/>
-                  <a:stretch><a:fillRect/></a:stretch>
-                </pic:blipFill>
-                <pic:spPr>
-                  <a:xfrm><a:off x="0" y="0"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm>
-                  <a:prstGeom prst="rect"><a:avLst/></a:prstGeom>
-                </pic:spPr>
-              </pic:pic>
-            </a:graphicData>
-          </a:graphic>
-        </wp:inline>
-      </w:drawing>
-    </w:r>
+    <w:r><w:drawing>
+      <wp:inline distT="0" distB="0" distL="0" distR="0">
+        <wp:extent cx="${cx}" cy="${cy}"/>
+        <wp:effectExtent l="0" t="0" r="0" b="0"/>
+        <wp:docPr id="${i+1}" name="Img${i+1}"/>
+        <wp:cNvGraphicFramePr><a:graphicFrameLocks xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" noChangeAspect="1"/></wp:cNvGraphicFramePr>
+        <a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">
+          <a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">
+            <pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">
+              <pic:nvPicPr>
+                <pic:cNvPr id="${i+100}" name="Img${i+1}"/>
+                <pic:cNvPicPr><a:picLocks noChangeAspect="1"/></pic:cNvPicPr>
+              </pic:nvPicPr>
+              <pic:blipFill>
+                <a:blip r:embed="${rel.rId}"/>
+                <a:stretch><a:fillRect/></a:stretch>
+              </pic:blipFill>
+              <pic:spPr>
+                <a:xfrm><a:off x="0" y="0"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm>
+                <a:prstGeom prst="rect"><a:avLst/></a:prstGeom>
+              </pic:spPr>
+            </pic:pic>
+          </a:graphicData>
+        </a:graphic>
+      </wp:inline>
+    </w:drawing></w:r>
   </w:p>`;
-
-    if (sec.imgDesc) {
-      body += `
-  <w:p>
-    <w:pPr><w:spacing w:after="160"/></w:pPr>
+    if (sec.imgDesc) body += `
+  <w:p><w:pPr><w:spacing w:after="160"/></w:pPr>
     <w:r><w:rPr><w:i/><w:iCs/><w:color w:val="555555"/><w:sz w:val="22"/></w:rPr>
-      <w:t xml:space="preserve">${escXml(sec.imgDesc)}</w:t></w:r>
-  </w:p>`;
-    }
-
-    if (sec.addDesc) {
-      body += `
-  <w:p>
-    <w:pPr><w:spacing w:after="200"/></w:pPr>
+      <w:t xml:space="preserve">${escXml(sec.imgDesc)}</w:t></w:r></w:p>`;
+    if (sec.addDesc) body += `
+  <w:p><w:pPr><w:spacing w:after="200"/></w:pPr>
     <w:r><w:rPr><w:sz w:val="24"/></w:rPr>
-      <w:t xml:space="preserve">${escXml(sec.addDesc)}</w:t></w:r>
-  </w:p>`;
-    }
-
-    if (i < sectionData.length - 1) {
-      body += `\n  <w:p><w:pPr><w:spacing w:after="160"/></w:pPr></w:p>`;
-    }
+      <w:t xml:space="preserve">${escXml(sec.addDesc)}</w:t></w:r></w:p>`;
+    if (i < sectionData.length - 1) body += `\n  <w:p><w:pPr><w:spacing w:after="160"/></w:pPr></w:p>`;
   });
 
   zip.file('word/document.xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<w:document
-  xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"
+<w:document xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"
   xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
-  xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
-  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006">
-  <w:body>
-${body}
-    <w:sectPr>
-      <w:pgSz w:w="12240" w:h="15840"/>
+  xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:body>${body}
+    <w:sectPr><w:pgSz w:w="12240" w:h="15840"/>
       <w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440" w:header="720" w:footer="720" w:gutter="0"/>
     </w:sectPr>
   </w:body>
@@ -475,65 +909,49 @@ ${body}
 
   zip.file('word/styles.xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
-  <w:docDefaults>
-    <w:rPrDefault><w:rPr>
-      <w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri"/>
-      <w:sz w:val="24"/><w:szCs w:val="24"/>
-    </w:rPr></w:rPrDefault>
-  </w:docDefaults>
-  <w:style w:type="paragraph" w:default="1" w:styleId="Normal">
-    <w:name w:val="Normal"/>
-  </w:style>
+  <w:docDefaults><w:rPrDefault><w:rPr>
+    <w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri"/>
+    <w:sz w:val="24"/><w:szCs w:val="24"/>
+  </w:rPr></w:rPrDefault></w:docDefaults>
+  <w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/></w:style>
   <w:style w:type="paragraph" w:styleId="Heading1">
-    <w:name w:val="heading 1"/>
-    <w:basedOn w:val="Normal"/>
+    <w:name w:val="heading 1"/><w:basedOn w:val="Normal"/>
     <w:pPr><w:outlineLvl w:val="0"/></w:pPr>
-    <w:rPr>
-      <w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/>
-      <w:b/><w:sz w:val="36"/><w:color w:val="1F3864"/>
-    </w:rPr>
+    <w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/><w:b/><w:sz w:val="36"/><w:color w:val="1F3864"/></w:rPr>
   </w:style>
 </w:styles>`);
 
   let relLines = `  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>`;
-  imgRels.forEach(r => {
-    relLines += `\n  <Relationship Id="${r.rId}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/img${r.n}.${r.ext}"/>`;
-  });
+  imgRels.forEach(r => { relLines += `\n  <Relationship Id="${r.rId}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/img${r.n}.${r.ext}"/>`; });
   zip.file('word/_rels/document.xml.rels', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-${relLines}
-</Relationships>`);
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${relLines}</Relationships>`);
 
   zip.file('_rels/.rels', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
   <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
 </Relationships>`);
 
-  const hasPng  = imgRels.some(r => r.ext === 'png');
-  const hasJpeg = imgRels.some(r => r.ext === 'jpeg');
+  const hasPng = imgRels.some(r => r.ext==='png'), hasJpeg = imgRels.some(r => r.ext==='jpeg');
   zip.file('[Content_Types].xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
   <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
-  <Default Extension="xml"  ContentType="application/xml"/>
-  ${hasPng  ? '<Default Extension="png"  ContentType="image/png"/>'  : ''}
+  <Default Extension="xml" ContentType="application/xml"/>
+  ${hasPng ? '<Default Extension="png" ContentType="image/png"/>' : ''}
   ${hasJpeg ? '<Default Extension="jpeg" ContentType="image/jpeg"/>' : ''}
   <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
-  <Override PartName="/word/styles.xml"   ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>
+  <Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>
 </Types>`);
 
   return zip.generateAsync({ type: 'arraybuffer', compression: 'DEFLATE' });
 }
 
-// ── Process ────────────────────────────────────────────────────────────────
 async function processDoc() {
-  if (typeof JSZip === 'undefined') {
-    showToast('Library not loaded. Check internet connection and reload.', 'error'); return;
-  }
-  const btn    = document.getElementById('processBtn');
+  if (typeof JSZip === 'undefined') { showToast('Library not loaded.', 'error'); return; }
+  const btn = document.getElementById('processBtn');
   const status = document.getElementById('processStatus');
   btn.disabled = true;
   status.textContent = 'Building document…';
-  status.className   = 'status working';
+  status.className = 'status working';
 
   try {
     const title = sanitizeFilename(document.getElementById('docTitle').value).trim();
@@ -543,30 +961,42 @@ async function processDoc() {
       addDesc: document.getElementById('adddesc-' + sec.id).value.trim(),
     }));
 
-    const buffer   = await buildDocx(title, sectionData);
-    const filename = title + '.docx';
-
-    const fh = await folderHandle.getFileHandle(filename, { create: true });
+    const buffer = await buildDocx(title, sectionData);
+    const fh = await folderHandle.getFileHandle(title + '.docx', { create: true });
     const w  = await fh.createWritable();
-    await w.write(buffer);
-    await w.close();
+    await w.write(buffer); await w.close();
 
-    showToast('✓ Saved: ' + filename, 'success');
-    status.textContent = `Saved "${filename}" to ${folderHandle.name}`;
-    status.className   = 'status ok';
-    resetUI();
+    // Build reason text from all captions
+    const reasonParts = sectionData
+      .map((s, i) => s.imgDesc ? `[Image ${i+1}] ${s.imgDesc}` : '')
+      .filter(Boolean);
+    const reasonText = reasonParts.join(' | ');
+
+    // Update control in memory & write excel
+    updateControlInMemory(selectedCtrl.id, { completed: 'Updated', reason: reasonText });
+    selectedCtrl.completed = 'Updated';
+    selectedCtrl.reason    = reasonText;
+    await writeExcel();
+
+    renderControlList();
+    showToast(`✓ Saved: ${title}.docx`, 'success');
+    status.textContent = `Saved "${title}.docx" → ${folderHandle.name}`;
+    status.className = 'status ok';
+    resetForm();
   } catch(err) {
     console.error(err);
     showToast('Error: ' + err.message, 'error');
     status.textContent = 'Error generating document.';
-    status.className   = 'status err';
+    status.className = 'status err';
   } finally {
-    updateProcessBtn();
+    updateActionBar();
   }
 }
 
-// ── Reset after save ───────────────────────────────────────────────────────
-function resetUI() {
+// ═══════════════════════════════════════════════════════
+// RESET FORM (keep control selected)
+// ═══════════════════════════════════════════════════════
+function resetForm() {
   document.getElementById('docTitle').value = '';
   document.getElementById('titleBadge').textContent = '0';
   sections.forEach(sec => {
@@ -574,23 +1004,27 @@ function resetUI() {
     if (zone && zone._docHandler) document.removeEventListener('paste', zone._docHandler);
     document.getElementById('card-' + sec.id)?.remove();
   });
-  sections = [];
-  sectionCount = 0;
+  sections = []; sectionCount = 0;
+  selectedCtrl = null;
   addSection();
 }
 
-// ── Toast ──────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════════════════
 let toastTimer;
 function showToast(msg, type = '') {
   const t = document.getElementById('toast');
   t.textContent = msg;
-  t.className   = 'show ' + type;
+  t.className = 'show ' + type;
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => { t.className = ''; }, 4000);
 }
 
-// ── Init ───────────────────────────────────────────────────────────────────
-addSection();
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+updateActionBar();
 </script>
 </body>
 </html>
