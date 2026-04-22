@@ -5,9 +5,13 @@ let currentPage = 'dashboard';
 document.querySelectorAll('.nav-item').forEach(el => {
   el.addEventListener('click', () => navigateTo(el.dataset.page));
 });
+function toggleSidebar(){document.body.classList.toggle('sidebar-open');}
+function closeSidebar(){document.body.classList.remove('sidebar-open');}
+
 function navigateTo(page) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.page === page));
   document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === 'page-' + page));
+  closeSidebar();
   currentPage = page;
   if (page === 'dashboard') renderDashboard();
   if (page === 'flashcards') renderFlashcards();
