@@ -10,17 +10,17 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
-/* ── DARK THEME (default) — black-red ── */
+/* ── DARK THEME (default) — black + red ── */
 :root{
-  --bg:#0a0608;--surface:#110a0c;--surface2:#1a0e10;--surface3:#241216;
-  --border:#3a1018;--border2:#541820;
-  --accent:#e01828;--accent-dim:#3a0a10;
-  --green:#22c55e;--green-bg:#0d3320;--green-border:#166534;
-  --yellow:#f59e0b;--yellow-bg:#3d2000;--yellow-border:#78350f;
-  --red:#ff2130;--red-bg:#500010;
-  --purple:#e06880;--purple-bg:#3a0a18;
-  --text:#f5e8ea;--text-dim:#6a3040;--text-mid:#b06070;
-  --shadow:0 4px 24px rgba(0,0,0,.7);
+  --bg:#080808;--surface:#111111;--surface2:#1a1a1a;--surface3:#222222;
+  --border:#2a2a2a;--border2:#333333;
+  --accent:#cc0000;--accent-dim:#2a0000;
+  --green:#22c55e;--green-bg:#0a2a14;--green-border:#15532a;
+  --yellow:#f59e0b;--yellow-bg:#2a1a00;--yellow-border:#6a3a00;
+  --red:#cc0000;--red-bg:#2a0000;
+  --purple:#e06880;--purple-bg:#2a0a14;
+  --text:#f0f0f0;--text-dim:#555555;--text-mid:#888888;
+  --shadow:0 4px 24px rgba(0,0,0,.9);
   --mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans',sans-serif;
 }
 
@@ -377,6 +377,25 @@ input[readonly]{opacity:.6;cursor:default}
 .modal p{font-family:var(--mono);font-size:12px;color:var(--text-mid);line-height:1.7;margin-bottom:18px}
 .modal-cols{display:flex;gap:8px;justify-content:flex-end}
 .format-list{background:var(--bg);border-radius:5px;padding:10px 14px;font-family:var(--mono);font-size:11px;color:var(--accent);line-height:2;margin-bottom:16px}
+
+/* ── PREVIOUS REASON BANNER ── */
+.prev-reason{
+  background:var(--surface2);border:1px solid var(--border2);border-left:3px solid var(--accent);
+  border-radius:5px;padding:10px 14px;margin-bottom:16px;
+}
+.prev-reason-label{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--accent);margin-bottom:6px}
+.prev-reason-text{font-family:var(--mono);font-size:11px;color:var(--text-mid);line-height:1.6;
+  word-break:break-word;white-space:pre-wrap}
+
+/* ── MARK FOR REMOVAL ── */
+.btn-remove{background:#1a0a00;color:#ff6600;border:1px solid #6a2a00}
+.btn-remove:hover{opacity:.85}
+.btn-remove:disabled{opacity:.4;cursor:not-allowed}
+.pill-remove{background:#2a1000;color:#ff6600;border:1px solid #6a2a00}
+.ctrl-item.s-remove{border-left:3px solid #ff6600;opacity:.7}
+.ctrl-item.s-remove .ctrl-id{color:#ff6600}
+.fchip.active.fc-remove{background:#2a1000;border-color:#ff6600;color:#ff6600}
 </style>
 </head>
 <body>
@@ -446,6 +465,7 @@ input[readonly]{opacity:.6;cursor:default}
         <span class="fchip fc-lfailed"  onclick="toggleFilter('lfailed')"  id="fc-lfailed">Later+Fail</span>
         <span class="fchip fc-upassed"  onclick="toggleFilter('upassed')"  id="fc-upassed">Updated+Pass</span>
         <span class="fchip fc-ufailed"  onclick="toggleFilter('ufailed')"  id="fc-ufailed">Updated+Fail</span>
+        <span class="fchip fc-remove"   onclick="toggleFilter('remove')"   id="fc-remove">🗑 Remove</span>
       </div>
       <div class="panel-list" id="ctrlList"></div>
     </div>
@@ -501,6 +521,12 @@ input[readonly]{opacity:.6;cursor:default}
           <div class="input-hint">Auto-filled from selected control. Invalid filename characters are stripped.</div>
         </div>
         <div class="divider"></div>
+        <div id="prevReasonWrap" style="display:none">
+          <div class="prev-reason">
+            <div class="prev-reason-label">⟳ Previously Documented</div>
+            <div class="prev-reason-text" id="prevReasonText"></div>
+          </div>
+        </div>
         <div class="sec-label">Images &amp; Notes</div>
         <div id="sections"></div>
         <button class="add-snap-btn" onclick="addSection()">
@@ -515,11 +541,12 @@ input[readonly]{opacity:.6;cursor:default}
 <!-- ACTION BAR -->
 <div class="action-bar" id="actionBar">
   <span class="action-status" id="actionStatus">Open a workbook to get started.</span>
-  <button class="btn btn-yellow" id="btnLater"   disabled onclick="markLater()">Later</button>
-  <button class="btn btn-green"  id="btnValid"   disabled onclick="markValid()">✓ Valid</button>
-  <button class="btn btn-fail"   id="btnFail"    disabled onclick="markFailed()">✕ Fail</button>
-  <button class="btn btn-pass"   id="btnPass"    disabled onclick="markPassed()">✓ Pass</button>
-  <button class="btn btn-primary" id="btnExport" disabled onclick="processDoc()">
+  <button class="btn btn-remove"  id="btnRemove"  disabled onclick="markRemove()">🗑 Remove</button>
+  <button class="btn btn-yellow"  id="btnLater"   disabled onclick="markLater()">Later</button>
+  <button class="btn btn-green"   id="btnValid"   disabled onclick="markValid()">✓ Valid</button>
+  <button class="btn btn-fail"    id="btnFail"    disabled onclick="markFailed()">✕ Fail</button>
+  <button class="btn btn-pass"    id="btnPass"    disabled onclick="markPassed()">✓ Pass</button>
+  <button class="btn btn-primary" id="btnExport"  disabled onclick="processDoc()">
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
     Export Document
   </button>
@@ -545,7 +572,7 @@ const REQUIRED_COLS = ['Control ID','Control Title','Current Status','Completed?
 // ════════════════════════════════════════════════════════════
 // FILTER
 // ════════════════════════════════════════════════════════════
-const ALL_FILTERS = ['failed','passed','valid','later','updated','vpassed','vfailed','lpassed','lfailed','upassed','ufailed'];
+const ALL_FILTERS = ['failed','passed','valid','later','updated','vpassed','vfailed','lpassed','lfailed','upassed','ufailed','remove'];
 
 function toggleFilter(f){
   activeFilter = activeFilter === f ? null : f;
@@ -572,6 +599,7 @@ function applyFilter(controls){
       case 'lfailed': return comp === 'to be tested later' && stat === 'failed';
       case 'upassed': return comp === 'updated'            && stat === 'passed';
       case 'ufailed': return comp === 'updated'            && stat === 'failed';
+      case 'remove':  return comp === 'to be removed';
       default: return true;
     }
   });
@@ -788,6 +816,7 @@ function ctrlStatusClass(c){
   if(v==='to be tested later') return 's-later';
   if(v==='updated')            return 's-updated';
   if(v==='not checked')        return 's-notchecked';
+  if(v==='to be removed')      return 's-remove';
   return '';
 }
 function ctrlPill(c){
@@ -796,6 +825,7 @@ function ctrlPill(c){
   if(v==='to be tested later') return '<span class="ctrl-pill pill-later">Later</span>';
   if(v==='updated')            return '<span class="ctrl-pill pill-updated">Updated</span>';
   if(v==='not checked')        return '<span class="ctrl-pill pill-notchecked">Not Checked</span>';
+  if(v==='to be removed')      return '<span class="ctrl-pill pill-remove">To Be Removed</span>';
   return '';
 }
 
@@ -839,6 +869,18 @@ function selectCtrl(id){
   document.getElementById('docTitle').value = combined;
   document.getElementById('titleBadge').textContent = combined.trim().length;
   document.getElementById('docTitle').readOnly = false;
+
+  // Show previous reason if control was already documented
+  const prevWrap = document.getElementById('prevReasonWrap');
+  const prevText = document.getElementById('prevReasonText');
+  if(selectedCtrl.reason && selectedCtrl.reason.trim()){
+    prevText.textContent = selectedCtrl.reason.trim();
+    prevWrap.style.display = 'block';
+  } else {
+    prevWrap.style.display = 'none';
+    prevText.textContent = '';
+  }
+
   showView('controls','formView');
   updateFolderUI();
   renderCtrlList();
@@ -884,6 +926,15 @@ async function markLater(){
   renderCtrlList(); renderAppList(); updateActionBar();
   await writeExcel();
   showToast(`${selectedCtrl.id} — To Be Tested Later`,'warn');
+}
+
+async function markRemove(){
+  if(!selectedCtrl) return;
+  selectedCtrl.completed='To Be Removed';
+  syncCtrl(selectedCtrl);
+  renderCtrlList(); renderAppList(); updateActionBar();
+  await writeExcel();
+  showToast(`${selectedCtrl.id} — marked To Be Removed`,'warn');
 }
 
 async function markAppComplete(){
@@ -1029,6 +1080,7 @@ function updateActionBar(){
   const bLat=document.getElementById('btnLater');
   const bPass=document.getElementById('btnPass');
   const bFail=document.getElementById('btnFail');
+  const bRem=document.getElementById('btnRemove');
   const title=sanitizeFilename(document.getElementById('docTitle').value).trim();
   const hasCtrl=!!selectedCtrl, hasApp=!!currentApp;
   const hasFoldr=!!(currentApp?.folderHandle);
@@ -1036,6 +1088,7 @@ function updateActionBar(){
 
   bVal.disabled=!hasCtrl; bLat.disabled=!hasCtrl;
   bPass.disabled=!hasCtrl; bFail.disabled=!hasCtrl;
+  bRem.disabled=!hasCtrl;
 
   if(!hasXl){st.textContent='Open a workbook to get started.';st.className='action-status';bExp.disabled=true;return;}
   if(!hasApp){st.textContent='Select an application from the left panel.';st.className='action-status';bExp.disabled=true;return;}
@@ -1210,6 +1263,8 @@ async function processDoc(){
 function clearForm(){
   document.getElementById('docTitle').value='';
   document.getElementById('titleBadge').textContent='0';
+  document.getElementById('prevReasonWrap').style.display='none';
+  document.getElementById('prevReasonText').textContent='';
   sections.forEach(s=>{
     const z=document.getElementById('zone-'+s.id);
     if(z&&z._dh) document.removeEventListener('paste',z._dh);
