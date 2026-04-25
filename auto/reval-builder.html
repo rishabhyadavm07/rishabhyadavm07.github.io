@@ -50,9 +50,6 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 .sep{color:var(--border2);font-size:16px;opacity:.4}
 .htitle{font-size:12px;color:var(--text-mid);font-family:var(--mono)}
 .spacer{flex:1}
-.badge{font-family:var(--mono);font-size:10px;padding:4px 10px;border-radius:20px;background:var(--surface2);color:var(--text-dim);border:1px solid var(--border)}
-.theme-toggle{background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:5px 14px;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;color:var(--text-mid);transition:var(--transition)}
-.theme-toggle:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-glow)}
 
 /* ── TOOLBAR ── */
 .toolbar{background:var(--surface);border-bottom:1px solid var(--border);padding:8px 24px;display:flex;align-items:center;gap:10px;flex-shrink:0}
@@ -247,13 +244,108 @@ input[readonly]{opacity:.5;cursor:default}
 .modal-cols{display:flex;gap:10px;justify-content:flex-end}
 .format-list{background:var(--bg);border-radius:var(--radius-sm);padding:12px 16px;font-family:var(--mono);font-size:11px;color:var(--accent);line-height:2;margin-bottom:18px}
 
+/* ── THEME DOT BUTTON ── */
+.theme-dot{
+  width:18px;height:18px;border-radius:50%;border:2px solid var(--border2);
+  background:var(--accent);cursor:pointer;transition:var(--transition);
+  box-shadow:0 0 8px var(--accent),0 0 20px rgba(220,38,38,.2);
+  flex-shrink:0;padding:0;
+}
+.theme-dot:hover{box-shadow:0 0 12px var(--accent),0 0 30px rgba(220,38,38,.35);transform:scale(1.15)}
+[data-theme="light"] .theme-dot{
+  background:#fbbf24;border-color:#d4980a;
+  box-shadow:0 0 8px #fbbf24,0 0 20px rgba(251,191,36,.25);
+}
+
+/* ── FILTER TOGGLE ── */
+.filter-toggle{
+  padding:6px 14px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  cursor:pointer;user-select:none;transition:var(--transition);flex-shrink:0;
+}
+.filter-toggle:hover{background:var(--surface2)}
+.filter-toggle span:first-child{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim)}
+.filter-arrow{font-size:10px;color:var(--text-dim);transition:transform .2s}
+.filter-arrow.open{transform:rotate(180deg)}
+
+/* ── SETTING CHANGED ── */
+.btn-setting{background:#1c1008;color:#fb923c;border-color:#c2610c}
+.btn-setting:hover{filter:brightness(1.15)}
+.btn-setting:disabled{opacity:.3;cursor:not-allowed;filter:none}
+.pill-setting{background:var(--orange-bg);color:var(--orange);border:1px solid var(--orange-border)}
+.ctrl-item.s-setting{border-left:3px solid var(--orange)}
+.ctrl-item.s-setting .ctrl-id{color:var(--orange)}
+.fchip.active.fc-setting{background:var(--orange-bg);border-color:var(--orange);color:var(--orange)}
+
 /* ── PREVIOUS REASON ── */
 .prev-reason{background:var(--accent-glow);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:var(--radius-sm);padding:12px 16px;margin-bottom:18px}
 .prev-reason-label{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:6px}
-.prev-reason-text{font-family:var(--mono);font-size:11px;color:var(--text-mid);line-height:1.6;word-break:break-word;white-space:pre-wrap}
+/* ── ANIMATED GRADIENT DOTS BACKGROUND ── */
+@keyframes dotDrift{
+  0%{background-position:0px 0px,5px 8.66px,0% 0%,0% 0%,0% 0%,0% 0px}
+  100%{background-position:0px 0px,5px 8.66px,800% 400%,1000% -400%,-1200% -600%,400% 8.66px}
+}
+@keyframes dotHue{
+  0%{filter:hue-rotate(0deg)}
+  100%{filter:hue-rotate(360deg)}
+}
+
+#dotsBg{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-color:var(--bg);
+  background-image:
+    radial-gradient(circle at 50% 50%,transparent 1.5px,var(--bg) 0 8px,transparent 8px),
+    radial-gradient(circle at 50% 50%,transparent 1.5px,var(--bg) 0 8px,transparent 8px),
+    radial-gradient(circle at 50% 50%,#cc0000,transparent 60%),
+    radial-gradient(circle at 50% 50%,#ff2200,transparent 60%),
+    radial-gradient(circle at 50% 50%,#880000,transparent 60%),
+    radial-gradient(ellipse at 50% 50%,#440000,transparent 60%);
+  background-size:
+    10px 17.32px,
+    10px 17.32px,
+    200% 200%,
+    200% 200%,
+    200% 200%,
+    200% 17.32px;
+  animation:dotDrift 25s linear infinite,dotHue 8s linear infinite;
+  opacity:.2;
+}
+[data-theme="light"] #dotsBg{
+  opacity:.06;
+  background-image:
+    radial-gradient(circle at 50% 50%,transparent 1.5px,var(--bg) 0 8px,transparent 8px),
+    radial-gradient(circle at 50% 50%,transparent 1.5px,var(--bg) 0 8px,transparent 8px),
+    radial-gradient(circle at 50% 50%,#cc0000,transparent 60%),
+    radial-gradient(circle at 50% 50%,#ff4444,transparent 60%),
+    radial-gradient(circle at 50% 50%,#990000,transparent 60%),
+    radial-gradient(ellipse at 50% 50%,#660000,transparent 60%);
+}
+
+/* glassmorphism surfaces */
+header,
+.toolbar,
+.panel-left,
+.action-bar,
+#toast{background:rgba(9,9,11,.88);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+.card,.snap-card{background:rgba(9,9,11,.75);backdrop-filter:blur(10px)}
+.panel-right{background:rgba(9,9,11,.5)}
+.app-folder-row{background:rgba(22,22,24,.9)}
+.welcome{background:transparent}
+
+[data-theme="light"] header,
+[data-theme="light"] .toolbar,
+[data-theme="light"] .panel-left,
+[data-theme="light"] .action-bar,
+[data-theme="light"] #toast{background:rgba(255,255,255,.9);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+[data-theme="light"] .card,[data-theme="light"] .snap-card{background:rgba(255,255,255,.8);backdrop-filter:blur(10px)}
+[data-theme="light"] .panel-right{background:rgba(250,250,250,.5)}
+[data-theme="light"] .app-folder-row{background:rgba(245,245,245,.92)}
 </style>
 </head>
 <body>
+
+<!-- GRADIENT DOTS BACKGROUND -->
+<div id="dotsBg"></div>
 
 <!-- HEADER -->
 <header>
@@ -261,8 +353,7 @@ input[readonly]{opacity:.5;cursor:default}
   <span class="sep">·</span>
   <span class="htitle">Report Builder</span>
   <span class="spacer"></span>
-  <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙 Dark</button>
-  <span class="badge" id="libStatus">Loading…</span>
+  <button class="theme-dot" onclick="toggleTheme()" id="themeBtn" title="Toggle theme"></button>
 </header>
 
 <!-- TOOLBAR -->
@@ -308,12 +399,17 @@ input[readonly]{opacity:.5;cursor:default}
       <div class="panel-search">
         <input type="text" id="ctrlSearch" placeholder="Search controls…" oninput="renderCtrlList()"/>
       </div>
-      <div class="filter-bar" id="filterBar">
+      <div class="filter-toggle" onclick="toggleFilterBar()">
+        <span>Filters</span>
+        <span class="filter-arrow" id="filterArrow">▾</span>
+      </div>
+      <div class="filter-bar" id="filterBar" style="display:none">
         <span class="fchip fc-failed"   onclick="toggleFilter('failed')"   id="fc-failed">✕ Failed</span>
         <span class="fchip fc-passed"   onclick="toggleFilter('passed')"   id="fc-passed">✓ Passed</span>
         <span class="fchip fc-valid"    onclick="toggleFilter('valid')"    id="fc-valid">Valid</span>
         <span class="fchip fc-later"    onclick="toggleFilter('later')"    id="fc-later">Later</span>
         <span class="fchip fc-updated"  onclick="toggleFilter('updated')"  id="fc-updated">Updated</span>
+        <span class="fchip fc-setting"  onclick="toggleFilter('setting')"  id="fc-setting">⚙ Setting</span>
         <span class="fchip fc-vpassed"  onclick="toggleFilter('vpassed')"  id="fc-vpassed">Valid+Pass</span>
         <span class="fchip fc-vfailed"  onclick="toggleFilter('vfailed')"  id="fc-vfailed">Valid+Fail</span>
         <span class="fchip fc-lpassed"  onclick="toggleFilter('lpassed')"  id="fc-lpassed">Later+Pass</span>
@@ -395,12 +491,13 @@ input[readonly]{opacity:.5;cursor:default}
 
 <!-- ACTION BAR -->
 <div class="action-bar" id="actionBar">
-  <span class="action-status" id="actionStatus">Open a workbook to get started.</span>
-  <button class="btn btn-remove"  id="btnRemove"  disabled onclick="markRemove()">🗑 Remove</button>
-  <button class="btn btn-yellow"  id="btnLater"   disabled onclick="markLater()">Later</button>
-  <button class="btn btn-green"   id="btnValid"   disabled onclick="markValid()">✓ Valid</button>
   <button class="btn btn-fail"    id="btnFail"    disabled onclick="markFailed()">✕ Fail</button>
   <button class="btn btn-pass"    id="btnPass"    disabled onclick="markPassed()">✓ Pass</button>
+  <span class="action-status" id="actionStatus">Open a workbook to get started.</span>
+  <button class="btn btn-remove"  id="btnRemove"  disabled onclick="markRemove()">🗑 Remove</button>
+  <button class="btn btn-setting" id="btnSetting" disabled onclick="markSettingChanged()">⚙ Setting Changed</button>
+  <button class="btn btn-yellow"  id="btnLater"   disabled onclick="markLater()">Later</button>
+  <button class="btn btn-green"   id="btnValid"   disabled onclick="markValid()">✓ Valid</button>
   <button class="btn btn-primary" id="btnExport"  disabled onclick="processDoc()">
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
     Export Document
@@ -427,7 +524,7 @@ const REQUIRED_COLS = ['Control ID','Control Title','Current Status','Completed?
 // ════════════════════════════════════════════════════════════
 // FILTER
 // ════════════════════════════════════════════════════════════
-const ALL_FILTERS = ['failed','passed','valid','later','updated','vpassed','vfailed','lpassed','lfailed','upassed','ufailed','remove'];
+const ALL_FILTERS = ['failed','passed','valid','later','updated','setting','vpassed','vfailed','lpassed','lfailed','upassed','ufailed','remove'];
 
 function toggleFilter(f){
   activeFilter = activeFilter === f ? null : f;
@@ -435,6 +532,14 @@ function toggleFilter(f){
     document.getElementById('fc-'+k)?.classList.toggle('active', activeFilter === k);
   });
   renderCtrlList();
+}
+
+function toggleFilterBar(){
+  const bar = document.getElementById('filterBar');
+  const arrow = document.getElementById('filterArrow');
+  const isHidden = bar.style.display === 'none';
+  bar.style.display = isHidden ? 'flex' : 'none';
+  arrow.classList.toggle('open', isHidden);
 }
 
 function applyFilter(controls){
@@ -448,6 +553,7 @@ function applyFilter(controls){
       case 'valid':   return comp === 'valid';
       case 'later':   return comp === 'to be tested later';
       case 'updated': return comp === 'updated';
+      case 'setting': return comp === 'recheck, setting changed';
       case 'vpassed': return comp === 'valid'              && stat === 'passed';
       case 'vfailed': return comp === 'valid'              && stat === 'failed';
       case 'lpassed': return comp === 'to be tested later' && stat === 'passed';
@@ -466,7 +572,7 @@ function applyFilter(controls){
 function applyTheme(t){
   document.documentElement.setAttribute('data-theme', t);
   const btn = document.getElementById('themeBtn');
-  btn.textContent = t === 'dark' ? '☀️ Light' : '🌙 Dark';
+  btn.title = t === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
   localStorage.setItem('ds-theme', t);
 }
 function toggleTheme(){
@@ -474,14 +580,6 @@ function toggleTheme(){
   applyTheme(cur === 'dark' ? 'light' : 'dark');
 }
 applyTheme(localStorage.getItem('ds-theme') || 'dark');
-
-// ════════════════════════════════════════════════════════════
-// LIB CHECK
-// ════════════════════════════════════════════════════════════
-window.addEventListener('load', () => {
-  const b = document.getElementById('libStatus');
-  b.textContent = (typeof JSZip !== 'undefined' && typeof XLSX !== 'undefined') ? 'Chrome / Edge' : '⚠ Library error';
-});
 
 // ════════════════════════════════════════════════════════════
 // EXCEL OPEN
@@ -561,7 +659,7 @@ function appProgress(app){
   if(!total) return {done:0,total:0,pct:0};
   const done = app.controls.filter(c=>{
     const v = c.completed.toLowerCase();
-    return v==='valid'||v==='updated'||v==='to be tested later'||v==='not checked'||v==='to be removed';
+    return v==='valid'||v==='updated'||v==='to be tested later'||v==='not checked'||v==='to be removed'||v==='recheck, setting changed';
   }).length;
   return {done,total,pct:Math.round(done/total*100)};
 }
@@ -569,7 +667,7 @@ function appProgress(app){
 function appCompleted(app){
   return app.controls.every(c=>{
     const v=c.completed.toLowerCase();
-    return v==='valid'||v==='updated'||v==='to be tested later'||v==='not checked'||v==='to be removed';
+    return v==='valid'||v==='updated'||v==='to be tested later'||v==='not checked'||v==='to be removed'||v==='recheck, setting changed';
   });
 }
 
@@ -672,6 +770,7 @@ function ctrlStatusClass(c){
   if(v==='updated')            return 's-updated';
   if(v==='not checked')        return 's-notchecked';
   if(v==='to be removed')      return 's-remove';
+  if(v==='recheck, setting changed') return 's-setting';
   return '';
 }
 function ctrlPill(c){
@@ -681,6 +780,7 @@ function ctrlPill(c){
   if(v==='updated')            return '<span class="ctrl-pill pill-updated">Updated</span>';
   if(v==='not checked')        return '<span class="ctrl-pill pill-notchecked">Not Checked</span>';
   if(v==='to be removed')      return '<span class="ctrl-pill pill-remove">To Be Removed</span>';
+  if(v==='recheck, setting changed') return '<span class="ctrl-pill pill-setting">Setting Changed</span>';
   return '';
 }
 
@@ -790,6 +890,15 @@ async function markRemove(){
   renderCtrlList(); renderAppList(); updateActionBar();
   await writeExcel();
   showToast(`${selectedCtrl.id} — marked To Be Removed`,'warn');
+}
+
+async function markSettingChanged(){
+  if(!selectedCtrl) return;
+  selectedCtrl.completed='Recheck, Setting Changed';
+  syncCtrl(selectedCtrl);
+  renderCtrlList(); renderAppList(); updateActionBar();
+  await writeExcel();
+  showToast(`${selectedCtrl.id} — Recheck, Setting Changed`,'warn');
 }
 
 async function markAppComplete(){
@@ -936,6 +1045,7 @@ function updateActionBar(){
   const bPass=document.getElementById('btnPass');
   const bFail=document.getElementById('btnFail');
   const bRem=document.getElementById('btnRemove');
+  const bSet=document.getElementById('btnSetting');
   const title=sanitizeFilename(document.getElementById('docTitle').value).trim();
   const hasCtrl=!!selectedCtrl, hasApp=!!currentApp;
   const hasFoldr=!!(currentApp?.folderHandle);
@@ -943,7 +1053,7 @@ function updateActionBar(){
 
   bVal.disabled=!hasCtrl; bLat.disabled=!hasCtrl;
   bPass.disabled=!hasCtrl; bFail.disabled=!hasCtrl;
-  bRem.disabled=!hasCtrl;
+  bRem.disabled=!hasCtrl; bSet.disabled=!hasCtrl;
 
   if(!hasXl){st.textContent='Open a workbook to get started.';st.className='action-status';bExp.disabled=true;return;}
   if(!hasApp){st.textContent='Select an application from the left panel.';st.className='action-status';bExp.disabled=true;return;}
@@ -987,6 +1097,8 @@ async function writeExcel(){
         else if(v==='to be tested later') fg='FFEB9C';
         else if(v==='updated')       fg='DDEEFF';
         else if(v==='not checked')   fg='F0F0F0';
+        else if(v==='to be removed') fg='E8E8E8';
+        else if(v==='recheck, setting changed') fg='FFE0CC';
         if(fg){
           hdr.forEach((_,ci)=>{
             const ref=XLSX.utils.encode_cell({r:ri,c:ci});
@@ -1011,6 +1123,17 @@ async function writeExcel(){
 // DOCX BUILD
 // ════════════════════════════════════════════════════════════
 function escXml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');}
+
+// Build multi-line text runs for DOCX (preserves newlines)
+function textRuns(text, rprXml){
+  const lines = text.split('\n');
+  let xml = '';
+  lines.forEach((line, i) => {
+    if(i > 0) xml += `<w:r>${rprXml}<w:br/></w:r>`;
+    if(line) xml += `<w:r>${rprXml}<w:t xml:space="preserve">${escXml(line)}</w:t></w:r>`;
+  });
+  return xml;
+}
 function escH(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function b64u8(b64){const bin=atob(b64),a=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)a[i]=bin.charCodeAt(i);return a;}
 function pxEmu(px){return Math.round(px*914400/96);}
@@ -1042,8 +1165,8 @@ async function buildDocx(title,sectionData){
         </a:graphic>
       </wp:inline>
     </w:drawing></w:r></w:p>`;
-    if(sec.imgDesc) body+=`\n  <w:p><w:pPr><w:spacing w:after="160"/></w:pPr><w:r><w:rPr><w:i/><w:iCs/><w:color w:val="555555"/><w:sz w:val="22"/></w:rPr><w:t xml:space="preserve">${escXml(sec.imgDesc)}</w:t></w:r></w:p>`;
-    if(sec.addDesc) body+=`\n  <w:p><w:pPr><w:spacing w:after="200"/></w:pPr><w:r><w:rPr><w:sz w:val="24"/></w:rPr><w:t xml:space="preserve">${escXml(sec.addDesc)}</w:t></w:r></w:p>`;
+    if(sec.imgDesc) body+=`\n  <w:p><w:pPr><w:spacing w:after="160"/></w:pPr>${textRuns(sec.imgDesc,'<w:rPr><w:i/><w:iCs/><w:color w:val="555555"/><w:sz w:val="22"/></w:rPr>')}</w:p>`;
+    if(sec.addDesc) body+=`\n  <w:p><w:pPr><w:spacing w:after="200"/></w:pPr>${textRuns(sec.addDesc,'<w:rPr><w:sz w:val="24"/></w:rPr>')}</w:p>`;
     if(i<sectionData.length-1) body+=`\n  <w:p><w:pPr><w:spacing w:after="160"/></w:pPr></w:p>`;
   });
   zip.file('word/document.xml',`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
