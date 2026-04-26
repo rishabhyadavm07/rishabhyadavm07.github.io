@@ -3,5 +3,5 @@ Disallow: /private.html
 Disallow: /journal.html
 Disallow: /blog-template.html
 Disallow: /blog.html
-
+ 
 Sitemap: https://fanaticalnerd.com/sitemap.xml
