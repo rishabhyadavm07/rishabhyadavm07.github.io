@@ -16,11 +16,11 @@ function navigateTo(page) {
   if (page === 'dashboard') renderDashboard();
   if (page === 'flashcards') renderFlashcards();
   if (page === 'notes') renderNotes();
-  if (page === 'quizio') {
-    document.getElementById('quizio-active').style.display='none';
-    document.getElementById('quizio-results').style.display='none';
-    document.getElementById('quizio-browser').style.display='block';
-    if(!QUIZIO_DATA) loadQuizioData(); else renderQuizioExams(qzFilter);
+  if (page === 'exambank') {
+    document.getElementById('exambank-active').style.display='none';
+    document.getElementById('exambank-results').style.display='none';
+    document.getElementById('exambank-browser').style.display='block';
+    if(!EXAMBANK_DATA) loadExamBankData(); else renderExamBankExams(qzFilter);
   }
 }
 

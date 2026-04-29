@@ -28,7 +28,7 @@
   <div class="nav-item active" data-page="dashboard"><span class="icon">📊</span> Dashboard</div>
   <div class="nav-item" data-page="flashcards"><span class="icon">🃏</span> Flashcards</div>
   <div class="nav-item" data-page="quiz"><span class="icon">✏️</span> Quiz</div>
-  <div class="nav-item" data-page="quizio"><span class="icon">🗂️</span> Quizio Exams</div>
+  <div class="nav-item" data-page="exambank"><span class="icon">🗂️</span> Exam Bank</div>
   <div class="nav-item" data-page="notes"><span class="icon">📚</span> Notes</div>
   <div class="nav-item" data-page="cheatsheet"><span class="icon">📋</span> Cheat Sheet</div>
   <span class="nav-section-label">Exam</span>
@@ -245,31 +245,31 @@
   </div>
 </div>
 
-<!-- QUIZIO EXAMS -->
-<div id="page-quizio" class="page">
+<!-- EXAM BANK -->
+<div id="page-exambank" class="page">
   <div class="page-header">
-    <h2>Quizio Exams</h2>
+    <h2>Exam Bank</h2>
     <p>Full exam sets — 20 exams · 880 questions across Study, Prep &amp; Mock formats. Includes multiple-choice and timed countdowns.</p>
   </div>
   <!-- Browser -->
-  <div id="quizio-browser">
+  <div id="exambank-browser">
     <div class="filter-row" style="margin-bottom:20px">
-      <button class="qz-tab active" onclick="renderQuizioExams('all')">All</button>
-      <button class="qz-tab" onclick="renderQuizioExams('STUDY')">Study</button>
-      <button class="qz-tab" onclick="renderQuizioExams('PREP')">Prep</button>
-      <button class="qz-tab" onclick="renderQuizioExams('MOCK')">Mock</button>
+      <button class="qz-tab active" onclick="renderExamBankExams('all')">All</button>
+      <button class="qz-tab" onclick="renderExamBankExams('STUDY')">Study</button>
+      <button class="qz-tab" onclick="renderExamBankExams('PREP')">Prep</button>
+      <button class="qz-tab" onclick="renderExamBankExams('MOCK')">Mock</button>
     </div>
-    <div id="quizio-cards" class="exam-grid">
+    <div id="exambank-cards" class="exam-grid">
       <div class="empty" style="grid-column:1/-1"><div class="empty-icon">⏳</div><p>Loading exams...</p></div>
     </div>
   </div>
   <!-- Active Exam -->
-  <div id="quizio-active" style="display:none" class="qz-active">
+  <div id="exambank-active" style="display:none" class="qz-active">
     <div class="qz-hdr">
       <div class="qz-exam-label" id="qz-exam-title">Exam</div>
       <div class="flex-gap">
         <div id="qz-timer" class="text-muted text-sm">⏱ —</div>
-        <button class="btn btn-sm btn-secondary" onclick="endQuizioEarly()">End Exam</button>
+        <button class="btn btn-sm btn-secondary" onclick="endExamBankEarly()">End Exam</button>
       </div>
     </div>
     <div class="flex-between" style="margin-bottom:10px">
@@ -283,12 +283,12 @@
       <div class="q-explain" id="qz-explain"></div>
     </div>
     <div class="flex-gap mt-4" style="justify-content:flex-end">
-      <button class="btn btn-warn" id="qz-submit-btn" onclick="submitQuizioAnswer()" style="display:none">Submit Answer</button>
-      <button class="btn btn-primary" id="qz-next-btn" onclick="nextQuizioQuestion()" disabled>Next →</button>
+      <button class="btn btn-warn" id="qz-submit-btn" onclick="submitExamBankAnswer()" style="display:none">Submit Answer</button>
+      <button class="btn btn-primary" id="qz-next-btn" onclick="nextExamBankQuestion()" disabled>Next →</button>
     </div>
   </div>
   <!-- Results -->
-  <div id="quizio-results" style="display:none;max-width:700px">
+  <div id="exambank-results" style="display:none;max-width:700px">
     <div id="qz-pass-banner" style="margin-bottom:16px"></div>
     <div class="results-score">
       <div class="res-num" id="qz-res-score">—</div>
@@ -299,8 +299,8 @@
       <div id="qz-res-review"></div>
     </div>
     <div class="flex-gap mt-4">
-      <button class="btn btn-primary" onclick="backToQuizioExams()">← All Exams</button>
-      <button class="btn btn-secondary" onclick="retryQuizioExam()">↺ Retry</button>
+      <button class="btn btn-primary" onclick="backToExamBankExams()">← All Exams</button>
+      <button class="btn btn-secondary" onclick="retryExamBankExam()">↺ Retry</button>
     </div>
   </div>
 </div>
@@ -416,7 +416,7 @@
 <script src="js/notes.js"></script>
 <script src="js/cheatsheet.js"></script>
 <script src="js/simulator.js"></script>
-<script src="js/quizio.js"></script>
+<script src="js/exambank.js"></script>
 <script src="js/app.js"></script>
 
 </body>
