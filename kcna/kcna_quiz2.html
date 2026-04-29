@@ -5,33 +5,68 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>KCNA Quiz – Combined (Original + 2025 Exam)</title>
 <style>
-  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Helvetica,Arial,sans-serif;margin:0;background:#f7fafc;color:#0f172a}
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700;800&display=swap');
+
+  body{font-family:'JetBrains Mono',monospace;margin:0;background:#050505;color:#dddddd;overflow-x:hidden}
+
+  .scanline{width:100%;height:2px;background:#dc2626;opacity:.1;position:fixed;z-index:50;pointer-events:none;animation:scan 10s linear infinite}
+  @keyframes scan{0%{top:-10%}100%{top:110%}}
+
+  ::-webkit-scrollbar{width:4px}
+  ::-webkit-scrollbar-track{background:#0a0a0a}
+  ::-webkit-scrollbar-thumb{background:#dc2626}
+
   .wrap{max-width:980px;margin:24px auto;padding:0 16px}
-  .card{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:16px;box-shadow:0 4px 14px rgba(0,0,0,.06)}
-  h1{margin:0 0 6px;font-size:20px}
-  .pill{display:inline-flex;align-items:center;border:1px solid #e5e7eb;padding:4px 10px;border-radius:999px;font-size:12px;color:#475569;background:#fff}
-  label{font-size:12px;color:#475569}
-  select,input[type=number],input[type=text]{width:100%;border:1px solid #e5e7eb;border-radius:10px;padding:10px;font-size:14px}
-  .btn{display:inline-flex;gap:8px;align-items:center;border-radius:999px;padding:10px 16px;border:1px solid #e5e7eb;background:#fff;cursor:pointer}
-  .btn.primary{background:#2563eb;color:#fff;border-color:#2563eb}
-  .btn:disabled{opacity:.5;cursor:not-allowed}
+
+  .card{background:rgba(13,13,13,.85);border:1px solid rgba(39,39,42,1);border-radius:18px;padding:16px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 4px 32px rgba(0,0,0,.5);transition:border-color .2s,box-shadow .2s}
+  .card:focus-within{border-color:rgba(220,38,38,.25)}
+
+  h1{margin:0 0 6px;font-size:20px;color:#fff;font-weight:800;letter-spacing:-.5px}
+  h3{color:#fff;font-weight:700;letter-spacing:-.3px}
+
+  .pill{display:inline-flex;align-items:center;border:1px solid rgba(39,39,42,1);padding:4px 12px;border-radius:999px;font-size:11px;color:#a1a1aa;background:rgba(24,24,27,.8);font-weight:700;letter-spacing:.05em}
+
+  label{font-size:11px;color:#71717a;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+
+  select,input[type=number],input[type=text]{width:100%;border:1px solid rgba(39,39,42,1);border-radius:12px;padding:10px 12px;font-size:13px;background:rgba(9,9,11,.8);color:#dddddd;font-family:'JetBrains Mono',monospace;outline:none;transition:border-color .2s,box-shadow .2s;box-sizing:border-box;caret-color:#dc2626}
+  select:focus,input[type=number]:focus,input[type=text]:focus{border-color:rgba(220,38,38,.6);box-shadow:0 0 0 3px rgba(220,38,38,.1)}
+  select option{background:#0a0a0a;color:#dddddd}
+
+  .btn{display:inline-flex;gap:8px;align-items:center;border-radius:999px;padding:10px 18px;border:1px solid rgba(39,39,42,1);background:rgba(24,24,27,.8);color:#a1a1aa;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;transition:all .2s}
+  .btn:hover{border-color:rgba(220,38,38,.5);color:#fff;box-shadow:0 0 16px rgba(220,38,38,.15)}
+  .btn.primary{background:#dc2626;color:#fff;border-color:#dc2626}
+  .btn.primary:hover{background:#b91c1c;border-color:#b91c1c;box-shadow:0 0 24px rgba(220,38,38,.35)}
+  .btn:disabled{opacity:.35;cursor:not-allowed;box-shadow:none}
+
   .grid{display:grid;grid-template-columns:1fr;gap:16px}
   @media(min-width:920px){.grid{grid-template-columns:2fr 1fr}}
+
   .options{display:grid;gap:10px}
-  .opt{border:1px solid #e5e7eb;border-radius:12px;padding:12px;text-align:left;background:#fff;cursor:pointer}
-  .opt:hover{box-shadow:0 4px 14px rgba(0,0,0,.06)}
-  .opt.correct{background:#f0fdf4;border-color:#bbf7d0}
-  .opt.wrong{background:#fef2f2;border-color:#fecaca}
-  .opt.disabled{background:#f8fafc;color:#64748b}
-  .progress{height:10px;background:#e2e8f0;border-radius:999px;overflow:hidden}
-  .bar{height:100%;background:#2563eb}
-  .sub{color:#475569;font-size:13px}
+
+  .opt{border:1px solid rgba(39,39,42,1);border-radius:14px;padding:14px;text-align:left;background:rgba(24,24,27,.6);cursor:pointer;color:#a1a1aa;font-family:'JetBrains Mono',monospace;font-size:13px;transition:all .2s;width:100%}
+  .opt:hover{border-color:rgba(220,38,38,.4);color:#dddddd;background:rgba(24,24,27,.9);box-shadow:0 0 16px rgba(220,38,38,.1)}
+  .opt.correct{background:rgba(21,128,61,.15);border-color:rgba(74,222,128,.4);color:#4ade80}
+  .opt.wrong{background:rgba(127,29,29,.15);border-color:rgba(220,38,38,.45);color:#f87171}
+  .opt.disabled{background:rgba(9,9,11,.5);color:#52525b;cursor:default;border-color:rgba(24,24,27,1)}
+
+  .progress{height:8px;background:rgba(39,39,42,1);border-radius:999px;overflow:hidden}
+  .bar{height:100%;background:#dc2626;border-radius:999px;transition:width .3s ease}
+
+  .sub{color:#71717a;font-size:12px}
+
   .tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-  .tile{border:1px solid #e5e7eb;border-radius:10px;padding:8px;background:#fff;text-align:left;font-size:12px}
-  .active{outline:2px solid #93c5fd}
+  .tile{border:1px solid rgba(39,39,42,1);border-radius:12px;padding:8px;background:rgba(24,24,27,.6);text-align:left;font-size:11px;color:#71717a;cursor:pointer;font-family:'JetBrains Mono',monospace;transition:all .2s;width:100%}
+  .tile:hover{border-color:rgba(220,38,38,.35);color:#a1a1aa}
+  .active{outline:2px solid rgba(220,38,38,.8);color:#dddddd!important;background:rgba(220,38,38,.05)!important}
+
+  .mt-1{margin-top:4px}
+  input[type=checkbox]{accent-color:#dc2626}
+
+  ::selection{background:#dc2626;color:#fff}
 </style>
 </head>
 <body>
+<div class="scanline"></div>
 <div class="wrap">
   <div class="card" style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
     <div style="display:flex;align-items:center;gap:10px;">
