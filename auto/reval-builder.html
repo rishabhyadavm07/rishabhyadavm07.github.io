@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>XXXXXX — XXXXXX XXXXXX</title>
+<title>DocSnap — Report Builder</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -21,7 +21,7 @@
   --purple:#f472b6;--purple-bg:#1c0818;
   --orange:#fb923c;--orange-bg:#1c1008;--orange-border:#c2610c;
   --text:#fafafa;--text-dim:#52525b;--text-mid:#a1a1aa;
-  --radius:10px;--radius-sm:6px;--radius-xs:4px;
+  --radius:14px;--radius-sm:10px;--radius-xs:6px;
   --shadow:0 8px 32px rgba(0,0,0,.6);--shadow-sm:0 2px 8px rgba(0,0,0,.4);
   --mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans',sans-serif;
   --transition:all .2s cubic-bezier(.4,0,.2,1);
@@ -60,7 +60,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 .toolbar-info.clickable:hover{border-color:var(--border2)}
 
 /* ── BUTTONS ── */
-.btn{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.03em;padding:8px 16px;border-radius:var(--radius-sm);border:1px solid transparent;cursor:pointer;transition:var(--transition);white-space:nowrap;display:inline-flex;align-items:center;gap:6px;flex-shrink:0}
+.btn{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.03em;padding:8px 16px;border-radius:var(--radius);border:1px solid transparent;cursor:pointer;transition:var(--transition);white-space:nowrap;display:inline-flex;align-items:center;gap:6px;flex-shrink:0}
 .btn-ghost{background:var(--surface2);color:var(--text-mid);border-color:var(--border)}
 .btn-ghost:hover{background:var(--surface3);color:var(--text);border-color:var(--border2)}
 .btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
@@ -180,7 +180,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 .char-badge.warn{color:var(--yellow);border-color:var(--yellow-border)}
 .input-hint{font-family:var(--mono);font-size:10px;color:var(--text-dim);margin-top:6px}
 
-input[type="text"],textarea{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:var(--sans);font-size:13px;padding:10px 14px;outline:none;transition:var(--transition);resize:none}
+input[type="text"],textarea{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:var(--sans);font-size:13px;padding:10px 14px;outline:none;transition:var(--transition);resize:none;overflow:hidden}
 input[type="text"]:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
 input[type="text"]::placeholder,textarea::placeholder{color:var(--text-dim)}
 input[readonly]{opacity:.5;cursor:default}
@@ -236,6 +236,7 @@ input[readonly]{opacity:.5;cursor:default}
 .fchip.active.fc-vpassed,.fchip.active.fc-lpassed,.fchip.active.fc-upassed{background:var(--green-bg);border-color:var(--green-border);color:var(--green)}
 .fchip.active.fc-vfailed,.fchip.active.fc-lfailed,.fchip.active.fc-ufailed{background:var(--red-bg);border-color:var(--red);color:var(--red)}
 .fchip.active.fc-remove{background:var(--orange-bg);border-color:var(--orange);color:var(--orange)}
+.fchip.active.fc-pending{background:var(--surface3);border-color:var(--text-dim);color:var(--text-mid)}
 
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:900;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px)}
 .modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:32px;max-width:440px;width:90%;box-shadow:var(--shadow)}
@@ -349,9 +350,9 @@ header,
 
 <!-- HEADER -->
 <header>
-  <span class="logo">XXXXXXX</span>
+  <span class="logo">DocSnap</span>
   <span class="sep">·</span>
-  <span class="htitle">XXXXXX XXXXXX</span>
+  <span class="htitle">Report Builder</span>
   <span class="spacer"></span>
   <button class="theme-dot" onclick="toggleTheme()" id="themeBtn" title="Toggle theme"></button>
 </header>
@@ -417,6 +418,7 @@ header,
         <span class="fchip fc-upassed"  onclick="toggleFilter('upassed')"  id="fc-upassed">Updated+Pass</span>
         <span class="fchip fc-ufailed"  onclick="toggleFilter('ufailed')"  id="fc-ufailed">Updated+Fail</span>
         <span class="fchip fc-remove"   onclick="toggleFilter('remove')"   id="fc-remove">🗑 Remove</span>
+        <span class="fchip fc-pending"  onclick="toggleFilter('pending')"  id="fc-pending">○ Pending</span>
       </div>
       <div class="panel-list" id="ctrlList"></div>
     </div>
@@ -429,7 +431,7 @@ header,
     <!-- Welcome / no-app state -->
     <div class="welcome" id="welcomeView">
       <div class="welcome-icon">📋</div>
-      <div class="welcome-title">XXXXXX XXXXXX</div>
+      <div class="welcome-title">DocSnap Report Builder</div>
       <div class="welcome-sub">Open a tracker workbook, select an application, then click a control to begin.</div>
       <div class="format-box">
         Each sheet = one application.<br/>
@@ -524,7 +526,7 @@ const REQUIRED_COLS = ['Control ID','Control Title','Current Status','Completed?
 // ════════════════════════════════════════════════════════════
 // FILTER
 // ════════════════════════════════════════════════════════════
-const ALL_FILTERS = ['failed','passed','valid','later','updated','setting','vpassed','vfailed','lpassed','lfailed','upassed','ufailed','remove'];
+const ALL_FILTERS = ['failed','passed','valid','later','updated','setting','vpassed','vfailed','lpassed','lfailed','upassed','ufailed','remove','pending'];
 
 function toggleFilter(f){
   activeFilter = activeFilter === f ? null : f;
@@ -561,6 +563,7 @@ function applyFilter(controls){
       case 'upassed': return comp === 'updated'            && stat === 'passed';
       case 'ufailed': return comp === 'updated'            && stat === 'failed';
       case 'remove':  return comp === 'to be removed';
+      case 'pending': return !c.completed || comp === '' || comp === 'nan';
       default: return true;
     }
   });
@@ -968,9 +971,9 @@ function addSection(){
       <div class="hint">Click to paste image from clipboard</div>
     </div>
     <div class="desc-label">Caption <span class="tag tag-italic">italics in doc</span></div>
-    <textarea id="imgdesc-${id}" rows="2" placeholder="Short caption for this image..."></textarea>
+    <textarea id="imgdesc-${id}" rows="2" placeholder="Short caption for this image..." oninput="autoResize(this)"></textarea>
     <div class="desc-label" style="margin-top:11px">Notes <span class="tag tag-normal">normal text</span></div>
-    <textarea id="adddesc-${id}" rows="3" placeholder="Additional notes or context..."></textarea>
+    <textarea id="adddesc-${id}" rows="3" placeholder="Additional notes or context..." oninput="autoResize(this)"></textarea>
   `;
   document.getElementById('sections').appendChild(el);
   const zone=document.getElementById('zone-'+id);
@@ -1251,6 +1254,14 @@ function clearForm(){
   sections=[]; sectionCount=0; selectedCtrl=null;
   addSection();
   showView('controls','appView');
+}
+
+// ════════════════════════════════════════════════════════════
+// AUTO RESIZE TEXTAREA
+// ════════════════════════════════════════════════════════════
+function autoResize(el){
+  el.style.height='auto';
+  el.style.height=el.scrollHeight+'px';
 }
 
 // ════════════════════════════════════════════════════════════
