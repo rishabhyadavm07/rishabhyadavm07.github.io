@@ -302,6 +302,11 @@ input[readonly]{opacity:.5;cursor:default}
 .prev-reason{background:var(--accent-glow);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:var(--radius-sm);padding:12px 16px;margin-bottom:18px}
 .prev-reason-label{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:6px}
 
+/* ── PREVIOUS VERSION NOTES ── */
+.prev-version-notes{background:var(--purple-bg);border:1px solid var(--border);border-left:3px solid var(--purple);border-radius:var(--radius-sm);padding:12px 16px;margin-bottom:12px}
+.prev-version-label{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--purple);margin-bottom:6px}
+.prev-version-text{font-family:var(--sans);font-size:12px;color:var(--text-mid);line-height:1.6;white-space:pre-wrap}
+
 /* ── PREVIOUS EXPORT PREVIEW ── */
 .prev-export{
   background: var(--surface);
@@ -548,6 +553,18 @@ header,.toolbar,.panel-left,.action-bar,#toast{background:rgba(9,9,11,.88);backd
           <div class="prev-reason">
             <div class="prev-reason-label">⟳ Previously Documented</div>
             <div class="prev-reason-text" id="prevReasonText"></div>
+          </div>
+        </div>
+        <div id="prevV1NotesWrap" style="display:none">
+          <div class="prev-version-notes">
+            <div class="prev-version-label">📝 Previous V1 Notes</div>
+            <div class="prev-version-text" id="prevV1NotesText"></div>
+          </div>
+        </div>
+        <div id="prevV2NotesWrap" style="display:none">
+          <div class="prev-version-notes">
+            <div class="prev-version-label">📝 Previous V2 Notes</div>
+            <div class="prev-version-text" id="prevV2NotesText"></div>
           </div>
         </div>
         <div class="sec-label">Images &amp; Notes</div>
@@ -1107,6 +1124,29 @@ function selectCtrl(id) {
     prevWrap.style.display = 'none';
     prevText.textContent = '';
   }
+  
+  // Display previous V1 notes if control is Updated and has V1 notes
+  const prevV1Wrap = document.getElementById('prevV1NotesWrap');
+  const prevV1Text = document.getElementById('prevV1NotesText');
+  const isUpdated = (selectedCtrl.completed || '').toLowerCase() === 'updated';
+  if (isUpdated && selectedCtrl.v1Notes && selectedCtrl.v1Notes.trim()) {
+    prevV1Text.textContent = selectedCtrl.v1Notes.trim();
+    prevV1Wrap.style.display = 'block';
+  } else {
+    prevV1Wrap.style.display = 'none';
+    prevV1Text.textContent = '';
+  }
+  
+  // Display previous V2 notes if control is Updated and has V2 notes
+  const prevV2Wrap = document.getElementById('prevV2NotesWrap');
+  const prevV2Text = document.getElementById('prevV2NotesText');
+  if (isUpdated && selectedCtrl.v2Notes && selectedCtrl.v2Notes.trim()) {
+    prevV2Text.textContent = selectedCtrl.v2Notes.trim();
+    prevV2Wrap.style.display = 'block';
+  } else {
+    prevV2Wrap.style.display = 'none';
+    prevV2Text.textContent = '';
+  }
   showView('controls', 'formView');
   updateFolderUI();
   renderCtrlList();
@@ -1534,6 +1574,10 @@ function clearForm() {
   document.getElementById('v2Notes').value = '';
   document.getElementById('prevReasonWrap').style.display = 'none';
   document.getElementById('prevReasonText').textContent = '';
+  document.getElementById('prevV1NotesWrap').style.display = 'none';
+  document.getElementById('prevV1NotesText').textContent = '';
+  document.getElementById('prevV2NotesWrap').style.display = 'none';
+  document.getElementById('prevV2NotesText').textContent = '';
   sections.forEach(s => {
     const z = document.getElementById('zone-' + s.id);
     if (z && z._dh) document.removeEventListener('paste', z._dh);
