@@ -238,6 +238,7 @@ input[readonly]{opacity:.5;cursor:default}
 .fchip.active.fc-remove{background:var(--orange-bg);border-color:var(--orange);color:var(--orange)}
 .fchip.active.fc-pending{background:var(--surface3);border-color:var(--text-dim);color:var(--text-mid)}
 
+/* ── MODAL ── */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:900;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px)}
 .modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:32px;max-width:440px;width:90%;box-shadow:var(--shadow)}
 .modal h3{font-size:16px;font-weight:600;margin-bottom:12px;color:var(--text)}
@@ -281,6 +282,64 @@ input[readonly]{opacity:.5;cursor:default}
 /* ── PREVIOUS REASON ── */
 .prev-reason{background:var(--accent-glow);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:var(--radius-sm);padding:12px 16px;margin-bottom:18px}
 .prev-reason-label{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:6px}
+
+/* ── PREVIOUS EXPORT PREVIEW (scrollable) ── */
+.prev-export{
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  margin: 0 18px 18px 18px;
+  display: none;
+  max-height: 40vh;
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+.prev-export::-webkit-scrollbar{
+  width: 4px;
+}
+.prev-export::-webkit-scrollbar-track{
+  background: transparent;
+}
+.prev-export::-webkit-scrollbar-thumb{
+  background: var(--border2);
+  border-radius: 3px;
+}
+.prev-export h4{
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 14px;
+}
+.prev-export .prev-img{
+  max-width: 100%;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  margin-bottom: 10px;
+  display: block;
+}
+.prev-export .prev-caption{
+  font-style: italic;
+  color: #555;
+  font-size: 11px;
+  margin-bottom: 6px;
+  line-height: 1.4;
+  white-space: pre-wrap;
+}
+.prev-export .prev-notes{
+  color: var(--text-mid);
+  font-size: 12px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  margin-bottom: 14px;
+}
+[data-theme="dark"] .prev-caption{ color: #a1a1aa; }
+[data-theme="dark"] .prev-notes  { color: #e4e4e7; }
+
 /* ── ANIMATED GRADIENT DOTS BACKGROUND ── */
 @keyframes dotDrift{
   0%{background-position:0px 0px,5px 8.66px,0% 0%,0% 0%,0% 0%,0% 0px}
@@ -464,6 +523,13 @@ header,
         </button>
         <div class="app-folder-status" id="formFolderStatus" onclick="copyAppFolder()">No output folder selected</div>
       </div>
+
+      <!-- PREVIOUS EXPORT PREVIEW (scrollable) -->
+      <div class="prev-export" id="prevExportPreview">
+        <h4>Previously Exported Document</h4>
+        <div id="prevExportContent"></div>
+      </div>
+
       <div class="form-scroll" id="formScroll">
         <div class="sec-label">Document Title</div>
         <div class="card">
@@ -522,6 +588,168 @@ let sectionCount  = 0;
 let activeFilter  = null;      // null | 'failed'|'passed'|'valid'|'later'|'updated'|'vpassed'|'vfailed'
 
 const REQUIRED_COLS = ['Control ID','Control Title','Current Status','Completed?','Reason'];
+
+// ════════════════════════════════════════════════════════════
+// PREVIOUS EXPORT PREVIEW (loading previous .docx)
+// ════════════════════════════════════════════════════════════
+const DOCX_NS = {
+  w:  'http://schemas.openxmlformats.org/wordprocessingml/2006/main',
+  wp: 'http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing',
+  a:  'http://schemas.openxmlformats.org/drawingml/2006/main',
+  r:  'http://schemas.openxmlformats.org/officeDocument/2006/relationships',
+};
+
+// Improved text extraction that respects line breaks (<w:br/>)
+function getParagraphTextWithBreaks(p) {
+  const runs = p.getElementsByTagNameNS(DOCX_NS.w, 'r');
+  if (!runs.length) return '';
+  let text = '';
+  for (const r of runs) {
+    // Check if this run contains a line break
+    if (r.getElementsByTagNameNS(DOCX_NS.w, 'br').length > 0) {
+      text += '\n';
+    } else {
+      const tElements = r.getElementsByTagNameNS(DOCX_NS.w, 't');
+      for (const t of tElements) text += t.textContent;
+    }
+  }
+  return text.replace(/\n+$/, ''); // Trim trailing newlines
+}
+
+async function loadPreviousExport(ctrl) {
+  const preview = document.getElementById('prevExportPreview');
+  const content = document.getElementById('prevExportContent');
+  preview.style.display = 'none';
+  content.innerHTML = '';
+
+  if (!ctrl || (ctrl.completed||'').toLowerCase() !== 'updated' || !currentApp?.folderHandle) return;
+
+  try {
+    const title = sanitizeFilename(ctrl.id + ' ' + ctrl.title);
+    const filename = title + '.docx';
+    const fh = await currentApp.folderHandle.getFileHandle(filename);
+    const file = await fh.getFile();
+    const buf = await file.arrayBuffer();
+    const zip = await JSZip.loadAsync(buf);
+
+    // 1. Get document XML
+    const docXml = await zip.file('word/document.xml')?.async('string');
+    if (!docXml) throw new Error('No document.xml');
+
+    // 2. Get relationships (to map rId -> media file)
+    const relsXml = await zip.file('word/_rels/document.xml.rels')?.async('string');
+    const relsMap = {};
+    if (relsXml) {
+      const relsDom = new DOMParser().parseFromString(relsXml, 'text/xml');
+      const els = relsDom.getElementsByTagNameNS('*', 'Relationship');
+      for (let i = 0; i < els.length; i++) {
+        const id = els[i].getAttribute('Id');
+        const target = els[i].getAttribute('Target');
+        relsMap[id] = target; // e.g., "media/img1.png"
+      }
+    }
+
+    // 3. Parse document XML
+    const dom = new DOMParser().parseFromString(docXml, 'text/xml');
+    const body = dom.getElementsByTagNameNS(DOCX_NS.w, 'body')[0];
+    if (!body) throw new Error('No body');
+
+    const paragraphs = Array.from(body.getElementsByTagNameNS(DOCX_NS.w, 'p'));
+    let html = '';
+
+    // Skip heading paragraphs
+    let i = 0;
+    while (i < paragraphs.length && isHeading(paragraphs[i])) i++;
+
+    // Process remaining paragraphs (images + captions + notes)
+    while (i < paragraphs.length) {
+      const p = paragraphs[i];
+      if (hasDrawing(p)) {
+        const rId = extractImageRId(p);
+        if (rId && relsMap[rId]) {
+          const mediaPath = relsMap[rId]; // e.g., "media/img1.png"
+          const imgFile = zip.file('word/' + mediaPath);
+          if (imgFile) {
+            const blob = await imgFile.async('blob');
+            const dataUrl = await blobToDataURL(blob);
+            html += `<img class="prev-img" src="${dataUrl}" alt="Screenshot" />`;
+          }
+        }
+        i++;
+        // Look for optional caption (italic) and notes (normal) paragraphs
+        while (i < paragraphs.length && !hasDrawing(paragraphs[i]) && !isHeading(paragraphs[i])) {
+          const nextP = paragraphs[i];
+          if (hasItalic(nextP)) {
+            const txt = getParagraphTextWithBreaks(nextP);
+            if (txt) html += `<div class="prev-caption">${escHtml(txt)}</div>`;
+          } else {
+            const txt = getParagraphTextWithBreaks(nextP);
+            if (txt) html += `<div class="prev-notes">${escHtml(txt)}</div>`;
+          }
+          i++;
+        }
+      } else {
+        i++;
+      }
+    }
+
+    if (html) {
+      content.innerHTML = html;
+      preview.style.display = 'block';
+    }
+
+  } catch (e) {
+    // File not found or unreadable – don't show preview
+    console.warn('Previous export preview not loaded:', e);
+    preview.style.display = 'none';
+    content.innerHTML = '';
+  }
+}
+
+// Helper functions for DOCX parsing
+function isHeading(p) {
+  const pPr = p.getElementsByTagNameNS(DOCX_NS.w, 'pPr')[0];
+  if (!pPr) return false;
+  const pStyle = pPr.getElementsByTagNameNS(DOCX_NS.w, 'pStyle')[0];
+  return pStyle && pStyle.getAttribute('w:val') === 'Heading1';
+}
+
+function hasDrawing(p) {
+  return p.getElementsByTagNameNS(DOCX_NS.w, 'drawing').length > 0;
+}
+
+function extractImageRId(p) {
+  const drawings = p.getElementsByTagNameNS(DOCX_NS.w, 'drawing');
+  if (!drawings.length) return null;
+  const blips = drawings[0].getElementsByTagNameNS(DOCX_NS.a, 'blip');
+  if (!blips.length) return null;
+  return blips[0].getAttribute('r:embed');
+}
+
+function hasItalic(p) {
+  const rs = p.getElementsByTagNameNS(DOCX_NS.w, 'r');
+  for (const r of rs) {
+    const rPr = r.getElementsByTagNameNS(DOCX_NS.w, 'rPr')[0];
+    if (rPr && (rPr.getElementsByTagNameNS(DOCX_NS.w, 'i').length > 0 ||
+                 rPr.getElementsByTagNameNS(DOCX_NS.w, 'iCs').length > 0)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function blobToDataURL(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 
 // ════════════════════════════════════════════════════════════
 // FILTER
@@ -644,8 +872,6 @@ async function openExcel(){
 // ════════════════════════════════════════════════════════════
 // VIEW MANAGEMENT
 // ════════════════════════════════════════════════════════════
-// leftView: 'apps' | 'controls'
-// rightView: 'welcome' | 'appView' | 'formView'
 function showView(leftView, rightView){
   document.getElementById('viewApps').style.display     = leftView==='apps'     ? 'flex':'none';
   document.getElementById('viewControls').style.display = leftView==='controls' ? 'flex':'none';
@@ -844,6 +1070,9 @@ function selectCtrl(id){
   renderCtrlList();
   updateActionBar();
   document.getElementById('formScroll').scrollTo({top:0,behavior:'smooth'});
+
+  // ★ Load previous export preview if control is updated
+  loadPreviousExport(selectedCtrl);
 }
 
 // ════════════════════════════════════════════════════════════
@@ -866,7 +1095,7 @@ async function clearCtrlStatus(e, id){
 }
 
 // ════════════════════════════════════════════════════════════
-// MARK VALID / LATER / APP COMPLETE
+// MARK VALID / LATER / APP COMPLETE / PASS / FAIL / REMOVE / SETTING
 // ════════════════════════════════════════════════════════════
 async function markValid(){
   if(!selectedCtrl) return;
@@ -1076,7 +1305,6 @@ function updateActionBar(){
 async function writeExcel(){
   if(!xlWorkbook||!xlFileHandle){showToast('No workbook file handle — reopen the file.','error');return;}
   try{
-    // Rebuild all sheets from apps data
     for(const app of apps){
       const ws=xlWorkbook.Sheets[app.name];
       if(!ws) continue;
@@ -1091,15 +1319,14 @@ async function writeExcel(){
         if(colS>=0) rows[ri][colS]=c.status;
       });
       const newWs=XLSX.utils.aoa_to_sheet(rows);
-      // Row fill colours
       app.controls.forEach(c=>{
         const ri=c.rowIdx-1;
         const v=c.completed.toLowerCase();
         let fg=null;
-        if(v==='valid')              fg='C6EFCE';
+        if(v==='valid') fg='C6EFCE';
         else if(v==='to be tested later') fg='FFEB9C';
-        else if(v==='updated')       fg='DDEEFF';
-        else if(v==='not checked')   fg='F0F0F0';
+        else if(v==='updated') fg='DDEEFF';
+        else if(v==='not checked') fg='F0F0F0';
         else if(v==='to be removed') fg='E8E8E8';
         else if(v==='recheck, setting changed') fg='FFE0CC';
         if(fg){
@@ -1127,7 +1354,6 @@ async function writeExcel(){
 // ════════════════════════════════════════════════════════════
 function escXml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');}
 
-// Build multi-line text runs for DOCX (preserves newlines)
 function textRuns(text, rprXml){
   const lines = text.split('\n');
   let xml = '';
@@ -1231,6 +1457,9 @@ async function processDoc(){
     st.textContent=`Saved "${title}.docx" → ${currentApp.folderHandle.name}`;
     st.className='action-status ok';
     clearForm();
+
+    // Reselect the control to reload the preview
+    selectCtrl(selectedCtrl.id);
   }catch(e){
     console.error(e);
     showToast('Error: '+e.message,'error');
@@ -1252,6 +1481,9 @@ function clearForm(){
     document.getElementById('card-'+s.id)?.remove();
   });
   sections=[]; sectionCount=0; selectedCtrl=null;
+  // Hide and clear previous export preview
+  document.getElementById('prevExportPreview').style.display = 'none';
+  document.getElementById('prevExportContent').innerHTML = '';
   addSection();
   showView('controls','appView');
 }
