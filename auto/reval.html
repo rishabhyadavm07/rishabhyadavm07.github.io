@@ -259,10 +259,10 @@ input[readonly]{opacity:.5;cursor:default}
 .fchip.active.fc-pending{background:var(--surface3);border-color:var(--text-dim);color:var(--text-mid)}
 .fchip.active.fc-v1passed{background:var(--green-bg);border-color:var(--green-border);color:var(--green)}
 .fchip.active.fc-v1failed{background:var(--red-bg);border-color:var(--red);color:var(--red)}
+.fchip.active.fc-v1valid,.fchip.active.fc-v1later,.fchip.active.fc-v1setting,.fchip.active.fc-v1removed,.fchip.active.fc-v1updated,.fchip.active.fc-v1saved{background:var(--purple-bg);border-color:var(--purple);color:var(--purple)}
 .fchip.active.fc-v2passed{background:var(--green-bg);border-color:var(--green-border);color:var(--green)}
 .fchip.active.fc-v2failed{background:var(--red-bg);border-color:var(--red);color:var(--red)}
-.fchip.active.fc-v1notes{background:var(--purple-bg);border-color:var(--purple);color:var(--purple)}
-.fchip.active.fc-v2notes{background:var(--purple-bg);border-color:var(--purple);color:var(--purple)}
+.fchip.active.fc-v2valid,.fchip.active.fc-v2later,.fchip.active.fc-v2setting,.fchip.active.fc-v2removed,.fchip.active.fc-v2updated,.fchip.active.fc-v2saved{background:var(--purple-bg);border-color:var(--purple);color:var(--purple)}
 
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:900;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px)}
 .modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:32px;max-width:440px;width:90%;box-shadow:var(--shadow)}
@@ -471,10 +471,20 @@ header,.toolbar,.panel-left,.action-bar,#toast{background:rgba(9,9,11,.88);backd
         <span class="fchip fc-pending" onclick="toggleFilter('pending')" id="fc-pending">○ Pending</span>
         <span class="fchip fc-v1passed" onclick="toggleFilter('v1passed')" id="fc-v1passed">V1 Pass</span>
         <span class="fchip fc-v1failed" onclick="toggleFilter('v1failed')" id="fc-v1failed">V1 Fail</span>
+        <span class="fchip fc-v1valid" onclick="toggleFilter('v1valid')" id="fc-v1valid">V1 Valid</span>
+        <span class="fchip fc-v1later" onclick="toggleFilter('v1later')" id="fc-v1later">V1 Later</span>
+        <span class="fchip fc-v1setting" onclick="toggleFilter('v1setting')" id="fc-v1setting">V1 Setting</span>
+        <span class="fchip fc-v1removed" onclick="toggleFilter('v1removed')" id="fc-v1removed">V1 Removed</span>
+        <span class="fchip fc-v1updated" onclick="toggleFilter('v1updated')" id="fc-v1updated">V1 Updated</span>
+        <span class="fchip fc-v1saved" onclick="toggleFilter('v1saved')" id="fc-v1saved">V1 Saved</span>
         <span class="fchip fc-v2passed" onclick="toggleFilter('v2passed')" id="fc-v2passed">V2 Pass</span>
         <span class="fchip fc-v2failed" onclick="toggleFilter('v2failed')" id="fc-v2failed">V2 Fail</span>
-        <span class="fchip fc-v1notes" onclick="toggleFilter('v1notes')" id="fc-v1notes">📝 V1 Notes</span>
-        <span class="fchip fc-v2notes" onclick="toggleFilter('v2notes')" id="fc-v2notes">📝 V2 Notes</span>
+        <span class="fchip fc-v2valid" onclick="toggleFilter('v2valid')" id="fc-v2valid">V2 Valid</span>
+        <span class="fchip fc-v2later" onclick="toggleFilter('v2later')" id="fc-v2later">V2 Later</span>
+        <span class="fchip fc-v2setting" onclick="toggleFilter('v2setting')" id="fc-v2setting">V2 Setting</span>
+        <span class="fchip fc-v2removed" onclick="toggleFilter('v2removed')" id="fc-v2removed">V2 Removed</span>
+        <span class="fchip fc-v2updated" onclick="toggleFilter('v2updated')" id="fc-v2updated">V2 Updated</span>
+        <span class="fchip fc-v2saved" onclick="toggleFilter('v2saved')" id="fc-v2saved">V2 Saved</span>
       </div>
       <div class="panel-list" id="ctrlList"></div>
     </div>
@@ -592,18 +602,16 @@ header,.toolbar,.panel-left,.action-bar,#toast{background:rgba(9,9,11,.88);backd
   <button class="btn btn-sspm-working" id="btnSSPMWorking" disabled onclick="markSSPMWorking()">✓ SSPM Working</button>
   <button class="btn btn-sspm-notworking" id="btnSSPMNotWorking" disabled onclick="markSSPMNotWorking()">✕ SSPM Not Working</button>
   
-  <button class="btn btn-green" id="btnSaveV1" disabled onclick="saveV1Notes()">💾 Save V1</button>
-  <button class="btn btn-green" id="btnSaveV2" disabled onclick="saveV2Notes()">💾 Save V2</button>
-  
   <div class="version-menu-container">
     <button class="version-btn" id="btnV1" disabled onmouseenter="showVersionMenu('v1')" onmouseleave="hideVersionMenu('v1')">Version 1</button>
     <div class="version-menu" id="menuV1" onmouseenter="showVersionMenu('v1')" onmouseleave="hideVersionMenu('v1')">
       <button class="v-pass" onclick="markVersionStatus('v1','Passed')">✓ Pass</button>
       <button class="v-fail" onclick="markVersionStatus('v1','Failed')">✕ Fail</button>
       <button class="v-valid" onclick="markVersionStatus('v1','Valid')">✓ Valid</button>
-      <button class="v-later" onclick="markVersionStatus('v1','To Be Tested Later')">Later</button>
-      <button class="v-setting" onclick="markVersionStatus('v1','Recheck, Setting Changed')">⚙ Setting</button>
-      <button class="v-remove" onclick="markVersionStatus('v1','To Be Removed')">🗑 Remove</button>
+      <button class="v-later" onclick="markVersionStatus('v1','Later')">Later</button>
+      <button class="v-setting" onclick="markVersionStatus('v1','Setting Changed')">⚙ Setting</button>
+      <button class="v-remove" onclick="markVersionStatus('v1','Removed')">🗑 Remove</button>
+      <button class="v-save" onclick="saveV1Notes()" style="border-top:1px solid var(--border);margin-top:4px;padding-top:8px;color:var(--green)">💾 Save Notes</button>
     </div>
   </div>
   
@@ -613,9 +621,10 @@ header,.toolbar,.panel-left,.action-bar,#toast{background:rgba(9,9,11,.88);backd
       <button class="v-pass" onclick="markVersionStatus('v2','Passed')">✓ Pass</button>
       <button class="v-fail" onclick="markVersionStatus('v2','Failed')">✕ Fail</button>
       <button class="v-valid" onclick="markVersionStatus('v2','Valid')">✓ Valid</button>
-      <button class="v-later" onclick="markVersionStatus('v2','To Be Tested Later')">Later</button>
-      <button class="v-setting" onclick="markVersionStatus('v2','Recheck, Setting Changed')">⚙ Setting</button>
-      <button class="v-remove" onclick="markVersionStatus('v2','To Be Removed')">🗑 Remove</button>
+      <button class="v-later" onclick="markVersionStatus('v2','Later')">Later</button>
+      <button class="v-setting" onclick="markVersionStatus('v2','Setting Changed')">⚙ Setting</button>
+      <button class="v-remove" onclick="markVersionStatus('v2','Removed')">🗑 Remove</button>
+      <button class="v-save" onclick="saveV2Notes()" style="border-top:1px solid var(--border);margin-top:4px;padding-top:8px;color:var(--green)">💾 Save Notes</button>
     </div>
   </div>
   
@@ -631,6 +640,29 @@ header,.toolbar,.panel-left,.action-bar,#toast{background:rgba(9,9,11,.88);backd
 </div>
 
 <div id="toast"></div>
+
+<!-- Export Destination Modal -->
+<div class="modal-overlay" id="exportModal" style="display:none" onclick="if(event.target===this) closeExportModal()">
+  <div class="modal">
+    <h3>Export Document</h3>
+    <p>Choose where to save this document:</p>
+    <div class="modal-cols" style="flex-direction:column;gap:10px">
+      <button class="btn btn-primary" onclick="exportToFolder('main')" style="width:100%;justify-content:center">
+        📁 Main Folder
+        <span id="mainFolderName" style="font-size:9px;opacity:0.7;margin-left:8px"></span>
+      </button>
+      <button class="btn btn-primary" id="exportV1Btn" onclick="exportToFolder('v1')" style="width:100%;justify-content:center;background:var(--purple-bg);color:var(--purple);border-color:var(--purple)" disabled>
+        📁 V1 Folder
+        <span id="v1FolderName" style="font-size:9px;opacity:0.7;margin-left:8px"></span>
+      </button>
+      <button class="btn btn-primary" id="exportV2Btn" onclick="exportToFolder('v2')" style="width:100%;justify-content:center;background:var(--purple-bg);color:var(--purple);border-color:var(--purple)" disabled>
+        📁 V2 Folder
+        <span id="v2FolderName" style="font-size:9px;opacity:0.7;margin-left:8px"></span>
+      </button>
+      <button class="btn btn-ghost" onclick="closeExportModal()" style="width:100%;justify-content:center;margin-top:10px">Cancel</button>
+    </div>
+  </div>
+</div>
 
 <script>
 // ════════════════════════════════════════════════════════════
@@ -856,7 +888,7 @@ async function loadPreviousExport(ctrl) {
 // ════════════════════════════════════════════════════════════
 // FILTER & THEME
 // ════════════════════════════════════════════════════════════
-const ALL_FILTERS = ['failed','passed','valid','later','updated','setting','vpassed','vfailed','lpassed','lfailed','upassed','ufailed','remove','pending','v1passed','v1failed','v2passed','v2failed','v1notes','v2notes'];
+const ALL_FILTERS = ['failed','passed','valid','later','updated','setting','vpassed','vfailed','lpassed','lfailed','upassed','ufailed','remove','pending','v1passed','v1failed','v1valid','v1later','v1setting','v1removed','v1updated','v1saved','v2passed','v2failed','v2valid','v2later','v2setting','v2removed','v2updated','v2saved'];
 function toggleFilter(f) {
   activeFilter = activeFilter === f ? null : f;
   ALL_FILTERS.forEach(k => document.getElementById('fc-'+k)?.classList.toggle('active', activeFilter === k));
@@ -895,10 +927,20 @@ function applyFilter(controls) {
       case 'pending': return !c.completed || comp === '' || comp === 'nan';
       case 'v1passed': return v1s === 'passed';
       case 'v1failed': return v1s === 'failed';
+      case 'v1valid': return v1s === 'valid';
+      case 'v1later': return v1s === 'later';
+      case 'v1setting': return v1s === 'setting changed';
+      case 'v1removed': return v1s === 'removed';
+      case 'v1updated': return v1s === 'updated';
+      case 'v1saved': return v1n.length > 0;
       case 'v2passed': return v2s === 'passed';
       case 'v2failed': return v2s === 'failed';
-      case 'v1notes': return v1n.length > 0;
-      case 'v2notes': return v2n.length > 0;
+      case 'v2valid': return v2s === 'valid';
+      case 'v2later': return v2s === 'later';
+      case 'v2setting': return v2s === 'setting changed';
+      case 'v2removed': return v2s === 'removed';
+      case 'v2updated': return v2s === 'updated';
+      case 'v2saved': return v2n.length > 0;
       default: return true;
     }
   });
@@ -1108,8 +1150,31 @@ function sspmPill(c) {
 }
 function versionNotesPill(c) {
   let pills = '';
-  if ((c.v1Notes || '').trim()) pills += '<span class="ctrl-pill pill-v1notes">V1</span>';
-  if ((c.v2Notes || '').trim()) pills += '<span class="ctrl-pill pill-v2notes">V2</span>';
+  const v1s = (c.v1Status || '').toLowerCase();
+  const v2s = (c.v2Status || '').toLowerCase();
+  const v1n = (c.v1Notes || '').trim();
+  const v2n = (c.v2Notes || '').trim();
+  
+  // V1 Status pills
+  if (v1s === 'updated') pills += '<span class="ctrl-pill pill-v1notes">V1-Updated</span>';
+  else if (v1s === 'passed') pills += '<span class="ctrl-pill pill-v1notes">V1-Pass</span>';
+  else if (v1s === 'failed') pills += '<span class="ctrl-pill pill-v1notes">V1-Fail</span>';
+  else if (v1s === 'valid') pills += '<span class="ctrl-pill pill-v1notes">V1-Valid</span>';
+  else if (v1s === 'later') pills += '<span class="ctrl-pill pill-v1notes">V1-Later</span>';
+  else if (v1s === 'setting changed') pills += '<span class="ctrl-pill pill-v1notes">V1-Setting</span>';
+  else if (v1s === 'removed') pills += '<span class="ctrl-pill pill-v1notes">V1-Removed</span>';
+  else if (v1n) pills += '<span class="ctrl-pill pill-v1notes">V1-Saved</span>';
+  
+  // V2 Status pills
+  if (v2s === 'updated') pills += '<span class="ctrl-pill pill-v2notes">V2-Updated</span>';
+  else if (v2s === 'passed') pills += '<span class="ctrl-pill pill-v2notes">V2-Pass</span>';
+  else if (v2s === 'failed') pills += '<span class="ctrl-pill pill-v2notes">V2-Fail</span>';
+  else if (v2s === 'valid') pills += '<span class="ctrl-pill pill-v2notes">V2-Valid</span>';
+  else if (v2s === 'later') pills += '<span class="ctrl-pill pill-v2notes">V2-Later</span>';
+  else if (v2s === 'setting changed') pills += '<span class="ctrl-pill pill-v2notes">V2-Setting</span>';
+  else if (v2s === 'removed') pills += '<span class="ctrl-pill pill-v2notes">V2-Removed</span>';
+  else if (v2n) pills += '<span class="ctrl-pill pill-v2notes">V2-Saved</span>';
+  
   return pills;
 }
 
@@ -1403,12 +1468,11 @@ function updateActionBar() {
   const bRem = document.getElementById('btnRemove'), bSet = document.getElementById('btnSetting');
   const bSSPMW = document.getElementById('btnSSPMWorking'), bSSPMN = document.getElementById('btnSSPMNotWorking');
   const bV1 = document.getElementById('btnV1'), bV2 = document.getElementById('btnV2');
-  const bSaveV1 = document.getElementById('btnSaveV1'), bSaveV2 = document.getElementById('btnSaveV2');
   const title = sanitizeFilename(document.getElementById('docTitle').value).trim();
   const hasCtrl = !!selectedCtrl, hasApp = !!currentApp;
   const hasFoldr = !!(currentApp?.folderHandle), hasXl = !!xlWorkbook;
 
-  bVal.disabled = bLat.disabled = bPass.disabled = bFail.disabled = bRem.disabled = bSet.disabled = bSSPMW.disabled = bSSPMN.disabled = bV1.disabled = bV2.disabled = bSaveV1.disabled = bSaveV2.disabled = !hasCtrl;
+  bVal.disabled = bLat.disabled = bPass.disabled = bFail.disabled = bRem.disabled = bSet.disabled = bSSPMW.disabled = bSSPMN.disabled = bV1.disabled = bV2.disabled = !hasCtrl;
 
   if (!hasXl) { st.textContent = 'Open a workbook to get started.'; st.className = 'action-status'; bExp.disabled = true; return; }
   if (!hasApp) { st.textContent = 'Select an application from the left panel.'; st.className = 'action-status'; bExp.disabled = true; return; }
@@ -1479,6 +1543,89 @@ async function writeExcel() {
     console.error(e);
     showToast('Excel write failed: ' + e.message, 'error');
   }
+}
+
+// ════════════════════════════════════════════════════════════
+// EXPORT MODAL
+// ════════════════════════════════════════════════════════════
+function openExportModal() {
+  if (!selectedCtrl || !currentApp?.folderHandle) return;
+  
+  // Update folder names in modal
+  const mainName = currentApp.folderHandle?.name || 'Not set';
+  const v1Name = currentApp.v1FolderHandle?.name || 'Not set';
+  const v2Name = currentApp.v2FolderHandle?.name || 'Not set';
+  
+  document.getElementById('mainFolderName').textContent = `(${mainName})`;
+  document.getElementById('v1FolderName').textContent = `(${v1Name})`;
+  document.getElementById('v2FolderName').textContent = `(${v2Name})`;
+  
+  // Enable/disable buttons based on folder availability
+  document.getElementById('exportV1Btn').disabled = !currentApp.v1FolderHandle;
+  document.getElementById('exportV2Btn').disabled = !currentApp.v2FolderHandle;
+  
+  document.getElementById('exportModal').style.display = 'flex';
+}
+
+function closeExportModal() {
+  document.getElementById('exportModal').style.display = 'none';
+}
+
+async function exportToFolder(folderType) {
+  closeExportModal();
+  const btn = document.getElementById('btnExport');
+  const st = document.getElementById('actionStatus');
+  btn.disabled = true; st.textContent = 'Building document…'; st.className = 'action-status working';
+  
+  try {
+    const title = sanitizeFilename(document.getElementById('docTitle').value).trim();
+    const secData = sections.map(s => ({
+      ...s,
+      imgDesc: document.getElementById('imgdesc-' + s.id).value.trim(),
+      addDesc: document.getElementById('adddesc-' + s.id).value.trim(),
+    }));
+    const buf = await buildDocx(title, secData);
+    
+    // Determine target folder
+    let targetFolder = currentApp.folderHandle;
+    let versionTag = '';
+    
+    if (folderType === 'v1' && currentApp.v1FolderHandle) {
+      targetFolder = currentApp.v1FolderHandle;
+      selectedCtrl.v1Status = 'Updated';
+      versionTag = 'V1';
+    } else if (folderType === 'v2' && currentApp.v2FolderHandle) {
+      targetFolder = currentApp.v2FolderHandle;
+      selectedCtrl.v2Status = 'Updated';
+      versionTag = 'V2';
+    }
+    
+    const fh = await targetFolder.getFileHandle(title + '.docx', { create: true });
+    const w = await fh.createWritable();
+    await w.write(buf);
+    await w.close();
+
+    const reason = secData.map((s, i) => s.imgDesc ? `[Image ${i + 1}] ${s.imgDesc}` : '').filter(Boolean).join(' | ');
+    selectedCtrl.completed = 'Updated';
+    selectedCtrl.reason = reason;
+    syncCtrl(selectedCtrl);
+    await writeExcel();
+
+    renderCtrlList(); renderAppList();
+    showToast(`✓ Saved: ${title}.docx${versionTag ? ' → ' + versionTag + ' Folder' : ''}`, 'success');
+    st.textContent = `Saved "${title}.docx" → ${targetFolder.name}`;
+    st.className = 'action-status ok';
+    clearForm();
+    selectCtrl(selectedCtrl.id);
+  } catch (e) {
+    console.error(e);
+    showToast('Error: ' + e.message, 'error');
+    st.textContent = 'Error generating document.'; st.className = 'action-status err';
+  } finally { updateActionBar(); }
+}
+
+async function processDoc() {
+  openExportModal();
 }
 
 // ════════════════════════════════════════════════════════════
