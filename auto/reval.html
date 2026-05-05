@@ -1,0 +1,1387 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>DocSnap — Report Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+/* ── DARK THEME ── */
+:root{
+  --bg:#09090b;--surface:#0f0f11;--surface2:#161618;--surface3:#1e1e21;
+  --border:#26262a;--border2:#323238;
+  --accent:#dc2626;--accent-dim:#1c0808;--accent-glow:rgba(220,38,38,.08);
+  --green:#34d399;--green-bg:#052e1a;--green-border:#10b981;
+  --yellow:#fbbf24;--yellow-bg:#2a1d04;--yellow-border:#d4980a;
+  --red:#ef4444;--red-bg:#1c0808;
+  --purple:#f472b6;--purple-bg:#1c0818;
+  --orange:#fb923c;--orange-bg:#1c1008;--orange-border:#c2610c;
+  --blue:#4fc3f7;--blue-bg:#0d2b45;--blue-border:#4fc3f7;
+  --text:#fafafa;--text-dim:#52525b;--text-mid:#a1a1aa;
+  --radius:14px;--radius-sm:10px;--radius-xs:6px;
+  --shadow:0 8px 32px rgba(0,0,0,.6);--shadow-sm:0 2px 8px rgba(0,0,0,.4);
+  --mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans',sans-serif;
+  --transition:all .2s cubic-bezier(.4,0,.2,1);
+}
+
+/* ── LIGHT THEME ── */
+[data-theme="light"]{
+  --bg:#fafafa;--surface:#ffffff;--surface2:#f5f5f5;--surface3:#e5e5e5;
+  --border:#e5e5e5;--border2:#d4d4d8;
+  --accent:#dc2626;--accent-dim:#fef2f2;--accent-glow:rgba(220,38,38,.06);
+  --green:#059669;--green-bg:#ecfdf5;--green-border:#6ee7b7;
+  --yellow:#d97706;--yellow-bg:#fffbeb;--yellow-border:#fcd34d;
+  --red:#dc2626;--red-bg:#fef2f2;
+  --purple:#be185d;--purple-bg:#fdf2f8;
+  --orange:#ea580c;--orange-bg:#fff7ed;--orange-border:#fdba74;
+  --blue:#0284c7;--blue-bg:#e0f2fe;--blue-border:#0284c7;
+  --text:#09090b;--text-dim:#a1a1aa;--text-mid:#52525b;
+  --shadow:0 8px 32px rgba(0,0,0,.06);--shadow-sm:0 2px 8px rgba(0,0,0,.04);
+}
+
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column;overflow:hidden;transition:var(--transition);-webkit-font-smoothing:antialiased}
+
+/* ── HEADER ── */
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;gap:12px;flex-shrink:0;z-index:100;backdrop-filter:blur(12px)}
+.logo{font-family:var(--mono);font-size:14px;font-weight:600;color:var(--accent);letter-spacing:.06em;text-transform:uppercase}
+.sep{color:var(--border2);font-size:16px;opacity:.4}
+.htitle{font-size:12px;color:var(--text-mid);font-family:var(--mono)}
+.spacer{flex:1}
+
+/* ── TOOLBAR ── */
+.toolbar{background:var(--surface);border-bottom:1px solid var(--border);padding:8px 24px;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.toolbar-info{font-family:var(--mono);font-size:11px;color:var(--text-dim);background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:300px;transition:var(--transition)}
+.toolbar-info.active-green{color:var(--green);border-color:var(--green-border)}
+.toolbar-info.active-purple{color:var(--accent);border-color:var(--accent);background:var(--accent-glow)}
+.toolbar-info.clickable{cursor:pointer}
+.toolbar-info.clickable:hover{border-color:var(--border2)}
+
+/* ── BUTTONS ── */
+.btn{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.03em;padding:8px 16px;border-radius:var(--radius);border:1px solid transparent;cursor:pointer;transition:var(--transition);white-space:nowrap;display:inline-flex;align-items:center;gap:6px;flex-shrink:0}
+.btn-ghost{background:var(--surface2);color:var(--text-mid);border-color:var(--border)}
+.btn-ghost:hover{background:var(--surface3);color:var(--text);border-color:var(--border2)}
+.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn-primary:hover{filter:brightness(1.1)}
+.btn-primary:disabled{opacity:.35;cursor:not-allowed;filter:none}
+.btn-green{background:var(--green-bg);color:var(--green);border-color:var(--green-border)}
+.btn-green:hover{filter:brightness(1.15)}.btn-green:disabled{opacity:.3;cursor:not-allowed;filter:none}
+.btn-yellow{background:var(--yellow-bg);color:var(--yellow);border-color:var(--yellow-border)}
+.btn-yellow:hover{filter:brightness(1.15)}.btn-yellow:disabled{opacity:.3;cursor:not-allowed;filter:none}
+.btn-red{background:var(--red-bg);color:var(--red);border-color:var(--red);padding:6px 10px;font-size:10px}
+.btn-red:hover{filter:brightness(1.2)}
+.btn-pass{background:var(--green-bg);color:var(--green);border-color:var(--green-border)}
+.btn-pass:hover{filter:brightness(1.15)}.btn-pass:disabled{opacity:.3;cursor:not-allowed;filter:none}
+.btn-fail{background:var(--red-bg);color:var(--red);border-color:var(--red)}
+.btn-fail:hover{filter:brightness(1.15)}.btn-fail:disabled{opacity:.3;cursor:not-allowed;filter:none}
+.btn-remove{background:var(--orange-bg);color:var(--orange);border-color:var(--orange-border)}
+.btn-remove:hover{filter:brightness(1.15)}.btn-remove:disabled{opacity:.3;cursor:not-allowed;filter:none}
+.btn-icon{padding:8px;border-radius:var(--radius-sm)}
+.btn-complete{background:var(--surface2);color:var(--text-mid);border:1px solid var(--border);font-size:10px;padding:5px 12px;border-radius:20px;transition:var(--transition)}
+.btn-complete:hover{background:var(--green-bg);color:var(--green);border-color:var(--green-border)}
+
+/* SSPM buttons */
+.btn-sspm-working{background:var(--blue-bg);color:var(--blue);border-color:var(--blue-border)}
+.btn-sspm-working:hover{filter:brightness(1.15)}.btn-sspm-working:disabled{opacity:.3;cursor:not-allowed;filter:none}
+.btn-sspm-notworking{background:var(--red-bg);color:var(--red);border-color:var(--red)}
+.btn-sspm-notworking:hover{filter:brightness(1.15)}.btn-sspm-notworking:disabled{opacity:.3;cursor:not-allowed;filter:none}
+
+/* status dot */
+.ctrl-status-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;flex-shrink:0;vertical-align:middle;margin-top:-1px;box-shadow:0 0 4px currentColor}
+.dot-passed{background:var(--green);color:var(--green)}
+.dot-failed{background:var(--red);color:var(--red)}
+.dot-other{background:var(--text-dim);color:var(--text-dim)}
+
+/* ── MAIN LAYOUT ── */
+.main{display:flex;flex:1;overflow:hidden;min-height:0;height:0}
+
+/* ── LEFT PANEL ── */
+.panel-left{width:320px;min-width:260px;border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;background:var(--surface);overflow:hidden;min-height:0}
+.panel-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px;flex-shrink:0}
+.panel-header-title{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim)}
+.panel-search{padding:10px 12px;border-bottom:1px solid var(--border);flex-shrink:0}
+.panel-search input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:var(--mono);font-size:11px;padding:8px 12px;outline:none;transition:var(--transition)}
+.panel-search input:focus{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-glow)}
+.panel-search input::placeholder{color:var(--text-dim)}
+.panel-list{flex:1;overflow-y:auto;padding:8px}
+.panel-list::-webkit-scrollbar{width:3px}
+.panel-list::-webkit-scrollbar-track{background:transparent}
+.panel-list::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+/* breadcrumb */
+.breadcrumb{padding:10px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px;flex-shrink:0}
+.breadcrumb-back{background:none;border:none;cursor:pointer;color:var(--accent);font-family:var(--mono);font-size:11px;display:flex;align-items:center;gap:4px;padding:3px 8px;border-radius:var(--radius-xs);transition:var(--transition)}
+.breadcrumb-back:hover{background:var(--accent-glow)}
+.breadcrumb-sep{color:var(--text-dim);font-size:12px;opacity:.4}
+.breadcrumb-app{font-family:var(--mono);font-size:11px;color:var(--text-mid);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ── APP ITEMS ── */
+.app-item{padding:14px 16px;border-radius:var(--radius);cursor:pointer;margin-bottom:4px;border:1px solid transparent;transition:var(--transition)}
+.app-item:hover{background:var(--surface2);border-color:var(--border)}
+.app-item.active{background:var(--accent-glow);border-color:var(--accent)}
+.app-item-name{font-size:13px;color:var(--text);font-weight:500;margin-bottom:6px}
+.app-item-progress{display:flex;align-items:center;gap:10px}
+.progress-bar-wrap{flex:1;height:3px;background:var(--surface3);border-radius:3px;overflow:hidden}
+.progress-bar-fill{height:100%;border-radius:3px;background:var(--accent);transition:width .4s cubic-bezier(.4,0,.2,1)}
+.progress-bar-fill.done{background:var(--green)}
+.app-item-stats{font-family:var(--mono);font-size:9px;color:var(--text-dim);white-space:nowrap}
+.app-status-badge{display:inline-flex;align-items:center;gap:4px;font-family:var(--mono);font-size:9px;font-weight:600;padding:3px 8px;border-radius:20px;margin-top:6px}
+.badge-complete{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
+.badge-inprog{background:var(--accent-glow);color:var(--accent);border:1px solid var(--border2)}
+.badge-pending{background:var(--surface2);color:var(--text-dim);border:1px solid var(--border)}
+.app-folder{font-family:var(--mono);font-size:9px;color:var(--text-dim);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.app-folder.set{color:var(--green)}
+
+/* ── CONTROL ITEMS ── */
+.ctrl-item{padding:10px 14px;border-radius:var(--radius-sm);cursor:pointer;margin-bottom:3px;border:1px solid transparent;transition:var(--transition);position:relative}
+.ctrl-item:hover{background:var(--surface2);border-color:var(--border)}
+.ctrl-item:hover .ctrl-clear{opacity:1}
+.ctrl-item.active{background:var(--accent-glow);border-color:var(--accent)}
+.ctrl-item.s-valid{border-left:3px solid var(--green)}
+.ctrl-item.s-later{border-left:3px solid var(--yellow)}
+.ctrl-item.s-updated{border-left:3px solid var(--purple)}
+.ctrl-item.s-notchecked{border-left:3px solid var(--text-dim);opacity:.6}
+.ctrl-item.s-remove{border-left:3px solid var(--orange);opacity:.65}
+.ctrl-id{font-family:var(--mono);font-size:10px;font-weight:600;color:var(--text-dim);margin-bottom:3px;letter-spacing:.05em}
+.ctrl-item.s-valid .ctrl-id{color:var(--green)}
+.ctrl-item.s-later .ctrl-id{color:var(--yellow)}
+.ctrl-item.s-updated .ctrl-id{color:var(--purple)}
+.ctrl-item.s-remove .ctrl-id{color:var(--orange)}
+.ctrl-title-text{font-size:12px;color:var(--text-mid);line-height:1.35}
+.ctrl-item.active .ctrl-title-text{color:var(--text)}
+
+/* Pills */
+.ctrl-pill{display:inline-block;font-family:var(--mono);font-size:9px;font-weight:600;padding:2px 8px;border-radius:20px;margin-top:5px;text-transform:uppercase;letter-spacing:.04em}
+.pill-valid{background:var(--green-bg);color:var(--green)}
+.pill-later{background:var(--yellow-bg);color:var(--yellow)}
+.pill-updated{background:var(--purple-bg);color:var(--purple)}
+.pill-notchecked{background:var(--surface3);color:var(--text-dim)}
+.pill-remove{background:var(--orange-bg);color:var(--orange);border:1px solid var(--orange-border)}
+.pill-setting{background:var(--orange-bg);color:var(--orange);border:1px solid var(--orange-border)}
+
+/* SSPM pills */
+.pill-sspm-working{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-border);margin-left:4px}
+.pill-sspm-notworking{background:var(--red-bg);color:var(--red);border:1px solid var(--red);margin-left:4px}
+
+.ctrl-clear{position:absolute;top:8px;right:8px;opacity:0;background:var(--red-bg);color:var(--red);border:none;border-radius:var(--radius-xs);font-size:10px;padding:2px 6px;cursor:pointer;font-family:var(--mono);transition:opacity .15s}
+.ctrl-clear:hover{opacity:1 !important;filter:brightness(1.3)}
+.no-items{padding:28px 16px;text-align:center;font-family:var(--mono);font-size:11px;color:var(--text-dim);line-height:1.8}
+
+/* ── RIGHT PANEL ── */
+.panel-right{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.form-scroll{flex:1;overflow-y:auto;padding:28px 36px 120px}
+.form-scroll::-webkit-scrollbar{width:3px}
+.form-scroll::-webkit-scrollbar-track{background:transparent}
+.form-scroll::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+/* welcome */
+.welcome{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:48px;text-align:center}
+.welcome-icon{font-size:48px;opacity:.15}
+.welcome-title{font-size:20px;font-weight:600;color:var(--text);letter-spacing:-.02em}
+.welcome-sub{font-family:var(--mono);font-size:12px;color:var(--text-dim);line-height:1.8;max-width:340px}
+.format-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px;font-family:var(--mono);font-size:11px;color:var(--text-mid);text-align:left;line-height:2;margin-top:4px}
+.format-box span{color:var(--accent)}
+
+.sec-label{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.sec-label::after{content:'';flex:1;height:1px;background:var(--border)}
+.divider{height:1px;background:var(--border);margin:24px 0}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px;margin-bottom:16px}
+.title-row{display:flex;gap:10px;align-items:flex-start}
+.title-row input{flex:1}
+.char-badge{font-family:var(--mono);font-size:10px;padding:4px 10px;border-radius:20px;background:var(--surface2);color:var(--text-dim);border:1px solid var(--border);white-space:nowrap;margin-top:3px}
+.char-badge.warn{color:var(--yellow);border-color:var(--yellow-border)}
+.input-hint{font-family:var(--mono);font-size:10px;color:var(--text-dim);margin-top:6px}
+
+input[type="text"],textarea{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:var(--sans);font-size:13px;padding:10px 14px;outline:none;transition:var(--transition);resize:none;overflow:hidden}
+input[type="text"]:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
+input[type="text"]::placeholder,textarea::placeholder{color:var(--text-dim)}
+input[readonly]{opacity:.5;cursor:default}
+
+.snap-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px;margin-bottom:12px}
+.snap-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.snap-num{font-family:var(--mono);font-size:11px;color:var(--accent);font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+
+.paste-zone{background:var(--bg);border:2px dashed var(--border2);border-radius:var(--radius);min-height:130px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:var(--transition);position:relative;overflow:hidden;margin-bottom:14px}
+.paste-zone:hover{border-color:var(--accent);background:var(--accent-glow)}
+.paste-zone.has-image{border-style:solid;border-color:var(--border);min-height:unset;cursor:default}
+.paste-zone .hint{font-family:var(--mono);font-size:11px;color:var(--text-dim);text-align:center;padding:20px;pointer-events:none}
+.paste-zone .hint .key{display:inline-block;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-xs);padding:2px 8px;font-size:10px;color:var(--text-mid)}
+.paste-zone img{max-width:100%;max-height:440px;display:block;object-fit:contain;border-radius:var(--radius-sm)}
+.paste-zone .clear-img{position:absolute;top:10px;right:10px;background:var(--red-bg);border:1px solid var(--red);border-radius:var(--radius-sm);color:var(--red);font-size:13px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:var(--transition);opacity:0}
+.paste-zone:hover .clear-img{opacity:1}
+
+.desc-label{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px;margin-top:12px}
+.desc-label .tag{font-size:9px;padding:2px 6px;border-radius:20px;margin-left:6px}
+.tag-italic{color:var(--yellow);background:var(--yellow-bg);border:1px solid var(--yellow-border)}
+.tag-normal{color:var(--text-dim);background:var(--surface2);border:1px solid var(--border)}
+
+.add-snap-btn{width:100%;background:transparent;border:2px dashed var(--border2);border-radius:var(--radius);color:var(--text-dim);font-family:var(--mono);font-size:11px;font-weight:600;padding:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:var(--transition);letter-spacing:.04em;margin-bottom:20px}
+.add-snap-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-glow)}
+.plus-icon{width:20px;height:20px;border:1.5px solid currentColor;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px}
+
+/* ── ACTION BAR ── */
+.action-bar{position:fixed;bottom:0;left:320px;right:0;background:var(--surface);border-top:1px solid var(--border);padding:12px 28px;display:flex;align-items:center;gap:8px;z-index:200;backdrop-filter:blur(12px)}
+.action-status{font-family:var(--mono);font-size:11px;color:var(--text-dim);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.action-status.ok{color:var(--green)}.action-status.err{color:var(--red)}.action-status.working{color:var(--accent)}
+
+.app-folder-row{display:flex;align-items:center;gap:10px;padding:12px 18px;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--surface2)}
+.app-folder-status{flex:1;font-family:var(--mono);font-size:11px;color:var(--text-dim);background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;transition:var(--transition)}
+.app-folder-status.set{color:var(--green);border-color:var(--green-border)}
+
+/* ── TOAST ── */
+#toast{position:fixed;bottom:76px;right:20px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 18px;font-family:var(--mono);font-size:11px;color:var(--text);z-index:500;transform:translateY(20px) scale(.95);opacity:0;transition:all .25s cubic-bezier(.4,0,.2,1);pointer-events:none;max-width:380px;box-shadow:var(--shadow)}
+#toast.show{transform:translateY(0) scale(1);opacity:1}
+#toast.success{border-left:3px solid var(--green);color:var(--green)}
+#toast.error{border-left:3px solid var(--red);color:var(--red)}
+#toast.warn{border-left:3px solid var(--yellow);color:var(--yellow)}
+
+/* ── FILTER CHIPS ── */
+.filter-bar{padding:8px 10px;border-bottom:1px solid var(--border);display:flex;flex-wrap:wrap;gap:5px;flex-shrink:0}
+.fchip{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.04em;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--surface2);color:var(--text-dim);cursor:pointer;transition:var(--transition);text-transform:uppercase}
+.fchip:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-glow)}
+.fchip.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.fchip.active.fc-passed{background:var(--green);border-color:var(--green);color:#fff}
+.fchip.active.fc-failed{background:var(--red);border-color:var(--red);color:#fff}
+.fchip.active.fc-valid{background:var(--green-bg);border-color:var(--green-border);color:var(--green)}
+.fchip.active.fc-later{background:var(--yellow-bg);border-color:var(--yellow-border);color:var(--yellow)}
+.fchip.active.fc-updated{background:var(--purple-bg);border-color:var(--purple);color:var(--purple)}
+.fchip.active.fc-vpassed,.fchip.active.fc-lpassed,.fchip.active.fc-upassed{background:var(--green-bg);border-color:var(--green-border);color:var(--green)}
+.fchip.active.fc-vfailed,.fchip.active.fc-lfailed,.fchip.active.fc-ufailed{background:var(--red-bg);border-color:var(--red);color:var(--red)}
+.fchip.active.fc-remove{background:var(--orange-bg);border-color:var(--orange);color:var(--orange)}
+.fchip.active.fc-pending{background:var(--surface3);border-color:var(--text-dim);color:var(--text-mid)}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:900;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px)}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:32px;max-width:440px;width:90%;box-shadow:var(--shadow)}
+.modal h3{font-size:16px;font-weight:600;margin-bottom:12px;color:var(--text)}
+.modal p{font-family:var(--mono);font-size:12px;color:var(--text-mid);line-height:1.7;margin-bottom:20px}
+.modal-cols{display:flex;gap:10px;justify-content:flex-end}
+.format-list{background:var(--bg);border-radius:var(--radius-sm);padding:12px 16px;font-family:var(--mono);font-size:11px;color:var(--accent);line-height:2;margin-bottom:18px}
+
+/* ── THEME DOT BUTTON ── */
+.theme-dot{
+  width:18px;height:18px;border-radius:50%;border:2px solid var(--border2);
+  background:var(--accent);cursor:pointer;transition:var(--transition);
+  box-shadow:0 0 8px var(--accent),0 0 20px rgba(220,38,38,.2);
+  flex-shrink:0;padding:0;
+}
+.theme-dot:hover{box-shadow:0 0 12px var(--accent),0 0 30px rgba(220,38,38,.35);transform:scale(1.15)}
+[data-theme="light"] .theme-dot{
+  background:#fbbf24;border-color:#d4980a;
+  box-shadow:0 0 8px #fbbf24,0 0 20px rgba(251,191,36,.25);
+}
+
+/* ── FILTER TOGGLE ── */
+.filter-toggle{
+  padding:6px 14px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  cursor:pointer;user-select:none;transition:var(--transition);flex-shrink:0;
+}
+.filter-toggle:hover{background:var(--surface2)}
+.filter-toggle span:first-child{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim)}
+.filter-arrow{font-size:10px;color:var(--text-dim);transition:transform .2s}
+.filter-arrow.open{transform:rotate(180deg)}
+
+/* ── SETTING CHANGED ── */
+.btn-setting{background:#1c1008;color:#fb923c;border-color:#c2610c}
+.btn-setting:hover{filter:brightness(1.15)}
+.btn-setting:disabled{opacity:.3;cursor:not-allowed;filter:none}
+.pill-setting{background:var(--orange-bg);color:var(--orange);border:1px solid var(--orange-border)}
+.ctrl-item.s-setting{border-left:3px solid var(--orange)}
+.ctrl-item.s-setting .ctrl-id{color:var(--orange)}
+.fchip.active.fc-setting{background:var(--orange-bg);border-color:var(--orange);color:var(--orange)}
+
+/* ── PREVIOUS REASON ── */
+.prev-reason{background:var(--accent-glow);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:var(--radius-sm);padding:12px 16px;margin-bottom:18px}
+.prev-reason-label{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:6px}
+
+/* ── PREVIOUS EXPORT PREVIEW ── */
+.prev-export{
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  margin: 0 18px 18px 18px;
+  display: none;
+  max-height: 40vh;
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+.prev-export::-webkit-scrollbar{width:4px}
+.prev-export::-webkit-scrollbar-track{background:transparent}
+.prev-export::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+.prev-export h4{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:14px}
+.prev-export .prev-img{max-width:100%;border-radius:var(--radius-sm);border:1px solid var(--border);margin-bottom:10px;display:block}
+.prev-export .prev-caption{font-style:italic;color:#555;font-size:11px;margin-bottom:6px;line-height:1.4;white-space:pre-wrap}
+.prev-export .prev-notes{color:var(--text-mid);font-size:12px;line-height:1.5;white-space:pre-wrap;margin-bottom:14px}
+[data-theme="dark"] .prev-caption{color:#a1a1aa}
+[data-theme="dark"] .prev-notes{color:#e4e4e7}
+
+/* ── ANIMATED DOTS BACKGROUND ── */
+@keyframes dotDrift{
+  0%{background-position:0px 0px,5px 8.66px,0% 0%,0% 0%,0% 0%,0% 0px}
+  100%{background-position:0px 0px,5px 8.66px,800% 400%,1000% -400%,-1200% -600%,400% 8.66px}
+}
+@keyframes dotHue{0%{filter:hue-rotate(0deg)}100%{filter:hue-rotate(360deg)}}
+#dotsBg{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-color:var(--bg);
+  background-image:
+    radial-gradient(circle at 50% 50%,transparent 1.5px,var(--bg) 0 8px,transparent 8px),
+    radial-gradient(circle at 50% 50%,transparent 1.5px,var(--bg) 0 8px,transparent 8px),
+    radial-gradient(circle at 50% 50%,#cc0000,transparent 60%),
+    radial-gradient(circle at 50% 50%,#ff2200,transparent 60%),
+    radial-gradient(circle at 50% 50%,#880000,transparent 60%),
+    radial-gradient(ellipse at 50% 50%,#440000,transparent 60%);
+  background-size:10px 17.32px,10px 17.32px,200% 200%,200% 200%,200% 200%,200% 17.32px;
+  animation:dotDrift 25s linear infinite,dotHue 8s linear infinite;
+  opacity:.2;
+}
+[data-theme="light"] #dotsBg{
+  opacity:.06;
+  background-image:
+    radial-gradient(circle at 50% 50%,transparent 1.5px,var(--bg) 0 8px,transparent 8px),
+    radial-gradient(circle at 50% 50%,transparent 1.5px,var(--bg) 0 8px,transparent 8px),
+    radial-gradient(circle at 50% 50%,#cc0000,transparent 60%),
+    radial-gradient(circle at 50% 50%,#ff4444,transparent 60%),
+    radial-gradient(circle at 50% 50%,#990000,transparent 60%),
+    radial-gradient(ellipse at 50% 50%,#660000,transparent 60%);
+}
+
+/* glassmorphism */
+header,.toolbar,.panel-left,.action-bar,#toast{background:rgba(9,9,11,.88);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+.card,.snap-card{background:rgba(9,9,11,.75);backdrop-filter:blur(10px)}
+.panel-right{background:rgba(9,9,11,.5)}
+.app-folder-row{background:rgba(22,22,24,.9)}
+.welcome{background:transparent}
+
+[data-theme="light"] header,[data-theme="light"] .toolbar,[data-theme="light"] .panel-left,[data-theme="light"] .action-bar,[data-theme="light"] #toast{background:rgba(255,255,255,.9);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+[data-theme="light"] .card,[data-theme="light"] .snap-card{background:rgba(255,255,255,.8);backdrop-filter:blur(10px)}
+[data-theme="light"] .panel-right{background:rgba(250,250,250,.5)}
+[data-theme="light"] .app-folder-row{background:rgba(245,245,245,.92)}
+</style>
+</head>
+<body>
+
+<div id="dotsBg"></div>
+
+<header>
+  <span class="logo">DocSnap</span>
+  <span class="sep">·</span>
+  <span class="htitle">Report Builder</span>
+  <span class="spacer"></span>
+  <button class="theme-dot" onclick="toggleTheme()" id="themeBtn" title="Toggle theme"></button>
+</header>
+
+<div class="toolbar">
+  <button class="btn btn-ghost btn-icon" title="Open tracker workbook" onclick="openExcel()">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+  </button>
+  <div class="toolbar-info active-purple" id="xlStatus" style="flex:1">No workbook loaded — click the grid icon to open</div>
+</div>
+
+<div class="main">
+
+  <div class="panel-left" id="panelLeft">
+
+    <div id="viewApps" style="display:flex;flex-direction:column;flex:1;overflow:hidden;min-height:0">
+      <div class="panel-header">
+        <span class="panel-header-title">Applications</span>
+        <span class="badge" id="appCount">0</span>
+      </div>
+      <div class="panel-search">
+        <input type="text" id="appSearch" placeholder="Search applications…" oninput="renderAppList()"/>
+      </div>
+      <div class="panel-list" id="appList">
+        <div class="no-items">Open a workbook to see applications.</div>
+      </div>
+    </div>
+
+    <div id="viewControls" style="display:none;flex-direction:column;flex:1;overflow:hidden;min-height:0">
+      <div class="breadcrumb">
+        <button class="breadcrumb-back" onclick="backToApps()">← Apps</button>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-app" id="breadcrumbApp">—</span>
+      </div>
+      <div class="panel-header" style="gap:6px">
+        <span class="panel-header-title" id="ctrlPanelTitle">Controls</span>
+        <span class="badge" id="ctrlCount">0</span>
+        <button class="btn-complete" onclick="markAppComplete()" id="btnAppComplete" title="Mark all pending as Not Checked / App Completed">✓ Complete App</button>
+      </div>
+      <div class="panel-search">
+        <input type="text" id="ctrlSearch" placeholder="Search controls…" oninput="renderCtrlList()"/>
+      </div>
+      <div class="filter-toggle" onclick="toggleFilterBar()">
+        <span>Filters</span>
+        <span class="filter-arrow" id="filterArrow">▾</span>
+      </div>
+      <div class="filter-bar" id="filterBar" style="display:none">
+        <span class="fchip fc-failed" onclick="toggleFilter('failed')" id="fc-failed">✕ Failed</span>
+        <span class="fchip fc-passed" onclick="toggleFilter('passed')" id="fc-passed">✓ Passed</span>
+        <span class="fchip fc-valid" onclick="toggleFilter('valid')" id="fc-valid">Valid</span>
+        <span class="fchip fc-later" onclick="toggleFilter('later')" id="fc-later">Later</span>
+        <span class="fchip fc-updated" onclick="toggleFilter('updated')" id="fc-updated">Updated</span>
+        <span class="fchip fc-setting" onclick="toggleFilter('setting')" id="fc-setting">⚙ Setting</span>
+        <span class="fchip fc-vpassed" onclick="toggleFilter('vpassed')" id="fc-vpassed">Valid+Pass</span>
+        <span class="fchip fc-vfailed" onclick="toggleFilter('vfailed')" id="fc-vfailed">Valid+Fail</span>
+        <span class="fchip fc-lpassed" onclick="toggleFilter('lpassed')" id="fc-lpassed">Later+Pass</span>
+        <span class="fchip fc-lfailed" onclick="toggleFilter('lfailed')" id="fc-lfailed">Later+Fail</span>
+        <span class="fchip fc-upassed" onclick="toggleFilter('upassed')" id="fc-upassed">Updated+Pass</span>
+        <span class="fchip fc-ufailed" onclick="toggleFilter('ufailed')" id="fc-ufailed">Updated+Fail</span>
+        <span class="fchip fc-remove" onclick="toggleFilter('remove')" id="fc-remove">🗑 Remove</span>
+        <span class="fchip fc-pending" onclick="toggleFilter('pending')" id="fc-pending">○ Pending</span>
+      </div>
+      <div class="panel-list" id="ctrlList"></div>
+    </div>
+
+  </div>
+
+  <div class="panel-right">
+
+    <div class="welcome" id="welcomeView">
+      <div class="welcome-icon">📋</div>
+      <div class="welcome-title">DocSnap Report Builder</div>
+      <div class="welcome-sub">Open a tracker workbook, select an application, then click a control to begin.</div>
+      <div class="format-box">
+        Each sheet = one application.<br/>
+        Required columns per sheet:<br/>
+        <span>Control ID · Control Title · Current Status · Completed? · Reason</span>
+      </div>
+    </div>
+
+    <div id="appView" style="display:none;flex-direction:column;flex:1;overflow:hidden">
+      <div class="app-folder-row">
+        <button class="btn btn-ghost btn-icon" onclick="selectAppFolder()" title="Select output folder for this app">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        </button>
+        <div class="app-folder-status" id="appFolderStatus" onclick="copyAppFolder()">No output folder selected for this app</div>
+      </div>
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;padding:32px;text-align:center">
+        <div style="font-size:36px;opacity:.2">📂</div>
+        <div style="font-family:var(--mono);font-size:12px;color:var(--text-dim);line-height:1.8">
+          Select an output folder above,<br/>then click a control from the left panel.
+        </div>
+      </div>
+    </div>
+
+    <div id="formView" style="display:none;flex-direction:column;flex:1;overflow:hidden">
+      <div class="app-folder-row">
+        <button class="btn btn-ghost btn-icon" onclick="selectAppFolder()" title="Select output folder">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        </button>
+        <div class="app-folder-status" id="formFolderStatus" onclick="copyAppFolder()">No output folder selected</div>
+      </div>
+
+      <div class="prev-export" id="prevExportPreview">
+        <h4>Previously Exported Document</h4>
+        <div id="prevExportContent"></div>
+      </div>
+
+      <div class="form-scroll" id="formScroll">
+        <div class="sec-label">Document Title</div>
+        <div class="card">
+          <div class="title-row">
+            <input type="text" id="docTitle" placeholder="Select a control…" oninput="onTitleInput()" readonly/>
+            <span class="char-badge" id="titleBadge">0</span>
+          </div>
+          <div class="input-hint">Auto-filled from selected control. Invalid filename characters are stripped.</div>
+        </div>
+        <div class="divider"></div>
+        <div id="prevReasonWrap" style="display:none">
+          <div class="prev-reason">
+            <div class="prev-reason-label">⟳ Previously Documented</div>
+            <div class="prev-reason-text" id="prevReasonText"></div>
+          </div>
+        </div>
+        <div class="sec-label">Images &amp; Notes</div>
+        <div id="sections"></div>
+        <button class="add-snap-btn" onclick="addSection()">
+          <span class="plus-icon">+</span> Add Another Image
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="action-bar" id="actionBar">
+  <button class="btn btn-fail" id="btnFail" disabled onclick="markFailed()">✕ Fail</button>
+  <button class="btn btn-pass" id="btnPass" disabled onclick="markPassed()">✓ Pass</button>
+  <button class="btn btn-sspm-working" id="btnSSPMWorking" disabled onclick="markSSPMWorking()">✓ SSPM Working</button>
+  <button class="btn btn-sspm-notworking" id="btnSSPMNotWorking" disabled onclick="markSSPMNotWorking()">✕ SSPM Not Working</button>
+  <span class="action-status" id="actionStatus">Open a workbook to get started.</span>
+  <button class="btn btn-remove" id="btnRemove" disabled onclick="markRemove()">🗑 Remove</button>
+  <button class="btn btn-setting" id="btnSetting" disabled onclick="markSettingChanged()">⚙ Setting Changed</button>
+  <button class="btn btn-yellow" id="btnLater" disabled onclick="markLater()">Later</button>
+  <button class="btn btn-green" id="btnValid" disabled onclick="markValid()">✓ Valid</button>
+  <button class="btn btn-primary" id="btnExport" disabled onclick="processDoc()">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+    Export Document
+  </button>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ════════════════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════════════════
+let xlFileHandle  = null;
+let xlWorkbook    = null;
+let apps          = [];
+let currentApp    = null;
+let selectedCtrl  = null;
+let sections      = [];
+let sectionCount  = 0;
+let activeFilter  = null;
+
+const REQUIRED_COLS = ['Control ID','Control Title','Current Status','Completed?','Reason'];
+const DOCX_NS = {
+  w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main',
+  wp:'http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing',
+  a: 'http://schemas.openxmlformats.org/drawingml/2006/main',
+  r: 'http://schemas.openxmlformats.org/officeDocument/2006/relationships',
+};
+
+// ════════════════════════════════════════════════════════════
+// HELPER: Parsing DOCX for preview
+// ════════════════════════════════════════════════════════════
+function getParagraphTextWithBreaks(p) {
+  const runs = p.getElementsByTagNameNS(DOCX_NS.w, 'r');
+  if (!runs.length) return '';
+  let text = '';
+  for (const r of runs) {
+    if (r.getElementsByTagNameNS(DOCX_NS.w, 'br').length > 0) {
+      text += '\n';
+    } else {
+      const tEls = r.getElementsByTagNameNS(DOCX_NS.w, 't');
+      for (const t of tEls) text += t.textContent;
+    }
+  }
+  return text.replace(/\n+$/, '');
+}
+
+function isHeading(p) {
+  const pPr = p.getElementsByTagNameNS(DOCX_NS.w, 'pPr')[0];
+  if (!pPr) return false;
+  const pStyle = pPr.getElementsByTagNameNS(DOCX_NS.w, 'pStyle')[0];
+  return pStyle && pStyle.getAttribute('w:val') === 'Heading1';
+}
+
+function hasDrawing(p) {
+  return p.getElementsByTagNameNS(DOCX_NS.w, 'drawing').length > 0;
+}
+
+function extractImageRId(p) {
+  const drawings = p.getElementsByTagNameNS(DOCX_NS.w, 'drawing');
+  if (!drawings.length) return null;
+  const blips = drawings[0].getElementsByTagNameNS(DOCX_NS.a, 'blip');
+  if (!blips.length) return null;
+  return blips[0].getAttribute('r:embed');
+}
+
+function hasItalic(p) {
+  const rs = p.getElementsByTagNameNS(DOCX_NS.w, 'r');
+  for (const r of rs) {
+    const rPr = r.getElementsByTagNameNS(DOCX_NS.w, 'rPr')[0];
+    if (rPr && (rPr.getElementsByTagNameNS(DOCX_NS.w, 'i').length || rPr.getElementsByTagNameNS(DOCX_NS.w, 'iCs').length)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function blobToDataURL(blob) {
+  return new Promise(resolve => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.readAsDataURL(blob);
+  });
+}
+
+function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+async function loadPreviousExport(ctrl) {
+  const preview = document.getElementById('prevExportPreview');
+  const content = document.getElementById('prevExportContent');
+  preview.style.display = 'none';
+  content.innerHTML = '';
+  if (!ctrl || (ctrl.completed||'').toLowerCase() !== 'updated' || !currentApp?.folderHandle) return;
+
+  try {
+    const title = sanitizeFilename(ctrl.id + ' ' + ctrl.title);
+    const fh = await currentApp.folderHandle.getFileHandle(title + '.docx');
+    const file = await fh.getFile();
+    const buf = await file.arrayBuffer();
+    const zip = await JSZip.loadAsync(buf);
+
+    const docXml = await zip.file('word/document.xml')?.async('string');
+    const relsXml = await zip.file('word/_rels/document.xml.rels')?.async('string');
+    const relsMap = {};
+    if (relsXml) {
+      const relsDom = new DOMParser().parseFromString(relsXml, 'text/xml');
+      const els = relsDom.getElementsByTagNameNS('*', 'Relationship');
+      for (let i = 0; i < els.length; i++) {
+        relsMap[els[i].getAttribute('Id')] = els[i].getAttribute('Target');
+      }
+    }
+
+    const dom = new DOMParser().parseFromString(docXml, 'text/xml');
+    const body = dom.getElementsByTagNameNS(DOCX_NS.w, 'body')[0];
+    if (!body) return;
+
+    const paras = Array.from(body.getElementsByTagNameNS(DOCX_NS.w, 'p'));
+    let html = '';
+    let i = 0;
+    while (i < paras.length && isHeading(paras[i])) i++;
+
+    while (i < paras.length) {
+      const p = paras[i];
+      if (hasDrawing(p)) {
+        const rId = extractImageRId(p);
+        if (rId && relsMap[rId]) {
+          const imgFile = zip.file('word/' + relsMap[rId]);
+          if (imgFile) {
+            const blob = await imgFile.async('blob');
+            const dataUrl = await blobToDataURL(blob);
+            html += `<img class="prev-img" src="${dataUrl}" alt="Screenshot"/>`;
+          }
+        }
+        i++;
+        while (i < paras.length && !hasDrawing(paras[i]) && !isHeading(paras[i])) {
+          const next = paras[i];
+          const txt = getParagraphTextWithBreaks(next);
+          if (txt) {
+            const cls = hasItalic(next) ? 'prev-caption' : 'prev-notes';
+            html += `<div class="${cls}">${escHtml(txt)}</div>`;
+          }
+          i++;
+        }
+      } else {
+        i++;
+      }
+    }
+
+    if (html) {
+      content.innerHTML = html;
+      preview.style.display = 'block';
+    }
+  } catch (e) {
+    console.warn('Preview load error:', e);
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+// FILTER & THEME
+// ════════════════════════════════════════════════════════════
+const ALL_FILTERS = ['failed','passed','valid','later','updated','setting','vpassed','vfailed','lpassed','lfailed','upassed','ufailed','remove','pending'];
+function toggleFilter(f) {
+  activeFilter = activeFilter === f ? null : f;
+  ALL_FILTERS.forEach(k => document.getElementById('fc-'+k)?.classList.toggle('active', activeFilter === k));
+  renderCtrlList();
+}
+function toggleFilterBar() {
+  const bar = document.getElementById('filterBar');
+  const arrow = document.getElementById('filterArrow');
+  const visible = bar.style.display === 'none';
+  bar.style.display = visible ? 'flex' : 'none';
+  arrow.classList.toggle('open', visible);
+}
+function applyFilter(controls) {
+  if (!activeFilter) return controls;
+  return controls.filter(c => {
+    const comp = c.completed.toLowerCase();
+    const stat = (c.status||'').toLowerCase();
+    switch (activeFilter) {
+      case 'failed': return stat === 'failed';
+      case 'passed': return stat === 'passed';
+      case 'valid': return comp === 'valid';
+      case 'later': return comp === 'to be tested later';
+      case 'updated': return comp === 'updated';
+      case 'setting': return comp === 'recheck, setting changed';
+      case 'vpassed': return comp === 'valid' && stat === 'passed';
+      case 'vfailed': return comp === 'valid' && stat === 'failed';
+      case 'lpassed': return comp === 'to be tested later' && stat === 'passed';
+      case 'lfailed': return comp === 'to be tested later' && stat === 'failed';
+      case 'upassed': return comp === 'updated' && stat === 'passed';
+      case 'ufailed': return comp === 'updated' && stat === 'failed';
+      case 'remove': return comp === 'to be removed';
+      case 'pending': return !c.completed || comp === '' || comp === 'nan';
+      default: return true;
+    }
+  });
+}
+
+function applyTheme(t) {
+  document.documentElement.setAttribute('data-theme', t);
+  document.getElementById('themeBtn').title = t === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
+  localStorage.setItem('ds-theme', t);
+}
+function toggleTheme() {
+  applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+}
+applyTheme(localStorage.getItem('ds-theme') || 'dark');
+
+// ════════════════════════════════════════════════════════════
+// EXCEL OPEN
+// ════════════════════════════════════════════════════════════
+async function openExcel() {
+  try {
+    [xlFileHandle] = await window.showOpenFilePicker({
+      types: [{ description: 'Excel Workbook', accept: { 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'] } }],
+      multiple: false
+    });
+  } catch (e) { if (e.name !== 'AbortError') showToast('Could not open file: ' + e.message, 'error'); return; }
+
+  try {
+    const file = await xlFileHandle.getFile();
+    const buf = await file.arrayBuffer();
+    const wb = XLSX.read(buf, { type: 'arraybuffer' });
+    xlWorkbook = wb;
+    const parsed = [];
+    for (const sn of wb.SheetNames) {
+      const ws = wb.Sheets[sn];
+      const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
+      if (!rows.length) continue;
+      const cols = Object.keys(rows[0]);
+      const missing = REQUIRED_COLS.filter(c => !cols.includes(c));
+      if (missing.length) {
+        showToast(`Sheet "${sn}" skipped — missing: ${missing.join(', ')}`, 'warn');
+        continue;
+      }
+      parsed.push({
+        name: sn,
+        folderHandle: null,
+        controls: rows.map((r, i) => ({
+          rowIdx: i + 2,
+          id: String(r['Control ID'] || '').trim(),
+          title: String(r['Control Title'] || '').trim(),
+          status: String(r['Current Status'] || '').trim(),
+          completed: String(r['Completed?'] || '').trim(),
+          reason: String(r['Reason'] || '').trim(),
+          sspmStatus: String(r['SSPM STATUS'] || '').trim(),
+        }))
+      });
+    }
+    if (!parsed.length) { showToast('No valid sheets found.', 'error'); return; }
+    apps = parsed;
+    document.getElementById('xlStatus').textContent = `📊 ${file.name} — ${apps.length} app${apps.length !== 1 ? 's' : ''}`;
+    showView('apps');
+    renderAppList();
+    updateActionBar();
+    showToast(`Loaded ${apps.length} application${apps.length !== 1 ? 's' : ''}`, 'success');
+  } catch (err) {
+    console.error(err);
+    showToast('Error reading workbook: ' + err.message, 'error');
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+// VIEW MANAGEMENT
+// ════════════════════════════════════════════════════════════
+function showView(left, right) {
+  document.getElementById('viewApps').style.display = left === 'apps' ? 'flex' : 'none';
+  document.getElementById('viewControls').style.display = left === 'controls' ? 'flex' : 'none';
+  document.getElementById('welcomeView').style.display = right === 'welcome' ? 'flex' : 'none';
+  document.getElementById('appView').style.display = right === 'appView' ? 'flex' : 'none';
+  document.getElementById('formView').style.display = right === 'formView' ? 'flex' : 'none';
+}
+
+// ════════════════════════════════════════════════════════════
+// APP LIST
+// ════════════════════════════════════════════════════════════
+function appProgress(app) {
+  const total = app.controls.length;
+  if (!total) return { done: 0, total: 0, pct: 0 };
+  const done = app.controls.filter(c => {
+    const v = c.completed.toLowerCase();
+    return v === 'valid' || v === 'updated' || v === 'to be tested later' || v === 'not checked' || v === 'to be removed' || v === 'recheck, setting changed';
+  }).length;
+  return { done, total, pct: Math.round(done / total * 100) };
+}
+function appCompleted(app) {
+  return app.controls.every(c => {
+    const v = c.completed.toLowerCase();
+    return v === 'valid' || v === 'updated' || v === 'to be tested later' || v === 'not checked' || v === 'to be removed' || v === 'recheck, setting changed';
+  });
+}
+function renderAppList() {
+  const q = document.getElementById('appSearch').value.toLowerCase();
+  const list = document.getElementById('appList');
+  document.getElementById('appCount').textContent = apps.length;
+  const filtered = apps.filter(a => a.name.toLowerCase().includes(q));
+  if (!filtered.length) { list.innerHTML = '<div class="no-items">No applications match.</div>'; return; }
+  list.innerHTML = filtered.map(a => {
+    const prog = appProgress(a);
+    const comp = appCompleted(a);
+    const badge = comp ? '<span class="app-status-badge badge-complete">✓ Complete</span>'
+      : prog.done ? `<span class="app-status-badge badge-inprog">${prog.done}/${prog.total} done</span>`
+      : `<span class="app-status-badge badge-pending">0/${prog.total} done</span>`;
+    const folder = a.folderHandle ? `<div class="app-folder set">📁 ${escH(a.folderHandle.name)}</div>` : '<div class="app-folder">No folder set</div>';
+    const active = currentApp && currentApp.name === a.name ? 'active' : '';
+    return `<div class="app-item ${active}" onclick="selectApp('${escH(a.name)}')">
+      <div class="app-item-name">${escH(a.name)}</div>
+      <div class="app-item-progress"><div class="progress-bar-wrap"><div class="progress-bar-fill ${comp?'done':''}" style="width:${prog.pct}%"></div></div><span class="app-item-stats">${prog.pct}%</span></div>
+      ${badge} ${folder}
+    </div>`;
+  }).join('');
+}
+
+function selectApp(name) {
+  currentApp = apps.find(a => a.name === name) || null;
+  selectedCtrl = null;
+  if (!currentApp) return;
+  document.getElementById('breadcrumbApp').textContent = currentApp.name;
+  document.getElementById('ctrlPanelTitle').textContent = 'Controls';
+  showView('controls', 'appView');
+  activeFilter = null;
+  ALL_FILTERS.forEach(k => document.getElementById('fc-' + k)?.classList.remove('active'));
+  renderCtrlList();
+  updateFolderUI();
+  updateActionBar();
+  renderAppList();
+}
+
+function backToApps() {
+  currentApp = null;
+  selectedCtrl = null;
+  clearForm();
+  showView('apps', 'welcome');
+  updateActionBar();
+  renderAppList();
+}
+
+// ════════════════════════════════════════════════════════════
+// PER-APP FOLDER
+// ════════════════════════════════════════════════════════════
+async function selectAppFolder() {
+  if (!currentApp) { showToast('Select an application first.', 'error'); return; }
+  try {
+    currentApp.folderHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
+    updateFolderUI();
+    renderAppList();
+    updateActionBar();
+    showToast(`Output folder set: ${currentApp.folderHandle.name}`, 'success');
+  } catch (e) { if (e.name !== 'AbortError') showToast('Folder access denied.', 'error'); }
+}
+
+function updateFolderUI() {
+  const fh = currentApp?.folderHandle;
+  const txt = fh ? `📁 ${fh.name} — click to copy` : 'No output folder selected — click folder icon';
+  ['appFolderStatus', 'formFolderStatus'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.textContent = txt; el.className = 'app-folder-status' + (fh ? ' set' : ''); }
+  });
+}
+
+function copyAppFolder() {
+  if (!currentApp?.folderHandle) return;
+  navigator.clipboard.writeText(currentApp.folderHandle.name).then(() => showToast('Folder name copied.'));
+}
+
+// ════════════════════════════════════════════════════════════
+// CONTROL LIST
+// ════════════════════════════════════════════════════════════
+function ctrlStatusClass(c) {
+  const v = c.completed.toLowerCase();
+  if (v === 'valid') return 's-valid';
+  if (v === 'to be tested later') return 's-later';
+  if (v === 'updated') return 's-updated';
+  if (v === 'not checked') return 's-notchecked';
+  if (v === 'to be removed') return 's-remove';
+  if (v === 'recheck, setting changed') return 's-setting';
+  return '';
+}
+function ctrlPill(c) {
+  const v = c.completed.toLowerCase();
+  if (v === 'valid') return '<span class="ctrl-pill pill-valid">Valid</span>';
+  if (v === 'to be tested later') return '<span class="ctrl-pill pill-later">Later</span>';
+  if (v === 'updated') return '<span class="ctrl-pill pill-updated">Updated</span>';
+  if (v === 'not checked') return '<span class="ctrl-pill pill-notchecked">Not Checked</span>';
+  if (v === 'to be removed') return '<span class="ctrl-pill pill-remove">To Be Removed</span>';
+  if (v === 'recheck, setting changed') return '<span class="ctrl-pill pill-setting">Setting Changed</span>';
+  return '';
+}
+function sspmPill(c) {
+  const s = (c.sspmStatus || '').toLowerCase();
+  if (s === 'working in sspm') return '<span class="ctrl-pill pill-sspm-working">SSPM Working</span>';
+  if (s === 'not working in sspm') return '<span class="ctrl-pill pill-sspm-notworking">SSPM Not Working</span>';
+  return '';
+}
+
+function renderCtrlList() {
+  if (!currentApp) return;
+  const q = document.getElementById('ctrlSearch').value.toLowerCase();
+  const list = document.getElementById('ctrlList');
+  const searched = currentApp.controls.filter(c => c.id.toLowerCase().includes(q) || c.title.toLowerCase().includes(q));
+  const filtered = applyFilter(searched);
+  document.getElementById('ctrlCount').textContent = currentApp.controls.length;
+  if (!filtered.length) { list.innerHTML = '<div class="no-items">No controls match.</div>'; return; }
+
+  list.innerHTML = filtered.map(c => {
+    const sc = ctrlStatusClass(c);
+    const pill = ctrlPill(c);
+    const sPill = sspmPill(c);
+    const active = selectedCtrl && selectedCtrl.id === c.id ? 'active' : '';
+    const canClear = c.completed && c.completed.toLowerCase() !== 'updated';
+    const clearBtn = canClear ? `<button class="ctrl-clear" onclick="clearCtrlStatus(event,'${escH(c.id)}')">✕</button>` : '';
+    const sv = (c.status || '').toLowerCase();
+    const dotClass = sv === 'passed' ? 'dot-passed' : sv === 'failed' ? 'dot-failed' : 'dot-other';
+    const statusDot = c.status ? `<span class="ctrl-status-dot ${dotClass}" title="Current Status: ${c.status}"></span>` : '';
+    return `<div class="ctrl-item ${sc} ${active}" onclick="selectCtrl('${escH(c.id)}')">
+      <div class="ctrl-id">${statusDot}${escH(c.id)}</div>
+      <div class="ctrl-title-text">${escH(c.title)}</div>
+      ${pill} ${sPill}
+      ${clearBtn}
+    </div>`;
+  }).join('');
+}
+
+function selectCtrl(id) {
+  if (!currentApp) return;
+  selectedCtrl = currentApp.controls.find(c => c.id === id) || null;
+  if (!selectedCtrl) return;
+  const combined = sanitizeFilename(selectedCtrl.id + ' ' + selectedCtrl.title);
+  document.getElementById('docTitle').value = combined;
+  document.getElementById('titleBadge').textContent = combined.trim().length;
+  document.getElementById('docTitle').readOnly = false;
+  const prevWrap = document.getElementById('prevReasonWrap');
+  const prevText = document.getElementById('prevReasonText');
+  if (selectedCtrl.reason && selectedCtrl.reason.trim()) {
+    prevText.textContent = selectedCtrl.reason.trim();
+    prevWrap.style.display = 'block';
+  } else {
+    prevWrap.style.display = 'none';
+    prevText.textContent = '';
+  }
+  showView('controls', 'formView');
+  updateFolderUI();
+  renderCtrlList();
+  updateActionBar();
+  document.getElementById('formScroll').scrollTo({ top: 0, behavior: 'smooth' });
+  loadPreviousExport(selectedCtrl);
+}
+
+// ════════════════════════════════════════════════════════════
+// MARK FUNCTIONS
+// ════════════════════════════════════════════════════════════
+async function markValid() {
+  if (!selectedCtrl) return;
+  selectedCtrl.completed = 'Valid';
+  syncCtrl(selectedCtrl);
+  renderCtrlList(); renderAppList(); updateActionBar();
+  await writeExcel();
+  showToast(`✓ ${selectedCtrl.id} marked Valid`, 'success');
+}
+async function markLater() {
+  if (!selectedCtrl) return;
+  selectedCtrl.completed = 'To Be Tested Later';
+  syncCtrl(selectedCtrl);
+  renderCtrlList(); renderAppList(); updateActionBar();
+  await writeExcel();
+  showToast(`${selectedCtrl.id} — To Be Tested Later`, 'warn');
+}
+async function markRemove() {
+  if (!selectedCtrl) return;
+  selectedCtrl.completed = 'To Be Removed';
+  syncCtrl(selectedCtrl);
+  renderCtrlList(); renderAppList(); updateActionBar();
+  await writeExcel();
+  showToast(`${selectedCtrl.id} — marked To Be Removed`, 'warn');
+}
+async function markSettingChanged() {
+  if (!selectedCtrl) return;
+  selectedCtrl.completed = 'Recheck, Setting Changed';
+  syncCtrl(selectedCtrl);
+  renderCtrlList(); renderAppList(); updateActionBar();
+  await writeExcel();
+  showToast(`${selectedCtrl.id} — Recheck, Setting Changed`, 'warn');
+}
+async function markAppComplete() {
+  if (!currentApp) return;
+  currentApp.controls.forEach(c => { if (!c.completed) c.completed = 'Not Checked'; });
+  renderCtrlList(); renderAppList(); updateActionBar();
+  await writeExcel();
+  showToast(`${currentApp.name} marked complete`, 'success');
+}
+async function markPassed() {
+  if (!selectedCtrl) return;
+  selectedCtrl.status = 'Passed';
+  syncCtrl(selectedCtrl);
+  renderCtrlList(); updateActionBar();
+  await writeExcel();
+  showToast(`✓ ${selectedCtrl.id} — Current Status set to Passed`, 'success');
+}
+async function markFailed() {
+  if (!selectedCtrl) return;
+  selectedCtrl.status = 'Failed';
+  syncCtrl(selectedCtrl);
+  renderCtrlList(); updateActionBar();
+  await writeExcel();
+  showToast(`${selectedCtrl.id} — Current Status set to Failed`, 'error');
+}
+async function markSSPMWorking() {
+  if (!selectedCtrl) return;
+  selectedCtrl.sspmStatus = 'Working in SSPM';
+  syncCtrl(selectedCtrl);
+  renderCtrlList(); updateActionBar();
+  await writeExcel();
+  showToast(`✓ ${selectedCtrl.id} — SSPM Status: Working`, 'success');
+}
+async function markSSPMNotWorking() {
+  if (!selectedCtrl) return;
+  selectedCtrl.sspmStatus = 'Not working in SSPM';
+  syncCtrl(selectedCtrl);
+  renderCtrlList(); updateActionBar();
+  await writeExcel();
+  showToast(`${selectedCtrl.id} — SSPM Status: Not Working`, 'warn');
+}
+
+async function clearCtrlStatus(e, id) {
+  e.stopPropagation();
+  const ctrl = currentApp.controls.find(c => c.id === id);
+  if (!ctrl || ctrl.completed.toLowerCase() === 'updated') return;
+  ctrl.completed = '';
+  ctrl.reason = '';
+  if (selectedCtrl && selectedCtrl.id === id) { selectedCtrl.completed = ''; selectedCtrl.reason = ''; }
+  renderCtrlList();
+  renderAppList();
+  updateActionBar();
+  await writeExcel();
+  showToast(`Status cleared for ${id}`);
+}
+
+function syncCtrl(ctrl) {
+  if (!currentApp) return;
+  const c = currentApp.controls.find(x => x.id === ctrl.id);
+  if (c) Object.assign(c, { completed: ctrl.completed, reason: ctrl.reason, status: ctrl.status, sspmStatus: ctrl.sspmStatus });
+}
+
+// ════════════════════════════════════════════════════════════
+// TITLE & SECTIONS
+// ════════════════════════════════════════════════════════════
+function sanitizeFilename(s) { return s.replace(/[\\/:*?"<>|]/g, ''); }
+function onTitleInput() {
+  const inp = document.getElementById('docTitle');
+  const raw = inp.value, clean = sanitizeFilename(raw);
+  if (raw !== clean) { const p = inp.selectionStart - (raw.length - clean.length); inp.value = clean; inp.selectionStart = inp.selectionEnd = Math.max(0, p); }
+  document.getElementById('titleBadge').textContent = clean.trim().length;
+  document.getElementById('titleBadge').className = 'char-badge' + (clean.length > 200 ? ' warn' : '');
+  updateActionBar();
+}
+
+function addSection() {
+  sectionCount++;
+  const id = 'sc' + Date.now();
+  sections.push({ id, imageData: null, imageType: null, imageW: 0, imageH: 0 });
+  const el = document.createElement('div');
+  el.className = 'snap-card'; el.id = 'card-' + id;
+  el.innerHTML = `
+    <div class="snap-header">
+      <span class="snap-num">Image ${sectionCount}</span>
+      ${sectionCount > 1 ? `<button class="btn btn-red" onclick="removeSection('${id}')">✕ Remove</button>` : ''}
+    </div>
+    <div class="paste-zone" id="zone-${id}" tabindex="0"
+         onclick="pasteFromClipboard('${id}')"
+         onfocus="this.classList.add('focused')" onblur="this.classList.remove('focused')">
+      <div class="hint">Click to paste image from clipboard</div>
+    </div>
+    <div class="desc-label">Caption <span class="tag tag-italic">italics in doc</span></div>
+    <textarea id="imgdesc-${id}" rows="2" placeholder="Short caption for this image..." oninput="autoResize(this)"></textarea>
+    <div class="desc-label" style="margin-top:11px">Notes <span class="tag tag-normal">normal text</span></div>
+    <textarea id="adddesc-${id}" rows="3" placeholder="Additional notes or context..." oninput="autoResize(this)"></textarea>
+  `;
+  document.getElementById('sections').appendChild(el);
+  const zone = document.getElementById('zone-' + id);
+  const dh = (e) => { if (document.activeElement === zone) { e.preventDefault(); pasteFromClipboard(id); } };
+  zone._dh = dh; document.addEventListener('paste', dh);
+  updateActionBar();
+}
+
+async function pasteFromClipboard(id) {
+  const zone = document.getElementById('zone-' + id); zone.focus();
+  try {
+    const items = await navigator.clipboard.read();
+    for (const item of items) {
+      const type = item.types.find(x => x.startsWith('image/'));
+      if (type) { const blob = await item.getType(type); await loadImageBlob(blob, type, id); return; }
+    }
+    showToast('No image in clipboard.', 'error');
+  } catch (e) { showToast('Clipboard read failed — press Ctrl+V while zone is focused.', 'warn'); }
+}
+
+function loadImageBlob(blob, type, id) {
+  return new Promise(res => {
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const dataUrl = ev.target.result;
+      const img = new Image();
+      img.onload = () => {
+        const sec = sections.find(s => s.id === id);
+        if (sec) { sec.imageData = dataUrl.split(',')[1]; sec.imageType = type; sec.imageW = img.naturalWidth; sec.imageH = img.naturalHeight; }
+        const zone = document.getElementById('zone-' + id);
+        zone.innerHTML = `<img src="${dataUrl}" alt="preview"/><div class="clear-img" onclick="clearZone('${id}')">✕</div>`;
+        zone.classList.add('has-image');
+        updateActionBar(); res();
+      };
+      img.src = dataUrl;
+    };
+    reader.readAsDataURL(blob);
+  });
+}
+
+function clearZone(id) {
+  const sec = sections.find(s => s.id === id);
+  if (sec) { sec.imageData = null; sec.imageType = null; sec.imageW = 0; sec.imageH = 0; }
+  const zone = document.getElementById('zone-' + id);
+  zone.innerHTML = '<div class="hint">Click to paste image from clipboard</div>';
+  zone.classList.remove('has-image');
+  updateActionBar();
+}
+
+function removeSection(id) {
+  const zone = document.getElementById('zone-' + id);
+  if (zone && zone._dh) document.removeEventListener('paste', zone._dh);
+  sections = sections.filter(s => s.id !== id);
+  document.getElementById('card-' + id)?.remove();
+  let n = 1; document.querySelectorAll('.snap-num').forEach(el => el.textContent = 'Image ' + n++);
+  updateActionBar();
+}
+
+// ════════════════════════════════════════════════════════════
+// ACTION BAR
+// ════════════════════════════════════════════════════════════
+function updateActionBar() {
+  const st = document.getElementById('actionStatus');
+  const bExp = document.getElementById('btnExport');
+  const bVal = document.getElementById('btnValid'), bLat = document.getElementById('btnLater');
+  const bPass = document.getElementById('btnPass'), bFail = document.getElementById('btnFail');
+  const bRem = document.getElementById('btnRemove'), bSet = document.getElementById('btnSetting');
+  const bSSPMW = document.getElementById('btnSSPMWorking'), bSSPMN = document.getElementById('btnSSPMNotWorking');
+  const title = sanitizeFilename(document.getElementById('docTitle').value).trim();
+  const hasCtrl = !!selectedCtrl, hasApp = !!currentApp;
+  const hasFoldr = !!(currentApp?.folderHandle), hasXl = !!xlWorkbook;
+
+  bVal.disabled = bLat.disabled = bPass.disabled = bFail.disabled = bRem.disabled = bSet.disabled = bSSPMW.disabled = bSSPMN.disabled = !hasCtrl;
+
+  if (!hasXl) { st.textContent = 'Open a workbook to get started.'; st.className = 'action-status'; bExp.disabled = true; return; }
+  if (!hasApp) { st.textContent = 'Select an application from the left panel.'; st.className = 'action-status'; bExp.disabled = true; return; }
+  if (!hasFoldr) { st.textContent = 'Select an output folder for this application.'; st.className = 'action-status'; bExp.disabled = true; return; }
+  if (!hasCtrl) { st.textContent = 'Select a control to document.'; st.className = 'action-status'; bExp.disabled = true; return; }
+  if (!title) { st.textContent = 'Title is empty.'; st.className = 'action-status'; bExp.disabled = true; return; }
+  if (!sections.length) { st.textContent = 'Add at least one image section.'; st.className = 'action-status'; bExp.disabled = true; return; }
+  const miss = sections.filter(s => !s.imageData).length;
+  if (miss) { st.textContent = `${miss} section(s) missing an image.`; st.className = 'action-status err'; bExp.disabled = true; return; }
+  st.textContent = `Ready — "${title}.docx" → ${currentApp.folderHandle.name}`;
+  st.className = 'action-status ok'; bExp.disabled = false;
+}
+
+// ════════════════════════════════════════════════════════════
+// EXCEL WRITE
+// ════════════════════════════════════════════════════════════
+async function writeExcel() {
+  if (!xlWorkbook || !xlFileHandle) { showToast('No workbook file handle — reopen the file.', 'error'); return; }
+  try {
+    for (const app of apps) {
+      const ws = xlWorkbook.Sheets[app.name];
+      if (!ws) continue;
+      const rows = XLSX.utils.sheet_to_json(ws, { header: 1 });
+      const hdr = rows[0];
+      const colC = hdr.indexOf('Completed?'), colR = hdr.indexOf('Reason'), colS = hdr.indexOf('Current Status');
+      const colSSPM = hdr.indexOf('SSPM STATUS');
+      app.controls.forEach(c => {
+        const ri = c.rowIdx - 1;
+        if (!rows[ri]) return;
+        rows[ri][colC] = c.completed;
+        rows[ri][colR] = c.reason;
+        if (colS >= 0) rows[ri][colS] = c.status;
+        if (colSSPM >= 0) rows[ri][colSSPM] = c.sspmStatus;
+      });
+      const newWs = XLSX.utils.aoa_to_sheet(rows);
+      app.controls.forEach(c => {
+        const ri = c.rowIdx - 1;
+        const v = c.completed.toLowerCase();
+        let fg = null;
+        if (v === 'valid') fg = 'C6EFCE';
+        else if (v === 'to be tested later') fg = 'FFEB9C';
+        else if (v === 'updated') fg = 'DDEEFF';
+        else if (v === 'not checked') fg = 'F0F0F0';
+        else if (v === 'to be removed') fg = 'E8E8E8';
+        else if (v === 'recheck, setting changed') fg = 'FFE0CC';
+        if (fg) {
+          hdr.forEach((_, ci) => {
+            const ref = XLSX.utils.encode_cell({ r: ri, c: ci });
+            if (!newWs[ref]) newWs[ref] = { v: '', t: 's' };
+            newWs[ref].s = { fill: { fgColor: { rgb: fg }, patternType: 'solid' } };
+          });
+        }
+      });
+      xlWorkbook.Sheets[app.name] = newWs;
+    }
+    const out = XLSX.write(xlWorkbook, { bookType: 'xlsx', type: 'array', cellStyles: true });
+    const w = await xlFileHandle.createWritable();
+    await w.write(new Uint8Array(out));
+    await w.close();
+  } catch (e) {
+    console.error(e);
+    showToast('Excel write failed: ' + e.message, 'error');
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+// DOCX BUILD & EXPORT
+// ════════════════════════════════════════════════════════════
+function escXml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;'); }
+function escH(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function b64u8(b64) { const bin = atob(b64), a = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) a[i] = bin.charCodeAt(i); return a; }
+function pxEmu(px) { return Math.round(px * 914400 / 96); }
+function fitImg(w, h, max = 624) { return w <= max ? { w, h } : { w: max, h: Math.round(h * max / w) }; }
+
+function textRuns(text, rprXml) {
+  const lines = text.split('\n');
+  let xml = '';
+  lines.forEach((line, i) => {
+    if (i > 0) xml += `<w:r>${rprXml}<w:br/></w:r>`;
+    if (line) xml += `<w:r>${rprXml}<w:t xml:space="preserve">${escXml(line)}</w:t></w:r>`;
+  });
+  return xml;
+}
+
+async function buildDocx(title, sectionData) {
+  const zip = new JSZip(), imgRels = [];
+  sectionData.forEach((sec, i) => {
+    const ext = sec.imageType === 'image/jpeg' ? 'jpeg' : 'png';
+    imgRels.push({ rId: 'rId' + (i + 10), ext, n: i + 1 });
+    zip.file(`word/media/img${i + 1}.${ext}`, b64u8(sec.imageData));
+  });
+  let body = `\n  <w:p><w:pPr><w:pStyle w:val="Heading1"/><w:spacing w:after="240"/></w:pPr><w:r><w:rPr><w:b/><w:sz w:val="36"/><w:color w:val="1F3864"/></w:rPr><w:t>${escXml(title)}</w:t></w:r></w:p>`;
+  sectionData.forEach((sec, i) => {
+    const rel = imgRels[i], fit = fitImg(sec.imageW, sec.imageH), cx = pxEmu(fit.w), cy = pxEmu(fit.h);
+    body += `\n  <w:p><w:pPr><w:spacing w:before="160" w:after="120"/></w:pPr><w:r><w:drawing>
+      <wp:inline distT="0" distB="0" distL="0" distR="0">
+        <wp:extent cx="${cx}" cy="${cy}"/><wp:effectExtent l="0" t="0" r="0" b="0"/>
+        <wp:docPr id="${i+1}" name="Img${i+1}"/>
+        <wp:cNvGraphicFramePr><a:graphicFrameLocks xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" noChangeAspect="1"/></wp:cNvGraphicFramePr>
+        <a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">
+          <a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">
+            <pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">
+              <pic:nvPicPr><pic:cNvPr id="${i+100}" name="Img${i+1}"/><pic:cNvPicPr><a:picLocks noChangeAspect="1"/></pic:cNvPicPr></pic:nvPicPr>
+              <pic:blipFill><a:blip r:embed="${rel.rId}"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill>
+              <pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr>
+            </pic:pic>
+          </a:graphicData>
+        </a:graphic>
+      </wp:inline>
+    </w:drawing></w:r></w:p>`;
+    if (sec.imgDesc) body += `\n  <w:p><w:pPr><w:spacing w:after="160"/></w:pPr>${textRuns(sec.imgDesc, '<w:rPr><w:i/><w:iCs/><w:color w:val="555555"/><w:sz w:val="22"/></w:rPr>')}</w:p>`;
+    if (sec.addDesc) body += `\n  <w:p><w:pPr><w:spacing w:after="200"/></w:pPr>${textRuns(sec.addDesc, '<w:rPr><w:sz w:val="24"/></w:rPr>')}</w:p>`;
+    if (i < sectionData.length - 1) body += `\n  <w:p><w:pPr><w:spacing w:after="160"/></w:pPr></w:p>`;
+  });
+  zip.file('word/document.xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"
+  xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
+  xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:body>${body}
+    <w:sectPr><w:pgSz w:w="12240" w:h="15840"/>
+      <w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440" w:header="720" w:footer="720" w:gutter="0"/>
+    </w:sectPr>
+  </w:body>
+</w:document>`);
+  zip.file('word/styles.xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri"/><w:sz w:val="24"/><w:szCs w:val="24"/></w:rPr></w:rPrDefault></w:docDefaults>
+  <w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/></w:style>
+  <w:style w:type="paragraph" w:styleId="Heading1"><w:name w:val="heading 1"/><w:basedOn w:val="Normal"/>
+    <w:pPr><w:outlineLvl w:val="0"/></w:pPr>
+    <w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/><w:b/><w:sz w:val="36"/><w:color w:val="1F3864"/></w:rPr>
+  </w:style>
+</w:styles>`);
+  let rels = `  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>`;
+  imgRels.forEach(r => { rels += `\n  <Relationship Id="${r.rId}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/img${r.n}.${r.ext}"/>`; });
+  zip.file('word/_rels/document.xml.rels', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">\n${rels}\n</Relationships>`);
+  zip.file('_rels/.rels', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">\n  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>\n</Relationships>`);
+  const hasPng = imgRels.some(r => r.ext === 'png'), hasJpeg = imgRels.some(r => r.ext === 'jpeg');
+  zip.file('[Content_Types].xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">\n  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>\n  <Default Extension="xml" ContentType="application/xml"/>\n  ${hasPng ? '<Default Extension="png" ContentType="image/png"/>\n' : ''} ${hasJpeg ? '<Default Extension="jpeg" ContentType="image/jpeg"/>\n' : ''} <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>\n  <Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>\n</Types>`);
+  return zip.generateAsync({ type: 'arraybuffer', compression: 'DEFLATE' });
+}
+
+async function processDoc() {
+  if (!selectedCtrl || !currentApp?.folderHandle) return;
+  const btn = document.getElementById('btnExport');
+  const st = document.getElementById('actionStatus');
+  btn.disabled = true; st.textContent = 'Building document…'; st.className = 'action-status working';
+  try {
+    const title = sanitizeFilename(document.getElementById('docTitle').value).trim();
+    const secData = sections.map(s => ({
+      ...s,
+      imgDesc: document.getElementById('imgdesc-' + s.id).value.trim(),
+      addDesc: document.getElementById('adddesc-' + s.id).value.trim(),
+    }));
+    const buf = await buildDocx(title, secData);
+    const fh = await currentApp.folderHandle.getFileHandle(title + '.docx', { create: true });
+    const w = await fh.createWritable();
+    await w.write(buf);
+    await w.close();
+
+    const reason = secData.map((s, i) => s.imgDesc ? `[Image ${i + 1}] ${s.imgDesc}` : '').filter(Boolean).join(' | ');
+    selectedCtrl.completed = 'Updated';
+    selectedCtrl.reason = reason;
+    syncCtrl(selectedCtrl);
+    await writeExcel();
+
+    renderCtrlList(); renderAppList();
+    showToast(`✓ Saved: ${title}.docx`, 'success');
+    st.textContent = `Saved "${title}.docx" → ${currentApp.folderHandle.name}`;
+    st.className = 'action-status ok';
+    clearForm();
+    selectCtrl(selectedCtrl.id);
+  } catch (e) {
+    console.error(e);
+    showToast('Error: ' + e.message, 'error');
+    st.textContent = 'Error generating document.'; st.className = 'action-status err';
+  } finally { updateActionBar(); }
+}
+
+// ════════════════════════════════════════════════════════════
+// CLEAR FORM
+// ════════════════════════════════════════════════════════════
+function clearForm() {
+  document.getElementById('docTitle').value = '';
+  document.getElementById('titleBadge').textContent = '0';
+  document.getElementById('prevReasonWrap').style.display = 'none';
+  document.getElementById('prevReasonText').textContent = '';
+  sections.forEach(s => {
+    const z = document.getElementById('zone-' + s.id);
+    if (z && z._dh) document.removeEventListener('paste', z._dh);
+    document.getElementById('card-' + s.id)?.remove();
+  });
+  sections = []; sectionCount = 0; selectedCtrl = null;
+  document.getElementById('prevExportPreview').style.display = 'none';
+  document.getElementById('prevExportContent').innerHTML = '';
+  addSection();
+  showView('controls', 'appView');
+}
+
+// ════════════════════════════════════════════════════════════
+// AUTO RESIZE & TOAST
+// ════════════════════════════════════════════════════════════
+function autoResize(el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; }
+let _tt;
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'show ' + (type || '');
+  clearTimeout(_tt); _tt = setTimeout(() => t.className = '', 4000);
+}
+
+// ════════════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════════════
+showView('apps', 'welcome');
+updateActionBar();
+</script>
+</body>
+</html>
