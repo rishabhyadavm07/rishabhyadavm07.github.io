@@ -1,301 +1,377 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/x-icon" href="/assets/favicon_io/favicon.ico">
-    <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon_io/favicon-16x16.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon_io/favicon-32x32.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon_io/apple-touch-icon.png">
-    <link rel="manifest" href="/assets/favicon_io/site.webmanifest">
-    <title>Intel Feed | fanaticalnerd</title>
-    <meta name="description" content="Live security intelligence feed curated by fanaticalnerd — tracking CVEs, threat actors, bug bounty disclosures, and cybersecurity news.">
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- React and ReactDOM -->
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <!-- Babel for JSX -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700;800&display=swap');
-        
-        body {
-            font-family: 'JetBrains+Mono', monospace;
-            background-color: #050505;
-            color: #dddddd;
-            margin: 0;
-            overflow-x: hidden;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <link rel="icon" type="image/x-icon" href="/assets/favicon_io/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon_io/favicon-16x16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon_io/favicon-32x32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon_io/apple-touch-icon.png">
+  <link rel="manifest" href="/assets/favicon_io/site.webmanifest">
+  <title>Intel Feed | fanaticalnerd</title>
+  <meta name="description" content="Live security intelligence feed curated by fanaticalnerd — tracking CVEs, threat actors, bug bounty disclosures, and cybersecurity news.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700;800&family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --crimson: #dc2626;
+      --crimson-dim: rgba(220, 38, 38, 0.12);
+      --crimson-glow: rgba(220, 38, 38, 0.45);
+      --black: #020202;
+      --void: #050505;
+      --surface: #0a0a0a;
+      --elevated: #111111;
+      --border: #1a1a1a;
+      --text: #dddddd;
+      --text-dim: #888888;
+      --text-faint: #3a3a3a;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'JetBrains Mono', monospace;
+      background-color: var(--black);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+    ::selection { background: var(--crimson); color: #fff; }
+    ::-webkit-scrollbar { width: 3px; }
+    ::-webkit-scrollbar-thumb { background: var(--crimson); }
 
-        .scanline {
-            width: 100%;
-            height: 2px;
-            background: #dc2626;
-            opacity: 0.1;
-            position: fixed;
-            z-index: 50;
-            pointer-events: none;
-            animation: scan 10s linear infinite;
-        }
+    #ambient { position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0.35; }
+    .scanline { position: fixed; top: 0; left: 0; width: 100%; height: 2px; background: var(--crimson); opacity: 0.07; z-index: 50; pointer-events: none; animation: scan 7s linear infinite; }
+    @keyframes scan { 0%{top:-5%} 100%{top:105%} }
+    .noise { position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: 0.025; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); background-repeat: repeat; background-size: 256px; }
+    .vignette { position: fixed; inset: 0; z-index: 2; pointer-events: none; background: radial-gradient(circle at center, transparent 0%, var(--black) 100%); }
 
-        @keyframes scan {
-            0% { top: -10%; }
-            100% { top: 110%; }
-        }
+    .page-wrap { position: relative; z-index: 10; max-width: 1200px; margin: 0 auto; padding: 80px 24px 160px; }
 
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: #0a0a0a;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #dc2626;
-        }
+    .back-link {
+      display: inline-flex; align-items: center; gap: 10px;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.3em; text-transform: uppercase;
+      color: var(--text-faint); text-decoration: none;
+      border: 1px solid var(--border); padding: 10px 20px;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); margin-bottom: 60px;
+    }
+    .back-link:hover { color: var(--crimson); border-color: rgba(220,38,38,0.4); }
+    .back-link::before { content: '←'; }
 
-        /* Nav Entrance Animation */
-        @keyframes nav-slide-up {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+    /* ─── Header ─── */
+    .page-header { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 24px; margin-bottom: 80px; }
+    .page-header__left {}
+    .page-header__label {
+      font-size: 10px; letter-spacing: 0.5em; color: var(--crimson);
+      text-transform: uppercase; font-weight: 800; margin-bottom: 16px;
+      display: flex; align-items: center; gap: 12px;
+      opacity: 0; transform: translateX(-20px);
+      transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .page-header__label.visible { opacity: 1; transform: translateX(0); }
+    .page-header__label::before { content: ''; display: block; width: 32px; height: 1px; background: var(--crimson); }
+    .page-header__title {
+      font-family: 'Inter', sans-serif; font-size: clamp(1.2rem, 3vw, 1.8rem);
+      font-weight: 800; line-height: 1; letter-spacing: -0.03em; color: #fff;
+      opacity: 0; transform: translateY(20px);
+      transition: all 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.1s;
+    }
+    .page-header__title.visible { opacity: 1; transform: translateY(0); }
+    .page-header__status {
+      margin-top: 14px; font-size: 10px; letter-spacing: 0.3em; color: var(--text-faint);
+      opacity: 0; transition: opacity 0.8s ease 0.3s;
+    }
+    .page-header__status.visible { opacity: 1; }
+    .pulse-dot { display: inline-block; width: 7px; height: 7px; background: var(--crimson); border-radius: 50%; box-shadow: 0 0 10px var(--crimson); animation: pulse 2s ease-in-out infinite; margin-right: 8px; }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
 
-        .animate-nav-item {
-            animation: nav-slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
+    .refresh-btn {
+      background: transparent; border: 1px solid var(--border); color: var(--text-faint);
+      font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; letter-spacing: 0.15em;
+      padding: 12px 24px; cursor: pointer; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); text-transform: uppercase;
+      align-self: flex-start; margin-top: 8px;
+    }
+    .refresh-btn:hover { border-color: var(--crimson); color: var(--crimson); background: var(--crimson-dim); }
+    .refresh-btn:active { transform: scale(0.95); }
 
-        .tactical-card {
-            background: rgba(17, 17, 17, 0.9);
-            border: 1px solid rgba(31, 41, 55, 1);
-            transition: all 0.3s ease;
-        }
-        .tactical-card:hover {
-            border-color: rgba(220, 38, 38, 0.3);
-        }
+    /* ─── Feed grid ─── */
+    .feed-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+    }
 
-        .news-item {
-            border-left: 2px solid #1f2937;
-            transition: all 0.2s ease;
-        }
-        .news-item:hover {
-            border-left-color: #dc2626;
-            background: rgba(220, 38, 38, 0.05);
-        }
-    </style>
+    /* ─── Feed column ─── */
+    .feed-col {
+      background: var(--elevated); border: 1px solid var(--border);
+      border-top: 2px solid var(--crimson); padding: 24px;
+      display: flex; flex-direction: column; height: 580px;
+      opacity: 0; transform: translateY(40px);
+      transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative; overflow: hidden;
+    }
+    .feed-col.visible { opacity: 1; transform: translateY(0); }
+    .feed-col::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, var(--crimson-dim) 0%, transparent 50%);
+      pointer-events: none; opacity: 0; transition: opacity 0.6s;
+    }
+    .feed-col:hover::before { opacity: 1; }
+
+    .feed-col-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-shrink: 0; }
+    .feed-col-id { font-size: 9px; color: var(--text-faint); letter-spacing: 0.25em; font-weight: 700; }
+    .feed-col-title { font-size: 10px; color: var(--crimson); font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 16px; flex-shrink: 0; }
+    .feed-col-divider { width: 100%; height: 1px; background: var(--border); margin-bottom: 16px; flex-shrink: 0; }
+
+    .feed-items { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+    .feed-items::-webkit-scrollbar { width: 2px; }
+    .feed-items::-webkit-scrollbar-thumb { background: var(--crimson); }
+
+    .feed-item {
+      display: block; text-decoration: none; color: inherit;
+      padding: 12px; border-left: 2px solid var(--border);
+      background: rgba(10,10,10,0.6); transition: all 0.25s ease;
+    }
+    .feed-item:hover { border-left-color: var(--crimson); background: rgba(220,38,38,0.05); }
+    .feed-item-title { font-size: 11px; color: #bbb; line-height: 1.45; font-weight: 400; transition: color 0.25s; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .feed-item:hover .feed-item-title { color: #fff; }
+    .feed-item-date { font-size: 9px; color: var(--text-faint); margin-top: 6px; letter-spacing: 0.15em; }
+
+    /* Skeleton */
+    .feed-skeleton { display: flex; flex-direction: column; gap: 12px; }
+    .skel-item { padding: 12px; border-left: 2px solid var(--border); animation: shimmer 1.5s ease-in-out infinite; }
+    .skel-line { height: 10px; background: var(--border); border-radius: 2px; margin-bottom: 6px; }
+    .skel-line.w75 { width: 75%; }
+    .skel-line.w50 { width: 50%; }
+    .skel-line.w90 { width: 90%; }
+    @keyframes shimmer { 0%,100%{opacity:0.4} 50%{opacity:0.8} }
+
+    .feed-empty { font-size: 10px; color: var(--text-faint); letter-spacing: 0.2em; text-transform: uppercase; font-weight: 700; padding: 20px 0; }
+
+    /* ─── Floating Nav ─── */
+    .floating-nav {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      z-index: 1000; display: flex; flex-direction: column; align-items: center; gap: 16px;
+    }
+    .nav-cards {
+      display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; max-width: 90vw;
+      opacity: 0; transform: translateY(30px) scale(0.9); pointer-events: none;
+      transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .floating-nav:hover .nav-cards, .floating-nav.open .nav-cards { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
+    .nav-card {
+      width: 82px; height: 92px; background: rgba(12,12,12,0.95);
+      backdrop-filter: blur(16px); border: 1px solid var(--border); border-radius: 14px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+      text-decoration: none; color: var(--text-dim);
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      opacity: 0; transform: translateY(20px) scale(0.7); position: relative; overflow: hidden;
+    }
+    .nav-card::before { content: ''; position: absolute; inset: 0; border-radius: 14px; background: radial-gradient(circle at 50% 0%, rgba(220,38,38,0.15), transparent 70%); opacity: 0; transition: opacity 0.4s; }
+    .nav-card:hover::before { opacity: 1; }
+    .floating-nav:hover .nav-card, .floating-nav.open .nav-card { opacity: 1; transform: translateY(0) scale(1); }
+    .nav-card:nth-child(1){transition-delay:.04s} .nav-card:nth-child(2){transition-delay:.08s} .nav-card:nth-child(3){transition-delay:.12s} .nav-card:nth-child(4){transition-delay:.16s} .nav-card:nth-child(5){transition-delay:.20s} .nav-card:nth-child(6){transition-delay:.24s}
+    .nav-card:hover { border-color: var(--crimson); color: #fff; transform: translateY(-10px) scale(1.12) !important; box-shadow: 0 20px 40px rgba(0,0,0,0.6), 0 0 20px rgba(220,38,38,0.2); }
+    .nav-card:hover .nc-icon { color: var(--crimson); }
+    .nc-icon { width: 20px; height: 20px; position: relative; z-index: 1; }
+    .nc-label { font-size: 8px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; position: relative; z-index: 1; }
+    .nav-trigger {
+      padding: 14px 48px; background: var(--crimson); color: #fff;
+      font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 800;
+      letter-spacing: 0.5em; cursor: pointer; border: none; border-radius: 40px;
+      position: relative; overflow: hidden;
+      box-shadow: 0 8px 32px rgba(220,38,38,0.35), 0 0 0 1px rgba(220,38,38,0.5);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .nav-trigger:hover { background: #b91c1c; letter-spacing: 0.65em; transform: translateY(-2px); }
+    .nav-trigger:active { transform: scale(0.95); }
+    .nav-trigger::after { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent); animation: shine 3s ease-in-out infinite; }
+    @keyframes shine { 0%,100%{left:-100%} 50%{left:100%} }
+
+    footer { position: relative; z-index: 10; text-align: center; padding: 60px 24px; border-top: 1px solid var(--border); }
+    .footer-copy { font-size: 10px; color: var(--text-faint); opacity: 0.4; letter-spacing: 0.3em; }
+
+    @media (max-width: 1024px) { .feed-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 768px) {
+      .page-wrap { padding: 60px 20px 140px; }
+      .feed-grid { grid-template-columns: 1fr; }
+      .feed-col { height: 400px; }
+      .floating-nav { bottom: 16px; }
+      .nav-card { width: 66px; height: 76px; }
+      .nc-label { font-size: 7px; }
+      .nav-trigger { padding: 12px 32px; font-size: 9px; letter-spacing: 0.35em; }
+      .page-header { flex-direction: column; }
+    }
+  </style>
 </head>
-<body class="custom-scrollbar">
-    <div id="root"></div>
+<body>
+  <canvas id="ambient"></canvas>
+  <div class="noise"></div>
+  <div class="vignette"></div>
+  <div class="scanline"></div>
 
-    <script type="text/babel">
-        const { useState, useEffect } = React;
+  <div class="page-wrap">
 
-        const FEEDS = {
-            globalCyber: "https://feeds.feedburner.com/TheHackersNews",
-            indiaCyber: "https://news.google.com/rss/search?q=cybersecurity+india&hl=en-IN&gl=IN&ceid=IN:en",
-            globalNews: "http://feeds.bbci.co.uk/news/world/rss.xml",
-            indiaNews: "https://timesofindia.indiatimes.com/rssfeedstopstories.cms"
-        };
+    <a class="back-link" href="index.html">BACK TO INTERFACE</a>
 
-        const RSS_API = "https://api.rss2json.com/v1/api.json?rss_url=";
-        const CACHE_KEY = "intel_feed_data";
-        const CACHE_TIME_KEY = "intel_feed_timestamp";
-        const UPDATE_INTERVAL = 6 * 60 * 60 * 1000; // 6 Hours
+    <div class="page-header">
+      <div class="page-header__left">
+        <div class="page-header__label" id="headerLabel">Satellite Feed</div>
+        <h1 class="page-header__title" id="headerTitle">INTEL_FEED</h1>
+        <div class="page-header__status" id="headerStatus">
+          <span class="pulse-dot"></span><span id="statusText">INITIALIZING...</span>
+        </div>
+      </div>
+      <button class="refresh-btn" id="refreshBtn">[ FORCE_REFRESH ]</button>
+    </div>
 
-        const App = () => {
-            const [isMenuOpen, setIsMenuOpen] = useState(false);
-            const [news, setNews] = useState({
-                globalCyber: [],
-                indiaCyber: [],
-                globalNews: [],
-                indiaNews: []
-            });
-            const [status, setStatus] = useState("INITIALIZING...");
-            const [loading, setLoading] = useState(true);
+    <div class="feed-grid" id="feedGrid"></div>
 
-            useEffect(() => {
-                lucide.createIcons();
-                loadIntel();
-            }, []);
+  </div>
 
-            useEffect(() => {
-                lucide.createIcons();
-            }, [isMenuOpen, loading, news]);
+  <footer>
+    <div class="footer-copy">© FANATICALNERD // h4ppy_h4cking | rishabhyadav.inbox@gmail.com</div>
+  </footer>
 
-            const fetchSingleFeed = async (url) => {
-                try {
-                    const res = await fetch(RSS_API + encodeURIComponent(url));
-                    const data = await res.json();
-                    return data.status === 'ok' ? data.items.slice(0, 12) : [];
-                } catch (e) {
-                    return [];
-                }
-            };
+  <div class="floating-nav" id="floatingNav">
+    <div class="nav-cards" id="navCards"></div>
+    <button class="nav-trigger" id="navTrigger">NAV</button>
+  </div>
 
-            const loadIntel = async (force = false) => {
-                setLoading(true);
-                const lastUpdate = localStorage.getItem(CACHE_TIME_KEY);
-                const cachedData = localStorage.getItem(CACHE_KEY);
-                const now = Date.now();
+  <script>
+  (function() {
+    const FEEDS = [
+      { id: "01", title: "GLOBAL CYBER THREATS", url: "https://feeds.feedburner.com/TheHackersNews" },
+      { id: "02", title: "INDIA CYBER LANDSCAPE", url: "https://news.google.com/rss/search?q=cybersecurity+india&hl=en-IN&gl=IN&ceid=IN:en" },
+      { id: "03", title: "WORLD NEWS", url: "http://feeds.bbci.co.uk/news/world/rss.xml" },
+      { id: "04", title: "INDIA BRIEFING", url: "https://timesofindia.indiatimes.com/rssfeedstopstories.cms" }
+    ];
+    const RSS_API = "https://api.rss2json.com/v1/api.json?rss_url=";
+    const CACHE_KEY = "intel_feed_data";
+    const CACHE_TS_KEY = "intel_feed_ts";
+    const CACHE_TTL = 6 * 60 * 60 * 1000;
 
-                if (!force && lastUpdate && cachedData && (now - lastUpdate < UPDATE_INTERVAL)) {
-                    setNews(JSON.parse(cachedData));
-                    setStatus(`LAST_SYNC: ${new Date(parseInt(lastUpdate)).toLocaleTimeString()}`);
-                    setLoading(false);
-                    return;
-                }
+    const NAV_LINKS = [
+      {name:"HOME",url:"index.html",icon:"home"},
+      {name:"JOB DASH",url:"jobs.html",icon:"activity"},
+      {name:"BLOGS",url:"blogs.html",icon:"book-open"},
+      {name:"REPORTS",url:"Disclosed-Reports/reports_index.html",icon:"file-text"},
+      {name:"PREPPP",url:"interview_ques.html",icon:"cloud"},
+      {name:"JOURNAL",url:"journal.html",icon:"book"},
+      {name:"PRIVATE",url:"private.html",icon:"lock"}
+    ];
+    const iconSvgs = {
+      home:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
+      activity:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/></svg>',
+      'book-open':'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg>',
+      'file-text':'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8l6 6v12a2 2 0 0 1-2 2z"/><path d="M14 2v6h6"/></svg>',
+      cloud:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>',
+      book:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>',
+      lock:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>'
+    };
 
-                setStatus("SYNCING_SATELLITE_FEED...");
-                
-                const [gc, ic, gn, inews] = await Promise.all([
-                    fetchSingleFeed(FEEDS.globalCyber),
-                    fetchSingleFeed(FEEDS.indiaCyber),
-                    fetchSingleFeed(FEEDS.globalNews),
-                    fetchSingleFeed(FEEDS.indiaNews)
-                ]);
+    // Build skeleton columns
+    const grid = document.getElementById('feedGrid');
+    FEEDS.forEach((feed, idx) => {
+      const col = document.createElement('div');
+      col.className = 'feed-col';
+      col.id = `col-${feed.id}`;
+      col.style.transitionDelay = `${idx * 80}ms`;
+      col.innerHTML = `
+        <div class="feed-col-header"><div class="feed-col-id">NODE_${feed.id}</div></div>
+        <div class="feed-col-title">${feed.title}</div>
+        <div class="feed-col-divider"></div>
+        <div class="feed-items" id="items-${feed.id}">
+          <div class="feed-skeleton">
+            ${Array(6).fill('<div class="skel-item"><div class="skel-line w90"></div><div class="skel-line w75"></div><div class="skel-line w50"></div></div>').join('')}
+          </div>
+        </div>`;
+      grid.appendChild(col);
+    });
 
-                const freshNews = {
-                    globalCyber: gc,
-                    indiaCyber: ic,
-                    globalNews: gn,
-                    indiaNews: inews
-                };
+    // Nav
+    document.getElementById('navCards').innerHTML = NAV_LINKS.map(l =>
+      `<a class="nav-card" href="${l.url}"><div class="nc-icon">${iconSvgs[l.icon]}</div><div class="nc-label">${l.name}</div></a>`
+    ).join('');
+    const floatingNav = document.getElementById('floatingNav');
+    document.getElementById('navTrigger').addEventListener('click', e => { e.stopPropagation(); floatingNav.classList.toggle('open'); });
+    document.addEventListener('click', () => floatingNav.classList.remove('open'));
+    floatingNav.addEventListener('click', e => e.stopPropagation());
 
-                setNews(freshNews);
-                localStorage.setItem(CACHE_KEY, JSON.stringify(freshNews));
-                localStorage.setItem(CACHE_TIME_KEY, now.toString());
-                setStatus(`LAST_SYNC: ${new Date(now).toLocaleTimeString()}`);
-                setLoading(false);
-            };
+    // Ambient particles
+    const canvas = document.getElementById('ambient');
+    const ctx = canvas.getContext('2d');
+    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    resize(); window.addEventListener('resize', resize);
+    class P {
+      constructor() { this.x=Math.random()*canvas.width; this.y=Math.random()*canvas.height; this.size=Math.random()*1.2+0.4; this.sx=(Math.random()-0.5)*0.25; this.sy=(Math.random()-0.5)*0.25; this.o=Math.random()*0.4+0.1; }
+      update() { this.x+=this.sx; this.y+=this.sy; if(this.x>canvas.width)this.x=0; if(this.x<0)this.x=canvas.width; if(this.y>canvas.height)this.y=0; if(this.y<0)this.y=canvas.height; }
+      draw() { ctx.fillStyle=`rgba(220,38,38,${this.o})`; ctx.beginPath(); ctx.arc(this.x,this.y,this.size,0,Math.PI*2); ctx.fill(); }
+    }
+    let pts = []; for(let i=0;i<90;i++) pts.push(new P());
+    (function loop() { ctx.clearRect(0,0,canvas.width,canvas.height); pts.forEach(p=>{p.update();p.draw();}); requestAnimationFrame(loop); })();
 
-            const FeedColumn = ({ title, items, id, icon }) => (
-                <div className="tactical-card p-6 rounded-sm flex flex-col h-[600px]">
-                    <div className="flex items-center justify-between mb-6">
-                        <div className="text-red-600 text-[10px] font-black tracking-widest uppercase">{id} // {title}</div>
-                        <i data-lucide={icon} className="text-zinc-700" style={{width: '16px', height: '16px'}}></i>
-                    </div>
-                    
-                    <div className="space-y-4 overflow-y-auto custom-scrollbar pr-2 flex-grow">
-                        {loading ? (
-                            Array(5).fill(0).map((_, i) => (
-                                <div key={i} className="animate-pulse space-y-2">
-                                    <div className="h-4 bg-zinc-800 rounded w-3/4"></div>
-                                    <div className="h-3 bg-zinc-900 rounded w-1/2"></div>
-                                </div>
-                            ))
-                        ) : items.length > 0 ? (
-                            items.map((item, idx) => (
-                                <a 
-                                    key={idx} 
-                                    href={item.link} 
-                                    target="_blank" 
-                                    className="news-item block p-3 bg-zinc-900/30 group"
-                                >
-                                    <h4 className="text-xs font-bold text-zinc-300 group-hover:text-red-500 transition-colors line-clamp-2">
-                                        {item.title}
-                                    </h4>
-                                    <div className="text-[9px] text-zinc-600 mt-2 font-mono">
-                                        {new Date(item.pubDate).toLocaleDateString()}
-                                    </div>
-                                </a>
-                            ))
-                        ) : (
-                            <div className="text-zinc-700 text-[10px] italic">NO_DATA_RETRIEVED</div>
-                        )}
-                    </div>
-                </div>
-            );
+    // Intersection observer for columns
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => { if(e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+    }, { threshold: 0.05 });
+    document.querySelectorAll('.feed-col').forEach(el => observer.observe(el));
 
-            const navLinks = [
-                { name: "HOME", icon: "home", url: "index.html" },
-                { name: "JOB DASHBOARD", icon: "activity", url: "jobs.html" },
-                // { name: "INTEL", icon: "radar", url: "intel.html" },
-                { name: "BLOGS", icon: "book-open", url: "blogs.html" },
-                { name: "REPORTS", icon: "file-text", url: "Disclosed-Reports/reports_index.html" },
-                { name: "JOURNAL", icon: "book", url: "journal.html" },
-                { name: "PRIVATE", icon: "lock", url: "private.html" }
-            ];
+    // Header anims
+    setTimeout(() => document.getElementById('headerLabel').classList.add('visible'), 200);
+    setTimeout(() => document.getElementById('headerTitle').classList.add('visible'), 350);
+    setTimeout(() => document.getElementById('headerStatus').classList.add('visible'), 500);
 
-            return (
-                <div className="min-h-screen selection:bg-red-600 selection:text-white p-4 md:p-12">
-                    <div className="scanline"></div>
-                    
-                    {/* Background Glow */}
-                    <div className="fixed inset-0 pointer-events-none overflow-hidden">
-                        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-red-600/5 blur-[120px] rounded-full"></div>
-                    </div>
+    // Feed loading
+    function setStatus(text) { document.getElementById('statusText').textContent = text; }
 
-                    <main className="max-w-7xl mx-auto relative z-10 p-6 md:p-12 mb-28">
-                        
-                        {/* Header */}
-                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-16 border-b border-zinc-800 pb-12">
-                            <div className="space-y-4">
-                                <a href="index.html" className="flex items-center gap-2 text-[10px] font-black tracking-[0.2em] text-zinc-500 hover:text-red-600 transition-all bg-zinc-900/30 px-4 py-2 border border-zinc-800 hover:border-red-600/40 w-max">
-                                    <i data-lucide="arrow-left" style={{width: '14px', height: '14px'}}></i> BACK TO INTERFACE
-                                </a>
-                                <h1 className="text-white text-4xl md:text-6xl font-black tracking-tighter uppercase">Intel_Feed</h1>
-                                <div className="text-zinc-500 text-[10px] font-mono tracking-widest">
-                                    <span className="text-red-600">>></span> {status}
-                                </div>
-                            </div>
-                            <button 
-                                onClick={() => loadIntel(true)}
-                                className="text-[9px] font-bold text-zinc-600 hover:text-red-600 transition-all border border-zinc-800 px-4 py-2 bg-zinc-950 flex items-center gap-2 hover:bg-zinc-900 active:translate-y-0.5"
-                            >
-                                [FORCE_REFRESH] <i data-lucide="refresh-cw" style={{width: '12px'}}></i>
-                            </button>
-                        </div>
+    async function fetchFeed(url) {
+      try {
+        const res = await fetch(RSS_API + encodeURIComponent(url));
+        const data = await res.json();
+        return data.status === 'ok' ? data.items.slice(0, 14) : [];
+      } catch(e) { return []; }
+    }
 
-                        {/* Grid */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                            <FeedColumn title="GLOBAL CYBER THREATS" items={news.globalCyber} id="01" icon="shield-alert" />
-                            <FeedColumn title="INDIA CYBER LANDSCAPE" items={news.indiaCyber} id="02" icon="map" />
-                            <FeedColumn title="WORLD NEWS" items={news.globalNews} id="03" icon="globe" />
-                            <FeedColumn title="INDIA BRIEFING" items={news.indiaNews} id="04" icon="zap" />
-                        </div>
+    function renderItems(feedId, items) {
+      const container = document.getElementById(`items-${feedId}`);
+      if (!items || !items.length) {
+        container.innerHTML = '<div class="feed-empty">NO_DATA_RETRIEVED</div>';
+        return;
+      }
+      container.innerHTML = items.map(item => `
+        <a class="feed-item" href="${item.link || '#'}" target="_blank">
+          <div class="feed-item-title">${item.title || ''}</div>
+          <div class="feed-item-date">${item.pubDate ? new Date(item.pubDate).toLocaleDateString('en-GB', {day:'2-digit',month:'short',year:'numeric'}) : ''}</div>
+        </a>`).join('');
+    }
 
-                        {/* Footer */}
-                        <div className="mt-24 pt-10 border-t border-zinc-900 text-center opacity-40">
-                            <div className="text-[9px] font-bold tracking-[0.6em] uppercase">
-                                # h4ppy_h4cking | rishabhyadav.inbox@gmail.com
-                            </div>
-                        </div>
-                    </main>
+    async function loadIntel(force = false) {
+      const lastTs = localStorage.getItem(CACHE_TS_KEY);
+      const cached = localStorage.getItem(CACHE_KEY);
+      const now = Date.now();
 
-                    {/* Bottom Nav - Synchronized */}
-                    <div 
-                        className="fixed bottom-0 left-0 w-full z-[100] flex flex-col items-center"
-                        onMouseEnter={() => setIsMenuOpen(true)}
-                        onMouseLeave={() => setIsMenuOpen(false)}
-                    >
-                        {isMenuOpen && (
-                            <nav className="w-full max-w-5xl bg-[#0a0a0a] border border-red-600/30 border-b-0 rounded-t-[2rem] flex flex-wrap justify-evenly items-center p-10 gap-6 shadow-2xl animate-in slide-in-from-bottom-10">
-                                {navLinks.map((link, i) => (
-                                    <a 
-                                        key={i} 
-                                        href={link.url}
-                                        style={{ animationDelay: `${i * 50}ms` }}
-                                        className="animate-nav-item opacity-0 flex items-center gap-4 px-6 py-4 rounded-xl bg-zinc-900 border border-zinc-800 hover:border-red-600 hover:bg-red-600/5 transition-all group font-black text-[10px] uppercase tracking-widest w-full md:w-auto text-center hover:scale-105 active:scale-95"
-                                    >
-                                        <i data-lucide={link.icon} className="text-zinc-600 group-hover:text-red-600" style={{width: '14px', height: '14px'}}></i>
-                                        {link.name}
-                                    </a>
-                                ))}
-                            </nav>
-                        )}
+      if (!force && lastTs && cached && (now - parseInt(lastTs) < CACHE_TTL)) {
+        const data = JSON.parse(cached);
+        FEEDS.forEach(f => renderItems(f.id, data[f.id] || []));
+        setStatus(`LAST_SYNC: ${new Date(parseInt(lastTs)).toLocaleTimeString()}`);
+        return;
+      }
 
-                        <div className={`w-full py-5 text-center font-black tracking-[0.8em] text-[10px] transition-all duration-700 cursor-pointer ${isMenuOpen ? 'bg-white text-black' : 'bg-red-600 text-white shadow-lg'}`}>
-                            NAV [^]
-                        </div>
-                    </div>
-                </div>
-            );
-        };
+      setStatus('SYNCING_SATELLITE_FEED...');
+      document.getElementById('refreshBtn').textContent = '[ SYNCING... ]';
+      document.getElementById('refreshBtn').disabled = true;
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
-    </script>
+      const results = await Promise.all(FEEDS.map(f => fetchFeed(f.url)));
+      const data = {};
+      FEEDS.forEach((f, i) => { data[f.id] = results[i]; renderItems(f.id, results[i]); });
+      localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+      localStorage.setItem(CACHE_TS_KEY, now.toString());
+      setStatus(`LAST_SYNC: ${new Date(now).toLocaleTimeString()}`);
+      document.getElementById('refreshBtn').textContent = '[ FORCE_REFRESH ]';
+      document.getElementById('refreshBtn').disabled = false;
+    }
+
+    document.getElementById('refreshBtn').addEventListener('click', () => loadIntel(true));
+    loadIntel();
+  })();
+  </script>
 </body>
 </html>

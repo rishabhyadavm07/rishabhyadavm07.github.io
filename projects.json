@@ -1,0 +1,34 @@
+[
+  {
+    "name": "Secure CI/CD Project",
+    "description": "Production-grade DevSecOps project implementing a secure CI/CD pipeline with automated security scanning, container hardening, Kubernetes deployment, and cloud-native security practices.",
+    "language": "JavaScript",
+    "url": "https://github.com/rishabhyadavm07/Secure-CI-CD-Project",
+    "stars": 0,
+    "forks": 0
+  },
+  {
+    "name": "SubDigger",
+    "description": "Gathers subdomains from various tools and sources, saving them for bug hunting and reconnaissance workflows.",
+    "language": "Python",
+    "url": "https://github.com/rishabhyadavm07/SubDigger",
+    "stars": 0,
+    "forks": 0
+  },
+  {
+    "name": "FN Python Scanners",
+    "description": "Collection of custom security scanners built while learning Python scripting for InfoSec — covering common web and network attack surfaces.",
+    "language": "Python",
+    "url": "https://github.com/rishabhyadavm07/FN-Python-Scanners",
+    "stars": 0,
+    "forks": 0
+  },
+  {
+    "name": "EKS Goat",
+    "description": "Deliberately vulnerable EKS cluster environment to explore AWS cloud-native security through hands-on attack and defense labs.",
+    "language": "Kubernetes",
+    "url": "https://github.com/rishabhyadavm07/www-project-eks-goat",
+    "stars": 0,
+    "forks": 0
+  }
+]

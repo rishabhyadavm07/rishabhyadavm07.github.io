@@ -1,402 +1,384 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/x-icon" href="/assets/favicon_io/favicon.ico">
-    <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon_io/favicon-16x16.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon_io/favicon-32x32.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon_io/apple-touch-icon.png">
-    <link rel="manifest" href="/assets/favicon_io/site.webmanifest">
-    <title>{{TITLE}} | fanaticalnerd</title>
-    <meta name="author" content="{{AUTHOR}}">
-    <meta name="description" content="{{DESCRIPTION}}">
-
-    <!-- Open Graph Meta Tags -->
-    <meta property="og:title" content="{{TITLE}}">
-    <meta property="og:description" content="{{DESCRIPTION}}">
-    <meta property="og:image" content="{{THUMBNAIL}}">
-    <meta property="og:url" content="{{URL}}">
-    <meta property="og:type" content="article">
-    <meta property="og:site_name" content="fanaticalnerd">
-
-    <!-- Twitter Card Meta Tags -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{{TITLE}}">
-    <meta name="twitter:description" content="{{DESCRIPTION}}">
-    <meta name="twitter:image" content="{{THUMBNAIL}}">
-    <meta name="twitter:creator" content="@fanaticalnerd">
-
-    <!-- Favicons -->
-    <link rel="apple-touch-icon" sizes="180x180" href="/favicon_io/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon_io/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon_io/favicon-16x16.png">
-    <link rel="manifest" href="/favicon_io/site.webmanifest">
-
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700;800&display=swap');
-        
-        body {
-            font-family: 'JetBrains+Mono', monospace;
-            background-color: #050505;
-            color: #dddddd;
-            margin: 0;
-            overflow-x: hidden;
-        }
-
-        .scanline {
-            width: 100%;
-            height: 2px;
-            background: #dc2626;
-            opacity: 0.1;
-            position: fixed;
-            z-index: 50;
-            pointer-events: none;
-            animation: scan 8s linear infinite;
-        }
-
-        @keyframes scan {
-            0% { top: -10%; }
-            100% { top: 110%; }
-        }
-
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: #0a0a0a;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #dc2626;
-        }
-
-        /* Nav Entrance Animation */
-        @keyframes nav-slide-up {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .animate-nav-item {
-            animation: nav-slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        /* Tactical Container */
-        .tactical-panel {
-            background: rgba(10, 10, 10, 0.95);
-            border: 1px solid #1f2937;
-            backdrop-filter: blur(20px);
-        }
-
-        /* Blog content internal styling */
-        #blog-content {
-            line-height: 1.8;
-            font-weight: 300;
-        }
-
-        #blog-content h1 {
-            color: #ffffff;
-            font-size: 2em;
-            font-weight: 800;
-            margin-top: 1.5em;
-            margin-bottom: 0.5em;
-            letter-spacing: -0.05em;
-            text-transform: uppercase;
-        }
-
-        #blog-content h2 {
-            color: #dc2626;
-            font-size: 1.5em;
-            font-weight: 700;
-            margin-top: 2em;
-            margin-bottom: 0.8em;
-            border-left: 4px solid #dc2626;
-            padding-left: 0.5em;
-        }
-
-        #blog-content h3 {
-            color: #9ca3af;
-            font-size: 1.2em;
-            font-weight: 700;
-            margin-top: 1.5em;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-        }
-
-        #blog-content p {
-            margin: 1.2em 0;
-            color: #d1d5db;
-        }
-
-        #blog-content a {
-            color: #dc2626;
-            text-decoration: underline;
-            text-underline-offset: 4px;
-            transition: color 0.2s;
-        }
-
-        #blog-content a:hover {
-            color: #ffffff;
-        }
-
-        #blog-content code {
-            background-color: #1a1b1e;
-            padding: 0.2em 0.4em;
-            border-radius: 3px;
-            color: #fb7185;
-            font-family: inherit;
-            font-size: 0.9em;
-        }
-
-        #blog-content pre {
-            background-color: #0c0d0e;
-            padding: 1.5em;
-            border-radius: 4px;
-            overflow-x: auto;
-            border: 1px solid #1f2937;
-            margin: 2em 0;
-        }
-
-        #blog-content pre code {
-            background-color: transparent;
-            padding: 0;
-            color: #e5e7eb;
-        }
-
-        #blog-content blockquote {
-            border-left: 4px solid #4b5563;
-            padding: 1em 1.5em;
-            margin: 2em 0;
-            background: rgba(31, 41, 55, 0.3);
-            color: #9ca3af;
-            font-style: italic;
-        }
-
-        #blog-content ul, #blog-content ol {
-            margin: 1.5em 0;
-            padding-left: 1.5em;
-        }
-
-        #blog-content li {
-            margin: 0.6em 0;
-            list-style-type: square;
-        }
-
-        #blog-content img {
-            max-width: 100%;
-            height: auto;
-            border: 1px solid #374151;
-            border-radius: 2px;
-            margin: 2.5em 0;
-            filter: grayscale(20%) contrast(110%);
-        }
-
-        #blog-content table {
-            border-collapse: collapse;
-            width: 100%;
-            margin: 2em 0;
-            font-size: 0.9em;
-        }
-
-        #blog-content th, #blog-content td {
-            border: 1px solid #374151;
-            padding: 1em;
-            text-align: left;
-        }
-
-        #blog-content th {
-            background-color: #111827;
-            color: #ffffff;
-            text-transform: uppercase;
-            font-size: 0.8em;
-            letter-spacing: 0.1em;
-        }
-
-        .loading-pulse {
-            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: .5; }
-        }
-    </style>
-</head>
-<body class="custom-scrollbar">
-    <div class="scanline"></div>
-    
-    <!-- Background Glow -->
-    <div class="fixed inset-0 pointer-events-none overflow-hidden">
-        <div class="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-red-600/5 blur-[120px] rounded-full"></div>
-        <div class="absolute bottom-[-5%] right-[-5%] w-[40%] h-[40%] bg-slate-800/10 blur-[100px] rounded-full"></div>
-    </div>
-
-    <main class="max-w-4xl mx-auto relative z-10 p-6 md:p-12 mb-32 mt-12 tactical-panel rounded-md shadow-2xl">
-        
-        <!-- Tactical Breadcrumb -->
-        <a href="../blogs.html" class="flex items-center gap-2 text-[10px] font-black tracking-[0.2em] text-zinc-500 hover:text-red-600 transition-all bg-zinc-900/30 px-4 py-2 border border-zinc-800 hover:border-red-600/40 w-max mb-12 uppercase group">
-            <i data-lucide="arrow-left" class="group-hover:-translate-x-1 transition-transform" style="width: 14px; height: 14px;"></i> BACK TO ARCHIVE
-        </a>
-        
-        <!-- Post Header -->
-        <header class="mb-12 border-b border-zinc-900 pb-12">
-            <div id="blog-meta" class="mb-6 flex flex-wrap gap-6 text-[10px] font-bold text-zinc-500 uppercase tracking-widest">
-                <span class="flex items-center gap-2">
-                    <i data-lucide="calendar" style="width: 12px;"></i> {{DATE}}
-                </span>
-                <span class="flex items-center gap-2">
-                    <i data-lucide="user" style="width: 12px;"></i> BY {{AUTHOR}}
-                </span>
-                <span class="text-red-900 font-black">{{AI_GENERATED}}</span>
-            </div>
-            <!-- Title will be injected here by script -->
-            <div id="post-title-mount"></div>
-        </header>
-
-        <!-- Content Area -->
-        <article id="blog-content" class="animate-fade-in">
-            <div class="flex flex-col items-center justify-center py-20 text-zinc-700 font-mono text-xs tracking-widest uppercase">
-                <div class="loading-pulse mb-4">Establishing_Data_Link...</div>
-                <div class="w-48 h-px bg-zinc-900 overflow-hidden">
-                    <div class="h-full bg-red-600 w-1/3 animate-[loading_2s_infinite_linear]"></div>
-                </div>
-            </div>
-        </article>
-
-        <!-- Post Footer -->
-        <footer class="mt-20 pt-10 border-t border-zinc-900">
-            <div class="flex flex-col items-center gap-6 opacity-40">
-                <div class="text-[9px] font-bold tracking-[0.6em] uppercase">
-                    # h4ppy_h4cking | rishabhyadav.inbox@gmail.com
-                </div>
-            </div>
-        </footer>
-    </main>
-
-    <!-- Bottom Automations Nav -->
-    <div id="bottom-nav" class="fixed bottom-0 left-0 w-full z-[100] flex flex-col items-center">
-        <nav id="nav-menu" class="w-full max-w-5xl bg-[#0a0a0a] border border-red-600/30 border-b-0 rounded-t-[2rem] hidden flex flex-wrap justify-evenly items-center p-10 gap-4 shadow-2xl">
-            <!-- Nav links -->
-            <a href="/index.html" class="animate-nav-item opacity-0 flex items-center gap-3 px-6 py-4 rounded-xl bg-zinc-900 border border-zinc-800 hover:border-red-600 hover:bg-red-600/5 transition-all group font-black text-[10px] uppercase tracking-widest hover:scale-105 active:scale-95" style="animation-delay: 0ms;">
-                <i data-lucide="home" class="text-zinc-600 group-hover:text-red-600" style="width: 14px;"></i> HOME
-            </a>
-            <a href="/jobs.html" class="animate-nav-item opacity-0 flex items-center gap-3 px-6 py-4 rounded-xl bg-zinc-900 border border-zinc-800 hover:border-red-600 hover:bg-red-600/5 transition-all group font-black text-[10px] uppercase tracking-widest hover:scale-105 active:scale-95" style="animation-delay: 50ms;">
-                <i data-lucide="activity" class="text-zinc-600 group-hover:text-red-600" style="width: 14px;"></i> JOBS
-            </a>
-            <a href="/intel.html" class="animate-nav-item opacity-0 flex items-center gap-3 px-6 py-4 rounded-xl bg-zinc-900 border border-zinc-800 hover:border-red-600 hover:bg-red-600/5 transition-all group font-black text-[10px] uppercase tracking-widest hover:scale-105 active:scale-95" style="animation-delay: 100ms;">
-                <i data-lucide="radar" class="text-zinc-600 group-hover:text-red-600" style="width: 14px;"></i> INTEL
-            </a>
-            <a href="/blogs.html" class="animate-nav-item opacity-0 flex items-center gap-3 px-6 py-4 rounded-xl bg-zinc-900 border border-zinc-800 border-red-600/50 bg-red-600/5 text-white transition-all group font-black text-[10px] uppercase tracking-widest hover:scale-105 active:scale-95" style="animation-delay: 150ms;">
-                <i data-lucide="book-open" class="text-red-600" style="width: 14px;"></i> BLOGS
-            </a>
-            <a href="/Disclosed-Reports/reports_index.html" class="animate-nav-item opacity-0 flex items-center gap-3 px-6 py-4 rounded-xl bg-zinc-900 border border-zinc-800 hover:border-red-600 hover:bg-red-600/5 transition-all group font-black text-[10px] uppercase tracking-widest hover:scale-105 active:scale-95" style="animation-delay: 200ms;">
-                <i data-lucide="file-text" class="text-zinc-600 group-hover:text-red-600" style="width: 14px;"></i> REPORTS
-            </a>
-            <a href="/journal.html" class="animate-nav-item opacity-0 flex items-center gap-3 px-6 py-4 rounded-xl bg-zinc-900 border border-zinc-800 hover:border-red-600 hover:bg-red-600/5 transition-all group font-black text-[10px] uppercase tracking-widest hover:scale-105 active:scale-95" style="animation-delay: 250ms;">
-                <i data-lucide="book" class="text-zinc-600 group-hover:text-red-600" style="width: 14px;"></i> JOURNAL
-            </a>
-            <a href="/private.html" class="animate-nav-item opacity-0 flex items-center gap-3 px-6 py-4 rounded-xl bg-zinc-900 border border-zinc-800 hover:border-red-600 hover:bg-red-600/5 transition-all group font-black text-[10px] uppercase tracking-widest hover:scale-105 active:scale-95" style="animation-delay: 300ms;">
-                <i data-lucide="lock" class="text-zinc-600 group-hover:text-red-600" style="width: 14px;"></i> PRIVATE
-            </a>
-        </nav>
-
-        <div id="nav-trigger" class="w-full py-5 text-center font-black tracking-[0.8em] text-[10px] transition-all duration-700 cursor-pointer bg-red-600 text-white shadow-lg">
-            AUTOMATIONS [^]
-        </div>
-    </div>
-
-    <!-- Keyframe for loader bar -->
-    <style>
-        @keyframes loading {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(300%); }
-        }
-    </style>
-
-    <!-- Marked Library for MD rendering -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
-    <script>
-    const blogFolder = '{{FOLDER}}';
-
-    async function loadBlogPost() {
-        const contentDiv = document.getElementById('blog-content');
-        const titleMount = document.getElementById('post-title-mount');
-
-        if (!blogFolder || blogFolder === '{{FOLDER' + '}}') {
-            contentDiv.innerHTML = '<div class="text-red-600 font-mono text-xs uppercase tracking-widest text-center py-20 border border-dashed border-red-900/30">Error: No blog source specified in template.</div>';
-            return;
-        }
-
-        try {
-            const response = await fetch(`../BLOGS/${blogFolder}/blog.md`);
-
-            if (!response.ok) {
-                throw new Error('Blog post not found');
-            }
-
-            const markdown = await response.text();
-
-            marked.setOptions({
-                breaks: true,
-                gfm: true
-            });
-
-            let html = marked.parse(markdown);
-
-            // Remap image paths
-            html = html.replace(
-                /src="(?!http)([^"]+)"/g,
-                `src="../BLOGS/${blogFolder}/src/$1"`
-            );
-            html = html.replace(
-                /src='(?!http)([^']+)'/g,
-                `src='../BLOGS/${blogFolder}/src/$1'`
-            );
-
-            contentDiv.innerHTML = html;
-
-            // Extract H1 for tactical title styling
-            const firstH1 = contentDiv.querySelector('h1');
-            if (firstH1) {
-                titleMount.innerHTML = `<h1 class="text-white text-4xl md:text-6xl font-black tracking-tighter uppercase leading-none">${firstH1.textContent}</h1>`;
-                firstH1.remove();
-            }
-
-        } catch (error) {
-            console.error('Error loading blog post:', error);
-            contentDiv.innerHTML = '<div class="text-red-600 font-mono text-xs uppercase tracking-widest text-center py-20 border border-dashed border-red-900/30">Error: Could not retrieve data packet. Check connectivity.</div>';
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <link rel="icon" type="image/x-icon" href="/assets/favicon_io/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon_io/favicon-16x16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon_io/favicon-32x32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon_io/apple-touch-icon.png">
+  <link rel="manifest" href="/assets/favicon_io/site.webmanifest">
+  <title>{{TITLE}} | fanaticalnerd</title>
+  <meta name="author" content="{{AUTHOR}}">
+  <meta name="description" content="{{DESCRIPTION}}">
+  <meta property="og:title" content="{{TITLE}}">
+  <meta property="og:description" content="{{DESCRIPTION}}">
+  <meta property="og:image" content="{{THUMBNAIL}}">
+  <meta property="og:url" content="{{URL}}">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="fanaticalnerd">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{{TITLE}}">
+  <meta name="twitter:description" content="{{DESCRIPTION}}">
+  <meta name="twitter:image" content="{{THUMBNAIL}}">
+  <meta name="twitter:creator" content="@fanaticalnerd">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700;800&family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --crimson: #dc2626;
+      --crimson-dim: rgba(220, 38, 38, 0.12);
+      --black: #020202;
+      --surface: #0a0a0a;
+      --elevated: #111111;
+      --border: #1a1a1a;
+      --text: #dddddd;
+      --text-dim: #888888;
+      --text-faint: #3a3a3a;
     }
-    
-    document.addEventListener('DOMContentLoaded', () => {
-        loadBlogPost();
-        lucide.createIcons();
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'JetBrains Mono', monospace; background-color: var(--black); color: var(--text); overflow-x: hidden; }
+    ::selection { background: var(--crimson); color: #fff; }
+    ::-webkit-scrollbar { width: 3px; }
+    ::-webkit-scrollbar-thumb { background: var(--crimson); }
 
-        const bottomNavContainer = document.getElementById('bottom-nav');
-        const navMenu = document.getElementById('nav-menu');
-        const navTrigger = document.getElementById('nav-trigger');
-        let isMenuOpen = false;
-        
-        const toggleMenu = (open) => {
-            isMenuOpen = open;
-            if (isMenuOpen) {
-                navMenu.style.display = 'flex';
-                navTrigger.classList.add('bg-white', 'text-black');
-                navTrigger.classList.remove('bg-red-600', 'text-white');
-            } else {
-                navMenu.style.display = 'none';
-                navTrigger.classList.remove('bg-white', 'text-black');
-                navTrigger.classList.add('bg-red-600', 'text-white');
-            }
-        };
+    #ambient { position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0.35; }
+    .scanline { position: fixed; top: 0; left: 0; width: 100%; height: 2px; background: var(--crimson); opacity: 0.07; z-index: 50; pointer-events: none; animation: scan 7s linear infinite; }
+    @keyframes scan { 0%{top:-5%} 100%{top:105%} }
+    .noise { position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: 0.025; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); background-repeat: repeat; background-size: 256px; }
+    .vignette { position: fixed; inset: 0; z-index: 2; pointer-events: none; background: radial-gradient(circle at center, transparent 0%, var(--black) 100%); }
 
-        bottomNavContainer.addEventListener('mouseenter', () => toggleMenu(true));
-        bottomNavContainer.addEventListener('mouseleave', () => toggleMenu(false));
-    });
-    </script>
+    /* ─── Page wrap ─── */
+    .page-wrap { position: relative; z-index: 10; max-width: 1100px; margin: 0 auto; padding: 80px 40px 160px; }
+
+    /* ─── Back link ─── */
+    .back-link {
+      display: inline-flex; align-items: center; gap: 10px;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.3em; text-transform: uppercase;
+      color: var(--text-faint); text-decoration: none;
+      border: 1px solid var(--border); padding: 10px 20px; margin-bottom: 60px;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .back-link::before { content: '←'; }
+    .back-link:hover { color: var(--crimson); border-color: rgba(220,38,38,0.4); }
+
+    /* ─── Post header ─── */
+    .post-header { margin-bottom: 60px; padding-bottom: 40px; border-bottom: 1px solid var(--border); }
+    .post-meta {
+      display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 24px;
+      font-size: 9px; font-weight: 700; letter-spacing: 0.3em; text-transform: uppercase; color: var(--text-faint);
+    }
+    .post-meta-ai { color: rgba(220,38,38,0.7); }
+    .post-title {
+      font-family: 'Inter', sans-serif;
+      font-size: clamp(1.2rem, 3vw, 1.8rem);
+      font-weight: 800; line-height: 1.1; letter-spacing: -0.02em; color: #fff;
+      text-transform: uppercase;
+    }
+
+    /* ─── Blog content ─── */
+    #blog-content { font-size: 14px; line-height: 1.9; font-weight: 300; color: #aaa; }
+
+    #blog-content h1 {
+      font-family: 'Inter', sans-serif; font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+      font-weight: 800; color: #fff; letter-spacing: -0.01em; text-transform: uppercase;
+      margin: 2.5em 0 0.6em; line-height: 1.2;
+    }
+    #blog-content h2 {
+      font-size: 12px; font-weight: 800; color: var(--crimson);
+      letter-spacing: 0.25em; text-transform: uppercase;
+      margin: 2.2em 0 0.9em;
+      display: flex; align-items: center; gap: 10px;
+    }
+    #blog-content h2::before { content: ''; display: block; width: 24px; height: 1px; background: var(--crimson); flex-shrink: 0; }
+    #blog-content h3 {
+      font-size: 10px; font-weight: 800; color: var(--text-dim);
+      letter-spacing: 0.2em; text-transform: uppercase; margin: 1.8em 0 0.7em;
+    }
+    #blog-content p { margin: 1.4em 0; color: #aaaaaa; }
+    #blog-content a { color: var(--crimson); text-decoration: underline; text-underline-offset: 4px; transition: color 0.2s; }
+    #blog-content a:hover { color: #fff; }
+    #blog-content strong { color: #ddd; font-weight: 700; }
+    #blog-content em { color: var(--text-dim); font-style: italic; }
+
+    #blog-content code {
+      background: #0e0e0e; border: 1px solid var(--border);
+      padding: 2px 7px; color: #fb7185; font-family: 'JetBrains Mono', monospace; font-size: 0.88em;
+    }
+    #blog-content pre {
+      background: var(--elevated); border: 1px solid var(--border);
+      border-left: 3px solid var(--crimson); padding: 24px 20px;
+      overflow-x: auto; margin: 2em 0;
+    }
+    #blog-content pre code { background: none; border: none; padding: 0; color: #e5e7eb; font-size: 12px; }
+
+    #blog-content blockquote {
+      border-left: 3px solid var(--crimson); padding: 16px 24px;
+      margin: 2em 0; background: rgba(220,38,38,0.04); color: var(--text-dim); font-style: italic;
+    }
+    #blog-content ul, #blog-content ol { margin: 1.5em 0; padding-left: 0; list-style: none; }
+    #blog-content li { margin: 0.7em 0; padding-left: 20px; position: relative; color: #aaa; }
+    #blog-content ul li::before { content: '›'; position: absolute; left: 0; color: var(--crimson); font-size: 16px; line-height: 1.4; }
+    #blog-content ol { counter-reset: item; }
+    #blog-content ol li::before { counter-increment: item; content: counter(item, decimal-leading-zero) '.'; position: absolute; left: 0; color: var(--text-faint); font-size: 10px; font-weight: 700; letter-spacing: 0.1em; line-height: 1.9; }
+
+    #blog-content img {
+      max-width: 100%; height: auto; display: block; margin: 2.5em 0;
+      border: 1px solid var(--border); filter: contrast(1.05) brightness(0.95);
+    }
+    #blog-content table { border-collapse: collapse; width: 100%; margin: 2em 0; font-size: 12px; }
+    #blog-content th, #blog-content td { border: 1px solid var(--border); padding: 12px 16px; text-align: left; }
+    #blog-content th { background: var(--elevated); color: var(--crimson); font-size: 9px; letter-spacing: 0.25em; text-transform: uppercase; font-weight: 800; }
+    #blog-content td { color: #aaa; }
+    #blog-content hr { border: none; border-top: 1px solid var(--border); margin: 3em 0; }
+
+    /* Loading state */
+    .loading-state { display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 60px 0; }
+    .loading-text { font-size: 10px; letter-spacing: 0.4em; color: var(--text-faint); text-transform: uppercase; font-weight: 700; animation: flicker 2s ease-in-out infinite; }
+    .loading-bar { width: 160px; height: 1px; background: var(--border); overflow: hidden; }
+    .loading-bar-fill { height: 100%; width: 40%; background: var(--crimson); animation: loadbar 1.6s ease-in-out infinite; }
+    @keyframes loadbar { 0%{transform:translateX(-100%)} 100%{transform:translateX(350%)} }
+    @keyframes flicker { 0%,100%{opacity:0.4} 50%{opacity:1} }
+
+    /* ─── TOC sidebar ─── */
+    .post-layout { display: grid; grid-template-columns: 180px 1fr; gap: 48px; align-items: start; }
+    .toc-sidebar { position: sticky; top: 40px; z-index: 20; }
+    .toc-label { font-size: 8px; font-weight: 800; letter-spacing: 0.35em; text-transform: uppercase; color: var(--text-faint); margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+    .toc-list { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+    .toc-item a { display: block; font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-faint); text-decoration: none; padding: 6px 10px; border-left: 2px solid transparent; transition: all 0.25s; line-height: 1.4; }
+    .toc-item a:hover, .toc-item a.active { color: var(--crimson); border-left-color: var(--crimson); padding-left: 14px; }
+    .toc-item.h3 a { font-size: 8px; padding-left: 18px; letter-spacing: 0.08em; opacity: 0.7; }
+    .toc-item.h3 a:hover, .toc-item.h3 a.active { padding-left: 22px; opacity: 1; }
+    @media(max-width:900px) { .post-layout { grid-template-columns: 1fr; } .toc-sidebar { display: none; } }
+
+    /* ─── Contact section ─── */
+    .post-contact { margin-top: 80px; padding: 40px; border: 1px solid var(--border); background: var(--surface); }
+    .contact-heading { font-size: 9px; font-weight: 800; letter-spacing: 0.35em; text-transform: uppercase; color: var(--text-faint); margin-bottom: 6px; }
+    .contact-title { font-family: 'Inter', sans-serif; font-size: 1.25rem; font-weight: 800; color: #fff; letter-spacing: -0.02em; margin-bottom: 20px; }
+    .contact-socials { display: flex; flex-wrap: wrap; gap: 12px; }
+    .contact-social { display: inline-flex; align-items: center; gap: 10px; padding: 10px 18px; border: 1px solid var(--border); text-decoration: none; color: var(--text-dim); font-size: 9px; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase; transition: all 0.3s; }
+    .contact-social:hover { color: var(--crimson); border-color: rgba(220,38,38,0.4); background: rgba(220,38,38,0.04); }
+
+    /* ─── Footer ─── */
+    .post-footer { margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--border); text-align: center; }
+    .footer-copy { font-size: 10px; color: var(--text-faint); opacity: 0.4; letter-spacing: 0.3em; }
+
+    /* ─── Floating Nav ─── */
+    .floating-nav {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      z-index: 1000; display: flex; flex-direction: column; align-items: center; gap: 16px;
+    }
+    .nav-cards {
+      display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; max-width: 90vw;
+      opacity: 0; transform: translateY(30px) scale(0.9); pointer-events: none;
+      transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .floating-nav:hover .nav-cards, .floating-nav.open .nav-cards { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
+    .nav-card {
+      width: 82px; height: 92px; background: rgba(12,12,12,0.95);
+      backdrop-filter: blur(16px); border: 1px solid var(--border); border-radius: 14px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+      text-decoration: none; color: var(--text-dim);
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      opacity: 0; transform: translateY(20px) scale(0.7); position: relative; overflow: hidden;
+    }
+    .nav-card::before { content: ''; position: absolute; inset: 0; border-radius: 14px; background: radial-gradient(circle at 50% 0%, rgba(220,38,38,0.15), transparent 70%); opacity: 0; transition: opacity 0.4s; }
+    .nav-card:hover::before { opacity: 1; }
+    .floating-nav:hover .nav-card, .floating-nav.open .nav-card { opacity: 1; transform: translateY(0) scale(1); }
+    .nav-card:nth-child(1){transition-delay:.04s} .nav-card:nth-child(2){transition-delay:.08s} .nav-card:nth-child(3){transition-delay:.12s} .nav-card:nth-child(4){transition-delay:.16s} .nav-card:nth-child(5){transition-delay:.20s} .nav-card:nth-child(6){transition-delay:.24s} .nav-card:nth-child(7){transition-delay:.28s}
+    .nav-card:hover { border-color: var(--crimson); color: #fff; transform: translateY(-10px) scale(1.12) !important; box-shadow: 0 20px 40px rgba(0,0,0,0.6), 0 0 20px rgba(220,38,38,0.2); }
+    .nav-card:hover .nc-icon { color: var(--crimson); }
+    .nc-icon { width: 20px; height: 20px; position: relative; z-index: 1; }
+    .nc-label { font-size: 8px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; position: relative; z-index: 1; }
+    .nav-trigger {
+      padding: 14px 48px; background: var(--crimson); color: #fff;
+      font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 800;
+      letter-spacing: 0.5em; cursor: pointer; border: none; border-radius: 40px;
+      position: relative; overflow: hidden;
+      box-shadow: 0 8px 32px rgba(220,38,38,0.35), 0 0 0 1px rgba(220,38,38,0.5);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .nav-trigger:hover { background: #b91c1c; letter-spacing: 0.65em; transform: translateY(-2px); }
+    .nav-trigger:active { transform: scale(0.95); }
+    .nav-trigger::after { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent); animation: shine 3s ease-in-out infinite; }
+    @keyframes shine { 0%,100%{left:-100%} 50%{left:100%} }
+
+    @media (max-width: 768px) {
+      .page-wrap { padding: 60px 20px 140px; }
+      .post-title { font-size: clamp(1.8rem, 8vw, 2.4rem); }
+      .floating-nav { bottom: 16px; }
+      .nav-card { width: 66px; height: 76px; }
+      .nc-label { font-size: 7px; }
+      .nav-trigger { padding: 12px 32px; font-size: 9px; letter-spacing: 0.35em; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="ambient"></canvas>
+  <div class="noise"></div>
+  <div class="vignette"></div>
+  <div class="scanline"></div>
+
+  <div class="page-wrap">
+
+    <a class="back-link" href="../blogs.html">BACK TO ARCHIVE</a>
+
+    <header class="post-header">
+      <div class="post-meta">
+        <span>{{DATE}}</span>
+        <span>BY {{AUTHOR}}</span>
+        <span class="post-meta-ai">{{AI_GENERATED}}</span>
+      </div>
+      <h1 class="post-title" id="postTitle">{{TITLE}}</h1>
+    </header>
+
+    <div class="post-layout">
+      <aside class="toc-sidebar">
+        <div class="toc-label">CONTENTS</div>
+        <ul class="toc-list" id="tocList"></ul>
+      </aside>
+      <article id="blog-content">
+        <div class="loading-state">
+          <div class="loading-text">ESTABLISHING DATA LINK...</div>
+          <div class="loading-bar"><div class="loading-bar-fill"></div></div>
+        </div>
+      </article>
+    </div>
+
+    <section class="post-contact">
+      <div class="contact-heading">ENJOYED THIS?</div>
+      <div class="contact-title">Send me how you liked the blog</div>
+      <div class="contact-socials">
+        <a class="contact-social" href="https://twitter.com/fanaticalnerd" target="_blank">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg>
+          TWITTER
+        </a>
+        <a class="contact-social" href="https://www.linkedin.com/in/rishabhyadavm07" target="_blank">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>
+          LINKEDIN
+        </a>
+        <a class="contact-social" href="https://github.com/rishabhyadavm07" target="_blank">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
+          GITHUB
+        </a>
+        <a class="contact-social" href="mailto:rishabhyadavm07@gmail.com">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+          EMAIL
+        </a>
+      </div>
+    </section>
+    <div class="post-footer">
+      <div class="footer-copy">© FANATICALNERD // h4ppy_h4cking</div>
+    </div>
+
+  </div>
+
+  <div class="floating-nav" id="floatingNav">
+    <div class="nav-cards" id="navCards"></div>
+    <button class="nav-trigger" id="navTrigger">NAV</button>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
+  <script>
+  (function() {
+    const BLOG_FOLDER = '{{FOLDER}}';
+    const NAV_LINKS = [
+      {name:"HOME",url:"/index.html",icon:"home"},
+      {name:"JOB DASH",url:"/jobs.html",icon:"activity"},
+      {name:"INTEL",url:"/intel.html",icon:"radar"},
+      {name:"BLOGS",url:"/blogs.html",icon:"book-open"},
+      {name:"REPORTS",url:"/Disclosed-Reports/reports_index.html",icon:"file-text"},
+      {name:"JOURNAL",url:"/journal.html",icon:"book"},
+      {name:"PRIVATE",url:"/private.html",icon:"lock"}
+    ];
+    const iconSvgs = {
+      home:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
+      activity:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/></svg>',
+      radar:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19.07 4.93A10 10 0 0 0 6.99 3.34"/><path d="M4 6h.01"/><path d="M2.29 9.62A10 10 0 1 0 21.31 8.35"/><circle cx="12" cy="12" r="2"/></svg>',
+      'book-open':'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg>',
+      'file-text':'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8l6 6v12a2 2 0 0 1-2 2z"/><path d="M14 2v6h6"/></svg>',
+      book:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>',
+      lock:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>'
+    };
+
+    // Nav
+    document.getElementById('navCards').innerHTML = NAV_LINKS.map(l =>
+      `<a class="nav-card" href="${l.url}"><div class="nc-icon">${iconSvgs[l.icon]}</div><div class="nc-label">${l.name}</div></a>`
+    ).join('');
+    const floatingNav = document.getElementById('floatingNav');
+    document.getElementById('navTrigger').addEventListener('click', e => { e.stopPropagation(); floatingNav.classList.toggle('open'); });
+    document.addEventListener('click', () => floatingNav.classList.remove('open'));
+    floatingNav.addEventListener('click', e => e.stopPropagation());
+
+    // Ambient particles
+    const canvas = document.getElementById('ambient');
+    const ctx = canvas.getContext('2d');
+    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    resize(); window.addEventListener('resize', resize);
+    class P {
+      constructor() { this.x=Math.random()*canvas.width; this.y=Math.random()*canvas.height; this.size=Math.random()*1.2+0.4; this.sx=(Math.random()-0.5)*0.25; this.sy=(Math.random()-0.5)*0.25; this.o=Math.random()*0.4+0.1; }
+      update() { this.x+=this.sx; this.y+=this.sy; if(this.x>canvas.width)this.x=0; if(this.x<0)this.x=canvas.width; if(this.y>canvas.height)this.y=0; if(this.y<0)this.y=canvas.height; }
+      draw() { ctx.fillStyle=`rgba(220,38,38,${this.o})`; ctx.beginPath(); ctx.arc(this.x,this.y,this.size,0,Math.PI*2); ctx.fill(); }
+    }
+    let pts = []; for(let i=0;i<90;i++) pts.push(new P());
+    (function loop() { ctx.clearRect(0,0,canvas.width,canvas.height); pts.forEach(p=>{p.update();p.draw();}); requestAnimationFrame(loop); })();
+
+    // Load blog post MD
+    async function loadPost() {
+      const content = document.getElementById('blog-content');
+      if (!BLOG_FOLDER || BLOG_FOLDER === '{{FOLDER}}') {
+        content.innerHTML = '<p style="color:var(--crimson);font-size:10px;letter-spacing:0.3em;text-transform:uppercase;">ERROR: NO BLOG FOLDER SPECIFIED IN TEMPLATE</p>';
+        return;
+      }
+      try {
+        const res = await fetch(`../BLOGS/${BLOG_FOLDER}/blog.md`);
+        if (!res.ok) throw new Error(`HTTP_${res.status}`);
+        let md = await res.text();
+        marked.setOptions({ breaks: true, gfm: true });
+        let html = marked.parse(md);
+        // Remap relative image paths to BLOGS src folder
+        html = html.replace(/src="(?!http|\/|data)([^"]+)"/g, `src="../BLOGS/${BLOG_FOLDER}/src/$1"`);
+        html = html.replace(/src='(?!http|\/|data)([^']+)'/g, `src='../BLOGS/${BLOG_FOLDER}/src/$1'`);
+        // Remove first H1 if it matches the post title (already shown in header)
+        const tmp = document.createElement('div');
+        tmp.innerHTML = html;
+        const firstH1 = tmp.querySelector('h1');
+        if (firstH1) firstH1.remove();
+        content.innerHTML = tmp.innerHTML;
+      } catch(e) {
+        content.innerHTML = '<p style="color:var(--crimson);font-size:10px;letter-spacing:0.3em;text-transform:uppercase;border:1px dashed rgba(220,38,38,0.3);padding:32px;text-align:center;">ERROR: COULD NOT RETRIEVE DATA PACKET</p>';
+      }
+    }
+
+    function buildTOC() {
+      const toc = document.getElementById('tocList');
+      if (!toc) return;
+      const headings = [...document.getElementById('blog-content').querySelectorAll('h1,h2,h3')];
+      if (!headings.length) return;
+      headings.forEach((h, i) => {
+        const id = 'heading-' + i; h.id = id;
+        const li = document.createElement('li'); li.className = 'toc-item ' + (h.tagName === 'H3' ? 'h3' : 'h2');
+        const a = document.createElement('a'); a.href = '#' + id;
+        a.textContent = h.textContent.replace(/^[›—–]\s*/, '').trim().replace(/[^\w\s]/g, '').trim().slice(0, 50);
+        a.addEventListener('click', e => { e.preventDefault(); h.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+        li.appendChild(a); toc.appendChild(li);
+      });
+      const obs = new IntersectionObserver(entries => {
+        entries.forEach(en => {
+          const idx = headings.indexOf(en.target);
+          if (idx < 0) return;
+          const links = toc.querySelectorAll('a');
+          if (en.isIntersecting) links.forEach((l, i) => l.classList.toggle('active', i === idx));
+        });
+      }, { rootMargin: '-10% 0px -80% 0px' });
+      headings.forEach(h => obs.observe(h));
+    }
+
+    loadPost();
+    setTimeout(buildTOC, 400);
+  })();
+  </script>
 </body>
 </html>
