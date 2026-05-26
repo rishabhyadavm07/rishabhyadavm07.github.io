@@ -1201,7 +1201,7 @@
       let flameParticles = [];
       let lastFlameTimestamp = 0;          // ← ADD THIS LINE
 
-      let PARTICLE_COUNT = 15000;
+      let PARTICLE_COUNT = window.innerWidth < 768 ? 3000 : 15000;
 
       const FLAME_HEIGHT = 280;
       const PARTICLE_SIZE = 1.36;
@@ -1475,7 +1475,7 @@
         update() { this.x += this.speedX; this.y += this.speedY; if(this.x>ambientCanvas.width)this.x=0; if(this.x<0)this.x=ambientCanvas.width; if(this.y>ambientCanvas.height)this.y=0; if(this.y<0)this.y=ambientCanvas.height; }
         draw() { ambCtx.fillStyle = `rgba(220,38,38,${this.opacity})`; ambCtx.beginPath(); ambCtx.arc(this.x,this.y,this.size,0,Math.PI*2); ambCtx.fill(); }
       }
-      function initAmbient() { ambParticles = []; const count = window.innerWidth < 768 ? 20 : 90; for(let i=0;i<count;i++) ambParticles.push(new AmbientParticle()); }
+      function initAmbient() { ambParticles = []; const count = window.innerWidth < 768 ? 15 : 90; for(let i=0;i<count;i++) ambParticles.push(new AmbientParticle()); }
       initAmbient();
       function animateAmbient() {
         ambCtx.clearRect(0,0,ambientCanvas.width,ambientCanvas.height);
