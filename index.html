@@ -857,32 +857,7 @@
 
   <section id="blogs">
     <div class="section-label" data-animate><span>Blogs</span></div>
-    <div class="blog-cards-stack" id="blogsGrid">
-      <a class="blog-card" href="#" data-animate>
-        <div class="blog-card-num">01</div>
-        <div class="blog-card-body">
-          <div class="blog-card-label">Security Research</div>
-          <div class="blog-card-title">Breaking Down Modern API Authentication Flaws</div>
-          <div class="blog-card-excerpt">A deep dive into OAuth misconfigurations, JWT weaknesses, and how attackers chain minor flaws into full account takeover.</div>
-        </div>
-      </a>
-      <a class="blog-card" href="#" data-animate>
-        <div class="blog-card-num">02</div>
-        <div class="blog-card-body">
-          <div class="blog-card-label">Cloud Security</div>
-          <div class="blog-card-title">GCP IAM Privilege Escalation: Paths You Didn't Know Existed</div>
-          <div class="blog-card-excerpt">Mapping underestimated permission combinations that silently grant attackers project-level access in Google Cloud environments.</div>
-        </div>
-      </a>
-      <a class="blog-card" href="#" data-animate>
-        <div class="blog-card-num">03</div>
-        <div class="blog-card-body">
-          <div class="blog-card-label">Threat Detection</div>
-          <div class="blog-card-title">Writing YARA Rules That Actually Catch Things</div>
-          <div class="blog-card-excerpt">Practical patterns for writing high-signal, low-noise detection rules — and how to test them against real malware samples.</div>
-        </div>
-      </a>
-    </div>
+    <div class="blog-cards-stack" id="blogsGrid"></div>
   </section>
 
   <section id="connect">
@@ -1373,6 +1348,7 @@
       document.getElementById('socialGrid').innerHTML = DATA.links.map(l => `<a class="social-link" href="${l.url}" target="_blank"><div class="social-icon">${iconSvgs[l.icon]}</div><div class="social-name">${l.name}</div></a>`).join('');
       document.getElementById('navCards').innerHTML = DATA.quickLinks.map(l => `<a class="nav-card" href="${l.url}"><div class="nc-icon">${iconSvgs[l.icon]}</div><div class="nc-label">${l.name}</div></a>`).join('');
 
+
       const floatingNav = document.getElementById('floatingNav');
       document.getElementById('navTrigger').addEventListener('click', (e) => {
         e.stopPropagation();
@@ -1400,6 +1376,25 @@
       }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
       document.querySelectorAll('[data-animate]').forEach(el => observer.observe(el));
       document.querySelectorAll('.node-card, #socialGrid').forEach(el => observer.observe(el));
+
+      // Load latest 3 blog posts from blogs.json (inline fallback for local file:// viewing)
+      const BLOGS_INLINE = {"blogs": [{"title": "My Adventures in AI Red Teaming: What I Learned This Week", "folder": "My-Adventures-in-AI-Red-Teaming-What-I-Learned-This-Week", "date": "2025-10-31", "excerpt": "AI Red Teaming: Uncovering AI's sneaky flaws, from prompt injection to hidden attacks. Learn how!"}, {"title": "I Tried to Teach an AI Agent Security… Now It Corrects My Grammar", "folder": "i-tried-to-teach-an-ai-agent-security-now-it-corrects-my-grammar", "date": "2025-10-25", "excerpt": "This is a living journal of my experiments with AI agents and security automation."}, {"title": "How to Beat the Warden in Minecraft", "folder": "how-to-roast-a-warden", "date": "2025-04-01", "excerpt": "A completely serious and not-at-all chaotic guide to defeating the Warden using pure panic, questionable logic, and maybe some wool."}]};
+      (async () => {
+        let blogs = BLOGS_INLINE.blogs;
+        try { const r = await fetch('BLOGS/blogs.json'); if (r.ok) { const d = await r.json(); blogs = d.blogs || blogs; } } catch(e) {}
+        blogs = blogs.sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0, 3);
+        const grid = document.getElementById('blogsGrid');
+        grid.innerHTML = blogs.map((b, i) => `
+          <a class="blog-card" href="posts/${b.folder}.html" data-animate>
+            <div class="blog-card-num">${String(i+1).padStart(2,'0')}</div>
+            <div class="blog-card-body">
+              <div class="blog-card-label">${b.date || ''}</div>
+              <div class="blog-card-title">${b.title}</div>
+              <div class="blog-card-excerpt">${b.excerpt || ''}</div>
+            </div>
+          </a>`).join('');
+        grid.querySelectorAll('.blog-card').forEach(el => observer.observe(el));
+      })();
 
       // Project cards observer
       const projectObserver = new IntersectionObserver((entries) => {

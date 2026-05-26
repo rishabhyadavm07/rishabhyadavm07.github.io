@@ -1,10 +1,21 @@
 #!/usr/bin/env python3
 """
-Build a blog post HTML from blog-template.html + BLOGS/<folder>/blog.md
+Build blog post HTML from BLOGS/<folder>/blog.md frontmatter.
+blogs.json and index.html are kept in sync automatically.
+
+Frontmatter format (YAML block at the top of blog.md):
+---
+title: My Post Title
+date: 2026-05-26
+author: Rishabh
+ai_generated: Human Written, AI Edited
+excerpt: One sentence shown on the listing page.
+thumbnail: /BLOGS/<folder>/src/thumb.png
+---
 
 Usage:
-  python build.py <folder>          # build one post
-  python build.py --all             # rebuild all posts in blogs.json
+  python3 build.py <folder>    # build one post
+  python3 build.py --all       # rebuild everything
 """
 
 import json
@@ -12,61 +23,346 @@ import re
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).parent
-TEMPLATE = ROOT / "blog-template.html"
+ROOT       = Path(__file__).parent
 BLOGS_JSON = ROOT / "BLOGS" / "blogs.json"
-POSTS_DIR = ROOT / "posts"
-BASE_URL = "https://rishabhyadavm07.github.io"
+POSTS_DIR  = ROOT / "posts"
+BASE_URL   = "https://rishabhyadavm07.github.io"
+
+FRONTMATTER_RE = re.compile(r"^---\s*\n(.*?)\n---\s*\n", re.DOTALL)
+
+# ── HTML template (inlined — blog-template.html is no longer needed) ──────────
+TEMPLATE = r"""<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <link rel="icon" type="image/x-icon" href="/assets/favicon_io/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon_io/favicon-16x16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon_io/favicon-32x32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon_io/apple-touch-icon.png">
+  <link rel="manifest" href="/assets/favicon_io/site.webmanifest">
+  <title>{{TITLE}} | fanaticalnerd</title>
+  <meta name="author" content="{{AUTHOR}}">
+  <meta name="description" content="{{DESCRIPTION}}">
+  <meta property="og:title" content="{{TITLE}}">
+  <meta property="og:description" content="{{DESCRIPTION}}">
+  <meta property="og:image" content="{{THUMBNAIL}}">
+  <meta property="og:url" content="{{URL}}">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="fanaticalnerd">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{{TITLE}}">
+  <meta name="twitter:description" content="{{DESCRIPTION}}">
+  <meta name="twitter:image" content="{{THUMBNAIL}}">
+  <meta name="twitter:creator" content="@fanaticalnerd">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700;800&family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root{--crimson:#dc2626;--crimson-dim:rgba(220,38,38,0.12);--black:#020202;--surface:#0a0a0a;--elevated:#111111;--border:#1a1a1a;--text:#dddddd;--text-dim:#888888;--text-faint:#3a3a3a}
+    *{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
+    body{font-family:'JetBrains Mono',monospace;background-color:var(--black);color:var(--text);overflow-x:hidden}
+    ::selection{background:var(--crimson);color:#fff}::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:var(--crimson)}
+    #ambient{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0.35}
+    .scanline{position:fixed;top:0;left:0;width:100%;height:2px;background:var(--crimson);opacity:0.07;z-index:50;pointer-events:none;animation:scan 7s linear infinite}
+    @keyframes scan{0%{top:-5%}100%{top:105%}}
+    .noise{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:0.025;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-repeat:repeat;background-size:256px}
+    .vignette{position:fixed;inset:0;z-index:2;pointer-events:none;background:radial-gradient(circle at center,transparent 0%,var(--black) 100%)}
+    .page-wrap{position:relative;z-index:10;max-width:1100px;margin:0 auto;padding:80px 40px 160px}
+    .back-link{display:inline-flex;align-items:center;gap:10px;font-size:10px;font-weight:700;letter-spacing:0.3em;text-transform:uppercase;color:var(--text-faint);text-decoration:none;border:1px solid var(--border);padding:10px 20px;margin-bottom:60px;transition:all 0.4s cubic-bezier(0.16,1,0.3,1)}
+    .back-link::before{content:'←'}.back-link:hover{color:var(--crimson);border-color:rgba(220,38,38,0.4)}
+    .post-header{margin-bottom:60px;padding-bottom:40px;border-bottom:1px solid var(--border)}
+    .post-meta{display:flex;flex-wrap:wrap;gap:20px;margin-bottom:24px;font-size:9px;font-weight:700;letter-spacing:0.3em;text-transform:uppercase;color:var(--text-faint)}
+    .post-meta-ai{color:rgba(220,38,38,0.7)}
+    .post-title{font-family:'Inter',sans-serif;font-size:clamp(1.2rem,3vw,1.8rem);font-weight:800;line-height:1.1;letter-spacing:-0.02em;color:#fff;text-transform:uppercase}
+    #blog-content{font-size:14px;line-height:1.9;font-weight:300;color:#aaa}
+    #blog-content h1{font-family:'Inter',sans-serif;font-size:clamp(1.1rem,2.5vw,1.5rem);font-weight:800;color:#fff;letter-spacing:-0.01em;text-transform:uppercase;margin:2.5em 0 0.6em;line-height:1.2}
+    #blog-content h2{font-size:12px;font-weight:800;color:var(--crimson);letter-spacing:0.25em;text-transform:uppercase;margin:2.2em 0 0.9em;display:flex;align-items:center;gap:10px}
+    #blog-content h2::before{content:'';display:block;width:24px;height:1px;background:var(--crimson);flex-shrink:0}
+    #blog-content h3{font-size:10px;font-weight:800;color:var(--text-dim);letter-spacing:0.2em;text-transform:uppercase;margin:1.8em 0 0.7em}
+    #blog-content p{margin:1.4em 0;color:#aaaaaa}
+    #blog-content a{color:var(--crimson);text-decoration:underline;text-underline-offset:4px;transition:color 0.2s}#blog-content a:hover{color:#fff}
+    #blog-content strong{color:#ddd;font-weight:700}#blog-content em{color:var(--text-dim);font-style:italic}
+    #blog-content code{background:#0e0e0e;border:1px solid var(--border);padding:2px 7px;color:#fb7185;font-family:'JetBrains Mono',monospace;font-size:0.88em}
+    #blog-content pre{background:var(--elevated);border:1px solid var(--border);border-left:3px solid var(--crimson);padding:24px 20px;overflow-x:auto;margin:2em 0}
+    #blog-content pre code{background:none;border:none;padding:0;color:#e5e7eb;font-size:12px}
+    #blog-content blockquote{border-left:3px solid var(--crimson);padding:16px 24px;margin:2em 0;background:rgba(220,38,38,0.04);color:var(--text-dim);font-style:italic}
+    #blog-content ul,#blog-content ol{margin:1.5em 0;padding-left:0;list-style:none}
+    #blog-content li{margin:0.7em 0;padding-left:20px;position:relative;color:#aaa}
+    #blog-content ul li::before{content:'›';position:absolute;left:0;color:var(--crimson);font-size:16px;line-height:1.4}
+    #blog-content ol{counter-reset:item}#blog-content ol li::before{counter-increment:item;content:counter(item,decimal-leading-zero)'.';position:absolute;left:0;color:var(--text-faint);font-size:10px;font-weight:700;letter-spacing:0.1em;line-height:1.9}
+    #blog-content img{max-width:100%;height:auto;display:block;margin:2.5em 0;border:1px solid var(--border);filter:contrast(1.05) brightness(0.95);cursor:pointer;transition:border-color 0.3s}#blog-content img:hover{border-color:rgba(220,38,38,0.4)}
+    #blog-content table{border-collapse:collapse;width:100%;margin:2em 0;font-size:12px}
+    #blog-content th,#blog-content td{border:1px solid var(--border);padding:12px 16px;text-align:left}
+    #blog-content th{background:var(--elevated);color:var(--crimson);font-size:9px;letter-spacing:0.25em;text-transform:uppercase;font-weight:800}
+    #blog-content td{color:#aaa}#blog-content hr{border:none;border-top:1px solid var(--border);margin:3em 0}
+    .lightbox{display:none;position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,0.95);justify-content:center;align-items:center}
+    .lightbox.active{display:flex}.lightbox img{max-width:90%;max-height:90%;border:1px solid var(--border)}
+    .lightbox-close{position:absolute;top:24px;right:40px;font-size:32px;color:var(--text-faint);cursor:pointer;transition:color 0.2s}.lightbox-close:hover{color:#fff}
+    .post-layout{display:grid;grid-template-columns:180px 1fr;gap:48px;align-items:start}
+    .toc-sidebar{position:sticky;top:40px;z-index:20}
+    .toc-label{font-size:8px;font-weight:800;letter-spacing:0.35em;text-transform:uppercase;color:var(--text-faint);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+    .toc-list{list-style:none;display:flex;flex-direction:column;gap:4px}
+    .toc-item a{display:block;font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-faint);text-decoration:none;padding:6px 10px;border-left:2px solid transparent;transition:all 0.25s;line-height:1.4}
+    .toc-item a:hover,.toc-item a.active{color:var(--crimson);border-left-color:var(--crimson);padding-left:14px}
+    .toc-item.h3 a{font-size:8px;padding-left:18px;letter-spacing:0.08em;opacity:0.7}
+    .toc-item.h3 a:hover,.toc-item.h3 a.active{padding-left:22px;opacity:1}
+    .post-contact{margin-top:80px;padding:40px;border:1px solid var(--border);background:var(--surface)}
+    .contact-heading{font-size:9px;font-weight:800;letter-spacing:0.35em;text-transform:uppercase;color:var(--text-faint);margin-bottom:6px}
+    .contact-title{font-family:'Inter',sans-serif;font-size:1.25rem;font-weight:800;color:#fff;letter-spacing:-0.02em;margin-bottom:20px}
+    .contact-socials{display:flex;flex-wrap:wrap;gap:12px}
+    .contact-social{display:inline-flex;align-items:center;gap:10px;padding:10px 18px;border:1px solid var(--border);text-decoration:none;color:var(--text-dim);font-size:9px;font-weight:800;letter-spacing:0.2em;text-transform:uppercase;transition:all 0.3s}
+    .contact-social:hover{color:var(--crimson);border-color:rgba(220,38,38,0.4);background:rgba(220,38,38,0.04)}
+    .explore-section{margin-top:60px}
+    .explore-label{font-size:9px;font-weight:800;letter-spacing:0.35em;text-transform:uppercase;color:var(--text-faint);margin-bottom:24px;display:flex;align-items:center;gap:12px}
+    .explore-label::before{content:'';display:block;width:24px;height:1px;background:var(--text-faint)}
+    .explore-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    .explore-card{display:flex;flex-direction:column;text-decoration:none;background:var(--elevated);border:1px solid var(--border);border-left:3px solid var(--crimson);padding:28px 24px;transition:all 0.3s cubic-bezier(0.16,1,0.3,1);position:relative;overflow:hidden;min-height:160px}
+    .explore-card::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,var(--crimson-dim),transparent);opacity:0;transition:opacity 0.3s}
+    .explore-card:hover::before{opacity:1}
+    .explore-card:hover{border-color:rgba(220,38,38,0.45);transform:translateY(-4px);box-shadow:0 14px 40px rgba(0,0,0,0.5)}
+    .explore-date{font-size:8px;color:var(--text-faint);letter-spacing:0.2em;font-weight:700;margin-bottom:10px;position:relative;z-index:1}
+    .explore-title{font-size:13px;font-weight:700;color:#ddd;line-height:1.4;margin-bottom:12px;transition:color 0.3s;position:relative;z-index:1}
+    .explore-card:hover .explore-title{color:var(--crimson)}
+    .explore-excerpt{font-size:11px;color:#777;line-height:1.65;font-weight:300;position:relative;z-index:1;margin-top:auto}
+    .explore-read{font-size:9px;color:var(--text-faint);letter-spacing:0.2em;font-weight:700;text-transform:uppercase;margin-top:16px;position:relative;z-index:1;transition:color 0.3s}
+    .explore-card:hover .explore-read{color:var(--crimson)}
+    .post-footer{margin-top:40px;padding-top:24px;border-top:1px solid var(--border);text-align:center}
+    .footer-copy{font-size:10px;color:var(--text-faint);opacity:0.4;letter-spacing:0.3em}
+    .floating-nav{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:1000;display:flex;flex-direction:column;align-items:center;gap:16px}
+    .nav-cards{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;max-width:90vw;opacity:0;transform:translateY(30px) scale(0.9);pointer-events:none;transition:all 0.6s cubic-bezier(0.16,1,0.3,1)}
+    .floating-nav:hover .nav-cards,.floating-nav.open .nav-cards{opacity:1;transform:translateY(0) scale(1);pointer-events:auto}
+    .nav-card{width:82px;height:92px;background:rgba(12,12,12,0.95);backdrop-filter:blur(16px);border:1px solid var(--border);border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-decoration:none;color:var(--text-dim);transition:all 0.4s cubic-bezier(0.34,1.56,0.64,1);opacity:0;transform:translateY(20px) scale(0.7);position:relative;overflow:hidden}
+    .nav-card::before{content:'';position:absolute;inset:0;border-radius:14px;background:radial-gradient(circle at 50% 0%,rgba(220,38,38,0.15),transparent 70%);opacity:0;transition:opacity 0.4s}.nav-card:hover::before{opacity:1}
+    .floating-nav:hover .nav-card,.floating-nav.open .nav-card{opacity:1;transform:translateY(0) scale(1)}
+    .nav-card:nth-child(1){transition-delay:.04s}.nav-card:nth-child(2){transition-delay:.08s}.nav-card:nth-child(3){transition-delay:.12s}.nav-card:nth-child(4){transition-delay:.16s}.nav-card:nth-child(5){transition-delay:.20s}.nav-card:nth-child(6){transition-delay:.24s}.nav-card:nth-child(7){transition-delay:.28s}
+    .nav-card:hover{border-color:var(--crimson);color:#fff;transform:translateY(-10px) scale(1.12)!important;box-shadow:0 20px 40px rgba(0,0,0,0.6),0 0 20px rgba(220,38,38,0.2)}.nav-card:hover .nc-icon{color:var(--crimson)}
+    .nc-icon{width:20px;height:20px;position:relative;z-index:1}.nc-label{font-size:8px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;position:relative;z-index:1}
+    .nav-trigger{padding:14px 48px;background:var(--crimson);color:#fff;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:800;letter-spacing:0.5em;cursor:pointer;border:none;border-radius:40px;position:relative;overflow:hidden;box-shadow:0 8px 32px rgba(220,38,38,0.35),0 0 0 1px rgba(220,38,38,0.5);transition:all 0.4s cubic-bezier(0.16,1,0.3,1)}
+    .nav-trigger:hover{background:#b91c1c;letter-spacing:0.65em;transform:translateY(-2px)}.nav-trigger:active{transform:scale(0.95)}
+    .nav-trigger::after{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);animation:shine 3s ease-in-out infinite}
+    @keyframes shine{0%,100%{left:-100%}50%{left:100%}}
+    @media(max-width:900px){.post-layout{grid-template-columns:1fr}.toc-sidebar{display:none}.explore-grid{grid-template-columns:1fr}}
+    @media(max-width:768px){.page-wrap{padding:60px 20px 140px}.post-title{font-size:clamp(1rem,5vw,1.4rem)}.floating-nav{bottom:16px}.nav-card{width:66px;height:76px}.nc-label{font-size:7px}.nav-trigger{padding:12px 32px;font-size:9px;letter-spacing:0.35em}.post-contact{padding:24px 20px}.contact-socials{gap:8px}.contact-social{padding:8px 12px;font-size:8px}}
+    @media(max-width:480px){.page-wrap{padding:40px 14px 110px}.post-header{margin-bottom:32px}.back-link{padding:8px 14px;font-size:9px;margin-bottom:40px}.nav-cards{gap:6px}.nav-card{width:56px;height:64px}.nc-label{font-size:6px}.nav-trigger{padding:10px 24px;letter-spacing:0.25em}.contact-social{width:100%;justify-content:center}.explore-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <canvas id="ambient"></canvas>
+  <div class="noise"></div>
+  <div class="vignette"></div>
+  <div class="scanline"></div>
+  <div class="lightbox" id="lightbox"><span class="lightbox-close" id="lightboxClose">&times;</span><img id="lightboxImg" src="" alt=""></div>
+
+  <div class="page-wrap">
+    <a class="back-link" href="../blogs.html">BACK TO ARCHIVE</a>
+    <header class="post-header">
+      <div class="post-meta">
+        <span>{{DATE}}</span>
+        <span>BY {{AUTHOR}}</span>
+        <span class="post-meta-ai">{{AI_GENERATED}}</span>
+      </div>
+      <h1 class="post-title">{{TITLE}}</h1>
+    </header>
+    <div class="post-layout">
+      <aside class="toc-sidebar">
+        <div class="toc-label">CONTENTS</div>
+        <ul class="toc-list" id="tocList"></ul>
+      </aside>
+      <article id="blog-content"></article>
+    </div>
+    <section class="explore-section">
+      <div class="explore-label">MORE FROM THE ARCHIVE</div>
+      <div class="explore-grid" id="exploreGrid"></div>
+    </section>
+    <section class="post-contact">
+      <div class="contact-heading">ENJOYED THIS?</div>
+      <div class="contact-title">Send me how you liked the blog</div>
+      <div class="contact-socials">
+        <a class="contact-social" href="https://twitter.com/fanaticalnerd" target="_blank">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg>
+          TWITTER
+        </a>
+        <a class="contact-social" href="https://www.linkedin.com/in/rishabhyadavm07" target="_blank">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>
+          LINKEDIN
+        </a>
+        <a class="contact-social" href="https://github.com/rishabhyadavm07" target="_blank">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
+          GITHUB
+        </a>
+        <a class="contact-social" href="mailto:rishabhyadavm07@gmail.com">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+          EMAIL
+        </a>
+      </div>
+    </section>
+    <div class="post-footer"><div class="footer-copy">© FANATICALNERD // h4ppy_h4cking</div></div>
+  </div>
+
+  <div class="floating-nav" id="floatingNav">
+    <div class="nav-cards" id="navCards"></div>
+    <button class="nav-trigger" id="navTrigger">NAV</button>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
+  <script>
+  (function(){
+    const FOLDER='{{FOLDER}}';
+    const ALL_BLOGS={{ALL_BLOGS}};
+    const NAV=[{name:"HOME",url:"/index.html",icon:"home"},{name:"JOB DASH",url:"/jobs.html",icon:"activity"},{name:"INTEL",url:"/intel.html",icon:"radar"},{name:"BLOGS",url:"/blogs.html",icon:"book-open"},{name:"REPORTS",url:"/Disclosed-Reports/reports_index.html",icon:"file-text"},{name:"JOURNAL",url:"/journal.html",icon:"book"},{name:"PRIVATE",url:"/private.html",icon:"lock"}];
+    const SVG={home:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',activity:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/></svg>',radar:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19.07 4.93A10 10 0 0 0 6.99 3.34"/><path d="M4 6h.01"/><path d="M2.29 9.62A10 10 0 1 0 21.31 8.35"/><circle cx="12" cy="12" r="2"/></svg>',"book-open":'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg>',"file-text":'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8l6 6v12a2 2 0 0 1-2 2z"/><path d="M14 2v6h6"/></svg>',book:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>',lock:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>'};
+    document.getElementById('navCards').innerHTML=NAV.map(l=>`<a class="nav-card" href="${l.url}"><div class="nc-icon">${SVG[l.icon]}</div><div class="nc-label">${l.name}</div></a>`).join('');
+    const fn=document.getElementById('floatingNav');
+    document.getElementById('navTrigger').addEventListener('click',e=>{e.stopPropagation();fn.classList.toggle('open');});
+    document.addEventListener('click',()=>fn.classList.remove('open'));fn.addEventListener('click',e=>e.stopPropagation());
+    const canvas=document.getElementById('ambient'),ctx=canvas.getContext('2d');
+    function resize(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;}resize();window.addEventListener('resize',resize);
+    class P{constructor(){this.x=Math.random()*canvas.width;this.y=Math.random()*canvas.height;this.size=Math.random()*1.2+0.4;this.sx=(Math.random()-0.5)*0.25;this.sy=(Math.random()-0.5)*0.25;this.o=Math.random()*0.4+0.1;}update(){this.x+=this.sx;this.y+=this.sy;if(this.x>canvas.width)this.x=0;if(this.x<0)this.x=canvas.width;if(this.y>canvas.height)this.y=0;if(this.y<0)this.y=canvas.height;}draw(){ctx.fillStyle=`rgba(220,38,38,${this.o})`;ctx.beginPath();ctx.arc(this.x,this.y,this.size,0,Math.PI*2);ctx.fill();}}
+    let pts=[];for(let i=0;i<90;i++)pts.push(new P());
+    (function loop(){ctx.clearRect(0,0,canvas.width,canvas.height);pts.forEach(p=>{p.update();p.draw();});requestAnimationFrame(loop);})();
+    const lb=document.getElementById('lightbox'),lbImg=document.getElementById('lightboxImg'),lbClose=document.getElementById('lightboxClose');
+    function closeLb(){lb.classList.remove('active');document.body.style.overflow='';}
+    lbClose.addEventListener('click',closeLb);lb.addEventListener('click',e=>{if(e.target===lb)closeLb();});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeLb();});
+    {{LOAD_POST}}
+    function buildTOC(){
+      const toc=document.getElementById('tocList');if(!toc)return;
+      const headings=[...document.getElementById('blog-content').querySelectorAll('h1,h2,h3')];if(!headings.length)return;
+      headings.forEach((h,i)=>{const id='h'+i;h.id=id;const li=document.createElement('li');li.className='toc-item '+(h.tagName==='H3'?'h3':'h2');const a=document.createElement('a');a.href='#'+id;a.textContent=h.textContent.replace(/^[›—–]\s*/,'').trim().replace(/[^\w\s]/g,'').trim().slice(0,50);a.addEventListener('click',e=>{e.preventDefault();h.scrollIntoView({behavior:'smooth',block:'start'});});li.appendChild(a);toc.appendChild(li);});
+      const obs=new IntersectionObserver(entries=>{entries.forEach(en=>{const idx=headings.indexOf(en.target);if(idx<0)return;const links=toc.querySelectorAll('a');if(en.isIntersecting)links.forEach((l,i)=>l.classList.toggle('active',i===idx));});},{rootMargin:'-10% 0px -80% 0px'});
+      headings.forEach(h=>obs.observe(h));
+    }
+    function buildExplore(){
+      const grid=document.getElementById('exploreGrid');if(!grid)return;
+      const others=ALL_BLOGS.filter(b=>b.folder!==FOLDER).slice(0,3);
+      if(!others.length){grid.parentElement.style.display='none';return;}
+      grid.innerHTML=others.map(b=>`<a class="explore-card" href="${b.folder}.html"><div class="explore-date">${b.date||''}</div><div class="explore-title">${b.title}</div><div class="explore-excerpt">${b.excerpt||''}</div><div class="explore-read">>> READ</div></a>`).join('');
+    }
+    loadPost();
+    setTimeout(()=>{buildTOC();buildExplore();},80);
+  })();
+  </script>
+</body>
+</html>
+"""
 
 
-def load_metadata(folder: str) -> dict:
-    data = json.loads(BLOGS_JSON.read_text())
-    for entry in data["blogs"]:
-        if entry["folder"] == folder:
-            return entry
-    raise ValueError(f"No entry for folder '{folder}' in blogs.json")
+def make_load_post(md_body: str, folder: str) -> str:
+    escaped = md_body.replace("\\", "\\\\").replace("`", "\\`").replace("${", "\\${")
+    return f"""function loadPost(){{
+      const content=document.getElementById('blog-content');
+      const md=`{escaped}`;
+      marked.setOptions({{breaks:true,gfm:true}});
+      let html=marked.parse(md);
+      html=html.replace(/src="(?!http|\\/|data)([^"]+)"/g,`src="../BLOGS/{folder}/src/$1"`);
+      html=html.replace(/src='(?!http|\\/|data)([^']+)'/g,`src='../BLOGS/{folder}/src/$1'`);
+      const tmp=document.createElement('div');tmp.innerHTML=html;
+      const h1=tmp.querySelector('h1');if(h1)h1.remove();
+      content.innerHTML=tmp.innerHTML;
+      content.querySelectorAll('img').forEach(img=>{{img.addEventListener('click',()=>{{lb.classList.add('active');lbImg.src=img.src;document.body.style.overflow='hidden';}});}});
+    }}"""
+
+
+def parse_frontmatter(md_text: str) -> tuple[dict, str]:
+    m = FRONTMATTER_RE.match(md_text)
+    if not m:
+        raise ValueError("blog.md has no frontmatter. Add a --- block at the top.")
+    meta = {}
+    for line in m.group(1).splitlines():
+        if ":" in line:
+            key, _, val = line.partition(":")
+            meta[key.strip().lower()] = val.strip()
+    return meta, md_text[m.end():]
+
+
+def sync_blogs_json(folder: str, meta: dict) -> list:
+    data = json.loads(BLOGS_JSON.read_text(encoding="utf-8")) if BLOGS_JSON.exists() else {"blogs": [], "projects": []}
+    entry = {
+        "title":        meta.get("title", folder),
+        "folder":       folder,
+        "date":         meta.get("date", ""),
+        "author":       meta.get("author", "Rishabh"),
+        "AI_generated": meta.get("ai_generated", "Human Written"),
+        "excerpt":      meta.get("excerpt", ""),
+        "thumbnail":    meta.get("thumbnail", ""),
+    }
+    blogs = data.setdefault("blogs", [])
+    for i, b in enumerate(blogs):
+        if b["folder"] == folder:
+            blogs[i] = entry
+            break
+    else:
+        blogs.append(entry)
+    blogs.sort(key=lambda b: b.get("date", ""), reverse=True)
+    data["blogs"] = blogs
+    BLOGS_JSON.write_text(json.dumps(data, indent=2), encoding="utf-8")
+    return blogs
+
+
+def sync_index_inline(blogs: list):
+    index_path = ROOT / "index.html"
+    if not index_path.exists():
+        return
+    html = index_path.read_text(encoding="utf-8")
+    inline_data = {"blogs": [{"title": b["title"], "folder": b["folder"], "date": b["date"], "excerpt": b.get("excerpt", "")} for b in blogs]}
+    new_const = f'const BLOGS_INLINE = {json.dumps(inline_data, ensure_ascii=False)};'
+    html = re.sub(r'const BLOGS_INLINE = \{[^;]+\};', lambda _: new_const, html)
+    index_path.write_text(html, encoding="utf-8")
 
 
 def build(folder: str) -> Path:
-    meta = load_metadata(folder)
-    template = TEMPLATE.read_text(encoding="utf-8")
+    md_path = ROOT / "BLOGS" / folder / "blog.md"
+    if not md_path.exists():
+        raise FileNotFoundError(f"BLOGS/{folder}/blog.md not found")
 
-    title = meta.get("title", "")
-    author = meta.get("author", "Rishabh")
-    date = meta.get("date", "")
-    ai_generated = meta.get("AI_generated", "Human Written")
-    description = meta.get("excerpt", "")
-    thumbnail = meta.get("thumbnail", "")
+    md_text = md_path.read_text(encoding="utf-8")
+    meta, md_body = parse_frontmatter(md_text)
+
+    blogs = sync_blogs_json(folder, meta)
+    sync_index_inline(blogs)
+    print(f"  synced → BLOGS/blogs.json + index.html")
+
+    # Slim blog list for explore section (title, folder, date only)
+    all_blogs_js = json.dumps(
+        [{"title": b["title"], "folder": b["folder"], "date": b.get("date", ""), "excerpt": b.get("excerpt", "")} for b in blogs],
+        ensure_ascii=False
+    )
+
     url = f"{BASE_URL}/posts/{folder}.html"
-
-    replacements = {
-        "{{TITLE}}": title,
-        "{{FOLDER}}": folder,
-        "{{DATE}}": date,
-        "{{AUTHOR}}": author,
-        "{{AI_GENERATED}}": ai_generated,
-        "{{DESCRIPTION}}": description,
-        "{{THUMBNAIL}}": thumbnail,
-        "{{URL}}": url,
-    }
-
-    output = template
-    for placeholder, value in replacements.items():
+    output = TEMPLATE
+    output = output.replace("{{LOAD_POST}}", make_load_post(md_body, folder))
+    output = output.replace("{{ALL_BLOGS}}", all_blogs_js)
+    for placeholder, value in {
+        "{{TITLE}}":        meta.get("title", folder),
+        "{{FOLDER}}":       folder,
+        "{{DATE}}":         meta.get("date", ""),
+        "{{AUTHOR}}":       meta.get("author", "Rishabh"),
+        "{{AI_GENERATED}}": meta.get("ai_generated", "Human Written"),
+        "{{DESCRIPTION}}":  meta.get("excerpt", ""),
+        "{{THUMBNAIL}}":    meta.get("thumbnail", ""),
+        "{{URL}}":          url,
+    }.items():
         output = output.replace(placeholder, value)
 
-    out_path = POSTS_DIR / f"{folder}.html"
     POSTS_DIR.mkdir(exist_ok=True)
+    out_path = POSTS_DIR / f"{folder}.html"
     out_path.write_text(output, encoding="utf-8")
-    print(f"  built → posts/{folder}.html")
+    print(f"  built  → posts/{folder}.html")
     return out_path
 
 
 def build_all():
-    data = json.loads(BLOGS_JSON.read_text())
-    folders = [entry["folder"] for entry in data["blogs"]]
+    blogs_dir = ROOT / "BLOGS"
+    folders = sorted(d.name for d in blogs_dir.iterdir() if d.is_dir() and (d / "blog.md").exists())
+    if not folders:
+        print("No blog.md files found in BLOGS/")
+        return
     print(f"Building {len(folders)} post(s)...")
     for folder in folders:
-        build(folder)
+        try:
+            build(folder)
+        except Exception as e:
+            print(f"  SKIP {folder}: {e}")
     print("Done.")
 
 
@@ -74,7 +370,6 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         print(__doc__)
         sys.exit(1)
-
     arg = sys.argv[1]
     if arg == "--all":
         build_all()

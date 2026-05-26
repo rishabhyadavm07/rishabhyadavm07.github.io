@@ -1,3 +1,12 @@
+---
+title: How to Beat the Warden in Minecraft
+date: 2025-04-01
+author: Rishabh
+ai_generated: Human Written, AI Edited
+excerpt: A completely serious and not-at-all chaotic guide to defeating the Warden using pure panic, questionable logic, and maybe some wool.
+thumbnail: /BLOGS/how-to-roast-a-warden/src/win.png
+---
+
 > ⚠️ **DISCLAIMER:**  
 > This is a *test blog*.  
 > Please do **NOT** actually follow this guide unless your goal is to respawn in your bed 37 times in a row.  

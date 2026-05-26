@@ -1,3 +1,12 @@
+---
+title: My Adventures in AI Red Teaming: What I Learned This Week
+date: 2025-10-31
+author: Rishabh
+ai_generated: Human Written, AI Edited
+excerpt: AI Red Teaming: Uncovering AI's sneaky flaws, from prompt injection to hidden attacks. Learn how!
+thumbnail: /BLOGS/My-Adventures-in-AI-Red-Teaming-What-I-Learned-This-Week/src/Thumbnail2.png
+---
+
 # My Adventures in AI Red Teaming: What I Learned This Week
 
 I've been diving into the world of AI security, and I stumbled upon this awesome YouTube series called "AI Red Teaming 101." I've been taking a ton of notes, and I wanted to share what I've learned for anyone else who's curious.
