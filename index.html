@@ -766,7 +766,10 @@
       <div class="sc-ring"></div>
       <div class="sc-ring"></div>
       <div class="sc-frame">
-        <img src="Centre.png" alt="fanaticalnerd">
+        <picture>
+          <source srcset="Centre.webp" type="image/webp">
+          <img src="Centre.png" alt="fanaticalnerd">
+        </picture>
       </div>
       <div class="sc-badge">fanaticalnerd</div>
       <div class="sc-grip"></div>
@@ -1472,7 +1475,7 @@
         update() { this.x += this.speedX; this.y += this.speedY; if(this.x>ambientCanvas.width)this.x=0; if(this.x<0)this.x=ambientCanvas.width; if(this.y>ambientCanvas.height)this.y=0; if(this.y<0)this.y=ambientCanvas.height; }
         draw() { ambCtx.fillStyle = `rgba(220,38,38,${this.opacity})`; ambCtx.beginPath(); ambCtx.arc(this.x,this.y,this.size,0,Math.PI*2); ambCtx.fill(); }
       }
-      function initAmbient() { ambParticles = []; for(let i=0;i<90;i++) ambParticles.push(new AmbientParticle()); }
+      function initAmbient() { ambParticles = []; const count = window.innerWidth < 768 ? 20 : 90; for(let i=0;i<count;i++) ambParticles.push(new AmbientParticle()); }
       initAmbient();
       function animateAmbient() {
         ambCtx.clearRect(0,0,ambientCanvas.width,ambientCanvas.height);
