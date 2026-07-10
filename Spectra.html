@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <link rel="icon" type="image/x-icon" href="/assets/favicon_io/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon_io/favicon-16x16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon_io/favicon-32x32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon_io/apple-touch-icon.png">
+  <link rel="manifest" href="/assets/favicon_io/site.webmanifest">
+  <title>Spectra | fanaticalnerd</title>
+  <meta name="description" content="Spectra — the AI-native API client. Fast, beautiful, and built for the agentic era. Tauri v2, Rust, React 19, native MCP support.">
+
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://fanaticalnerd.com/Spectra.html">
+  <meta property="og:title" content="Spectra — The AI-native API client">
+  <meta property="og:description" content="Fast, beautiful, and built for the agentic era. Native MCP support, OAuth 2.0, Monaco-powered response viewer.">
+  <meta property="og:image" content="https://fanaticalnerd.com/assets/spectra-logo.png">
+
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://fanaticalnerd.com/Spectra.html">
+  <meta property="twitter:title" content="Spectra — The AI-native API client">
+  <meta property="twitter:description" content="Fast, beautiful, and built for the agentic era. Native MCP support, OAuth 2.0, Monaco-powered response viewer.">
+  <meta property="twitter:image" content="https://fanaticalnerd.com/assets/spectra-logo.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700;800&family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --crimson: #dc2626;
+      --crimson-dim: rgba(220, 38, 38, 0.12);
+      --crimson-glow: rgba(220, 38, 38, 0.45);
+      --black: #020202;
+      --void: #050505;
+      --surface: #0a0a0a;
+      --elevated: #111111;
+      --border: #1a1a1a;
+      --text: #dddddd;
+      --text-dim: #888888;
+      --text-faint: #3a3a3a;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'JetBrains Mono', monospace;
+      background-color: var(--black);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+    ::selection { background: var(--crimson); color: #fff; }
+    ::-webkit-scrollbar { width: 3px; }
+    ::-webkit-scrollbar-thumb { background: var(--crimson); }
+
+    #ambient { position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0.35; }
+    .scanline { position: fixed; top: 0; left: 0; width: 100%; height: 2px; background: var(--crimson); opacity: 0.07; z-index: 50; pointer-events: none; animation: scan 7s linear infinite; }
+    @keyframes scan { 0%{top:-5%} 100%{top:105%} }
+    .noise { position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: 0.025; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); background-repeat: repeat; background-size: 256px; }
+    .vignette { position: fixed; inset: 0; z-index: 2; pointer-events: none; background: radial-gradient(circle at center, transparent 0%, var(--black) 100%); }
+
+    .page-wrap { position: relative; z-index: 10; max-width: 1100px; margin: 0 auto; padding: 80px 24px 160px; }
+
+    .back-link {
+      display: inline-flex; align-items: center; gap: 10px;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.3em; text-transform: uppercase;
+      color: var(--text-faint); text-decoration: none;
+      border: 1px solid var(--border); padding: 10px 20px;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); margin-bottom: 60px;
+    }
+    .back-link:hover { color: var(--crimson); border-color: rgba(220,38,38,0.4); }
+    .back-link::before { content: '←'; }
+
+    /* ─── Hero ─── */
+    .hero { display: flex; flex-direction: column; align-items: center; text-align: center; margin-bottom: 120px; }
+    .hero-logo {
+      width: 108px; height: 108px; border-radius: 26px;
+      box-shadow: 0 0 0 1px rgba(220,38,38,0.35), 0 20px 80px rgba(220,38,38,0.18);
+      margin-bottom: 32px;
+      opacity: 0; transform: translateY(20px) scale(0.9);
+      transition: all 1s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .hero-logo.visible { opacity: 1; transform: translateY(0) scale(1); }
+    .hero-label {
+      font-size: 10px; letter-spacing: 0.5em; color: var(--crimson);
+      text-transform: uppercase; font-weight: 800; margin-bottom: 20px;
+      display: flex; align-items: center; gap: 12px;
+      opacity: 0; transform: translateY(-10px);
+      transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.1s;
+    }
+    .hero-label.visible { opacity: 1; transform: translateY(0); }
+    .pulse-dot { display: inline-block; width: 7px; height: 7px; background: var(--crimson); border-radius: 50%; box-shadow: 0 0 10px var(--crimson); animation: pulse 2s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
+    .hero-title {
+      font-family: 'Inter', sans-serif; font-size: clamp(2.6rem, 8vw, 5.5rem);
+      font-weight: 800; line-height: 1; letter-spacing: -0.04em; color: #fff;
+      opacity: 0; transform: translateY(24px);
+      transition: all 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.2s;
+    }
+    .hero-title.visible { opacity: 1; transform: translateY(0); }
+    .hero-title span { color: var(--crimson); }
+    .hero-tagline {
+      margin-top: 22px; font-size: clamp(0.9rem, 2vw, 1.05rem); color: var(--text-dim);
+      max-width: 560px; line-height: 1.7; font-weight: 400;
+      opacity: 0; transition: opacity 0.9s ease 0.4s;
+    }
+    .hero-tagline.visible { opacity: 1; }
+    .hero-badges {
+      display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 32px;
+      opacity: 0; transition: opacity 0.9s ease 0.5s;
+    }
+    .hero-badges.visible { opacity: 1; }
+    .badge {
+      font-size: 9px; letter-spacing: 0.15em; font-weight: 700; text-transform: uppercase;
+      padding: 8px 16px; border: 1px solid var(--border); border-radius: 30px; color: var(--text-dim);
+      background: rgba(255,255,255,0.02);
+    }
+    .hero-cta {
+      display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; margin-top: 44px;
+      opacity: 0; transform: translateY(16px);
+      transition: all 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.6s;
+    }
+    .hero-cta.visible { opacity: 1; transform: translateY(0); }
+    .btn {
+      display: inline-flex; align-items: center; gap: 10px;
+      font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 800;
+      letter-spacing: 0.2em; text-transform: uppercase; text-decoration: none;
+      padding: 16px 30px; border-radius: 8px; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .btn-primary {
+      background: var(--crimson); color: #fff;
+      box-shadow: 0 8px 32px rgba(220,38,38,0.35), 0 0 0 1px rgba(220,38,38,0.5);
+    }
+    .btn-primary:hover { background: #b91c1c; transform: translateY(-2px); }
+    .btn-ghost { border: 1px solid var(--border); color: var(--text-dim); }
+    .btn-ghost:hover { color: #fff; border-color: rgba(220,38,38,0.4); }
+
+    /* ─── Section shared ─── */
+    .section { margin-bottom: 110px; }
+    .section-label {
+      font-size: 10px; letter-spacing: 0.5em; color: var(--crimson);
+      text-transform: uppercase; font-weight: 800; margin-bottom: 16px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .section-label::before { content: ''; display: block; width: 32px; height: 1px; background: var(--crimson); }
+    .section-title {
+      font-family: 'Inter', sans-serif; font-size: clamp(1.4rem, 3.5vw, 2.1rem);
+      font-weight: 800; letter-spacing: -0.03em; color: #fff; margin-bottom: 48px;
+    }
+
+    /* ─── Feature grid ─── */
+    .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+    .feature-card {
+      background: var(--elevated); border: 1px solid var(--border);
+      border-top: 2px solid var(--crimson); padding: 30px;
+      position: relative; overflow: hidden;
+      opacity: 0; transform: translateY(40px);
+      transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .feature-card.visible { opacity: 1; transform: translateY(0); }
+    .feature-card::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, var(--crimson-dim) 0%, transparent 50%);
+      pointer-events: none; opacity: 0; transition: opacity 0.6s;
+    }
+    .feature-card:hover::before { opacity: 1; }
+    .feature-card:hover { border-color: rgba(220,38,38,0.35); box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(220,38,38,0.08); }
+    .feature-icon { font-size: 22px; margin-bottom: 18px; }
+    .feature-title {
+      font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 800;
+      color: #fff; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 14px;
+    }
+    .feature-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .feature-list li {
+      font-size: 12px; color: var(--text-dim); line-height: 1.6; padding-left: 14px; position: relative;
+    }
+    .feature-list li::before { content: '›'; position: absolute; left: 0; color: var(--crimson); }
+
+    /* ─── Stack table ─── */
+    .stack-table { width: 100%; border-collapse: collapse; }
+    .stack-table th {
+      text-align: left; font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--text-faint); font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border);
+    }
+    .stack-table td {
+      font-size: 12px; color: var(--text-dim); padding: 16px; border-bottom: 1px solid var(--border);
+    }
+    .stack-table tr:hover td { color: var(--text); }
+    .stack-table td:first-child { color: var(--crimson); font-weight: 700; }
+    .stack-wrap { overflow-x: auto; border: 1px solid var(--border); background: var(--elevated); }
+
+    .compare-table td:first-child { color: var(--text); font-weight: 400; }
+    .compare-table th:nth-child(2), .compare-table td:nth-child(2) { color: var(--crimson); }
+    .compare-table td.yes { color: #4ade80; font-weight: 700; }
+    .compare-table td.no { color: var(--text-faint); }
+    .compare-table td.partial { color: #eab308; }
+    .compare-note {
+      margin-top: 20px; font-size: 12px; color: var(--text-faint); line-height: 1.8;
+      max-width: 720px;
+    }
+
+    /* ─── Install / code block ─── */
+    .code-block {
+      background: var(--surface); border: 1px solid var(--border); border-left: 2px solid var(--crimson);
+      padding: 24px 26px; font-size: 12px; line-height: 1.9; color: var(--text-dim);
+      overflow-x: auto; white-space: pre;
+    }
+    .code-block .cm { color: var(--text-faint); }
+    .code-block .cx { color: var(--crimson); }
+
+    /* ─── Footer ─── */
+    footer { position: relative; z-index: 10; text-align: center; padding: 60px 24px; border-top: 1px solid var(--border); }
+    .footer-copy { font-size: 10px; color: var(--text-faint); opacity: 0.4; letter-spacing: 0.3em; }
+
+    /* ─── Floating Nav (shared) ─── */
+    .floating-nav {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      z-index: 1000; display: flex; flex-direction: column; align-items: center; gap: 16px;
+    }
+    .nav-cards {
+      display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; max-width: 90vw;
+      opacity: 0; transform: translateY(30px) scale(0.9); pointer-events: none;
+      transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .floating-nav:hover .nav-cards, .floating-nav.open .nav-cards { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
+    .nav-card {
+      width: 82px; height: 92px; background: rgba(12,12,12,0.95);
+      backdrop-filter: blur(16px); border: 1px solid var(--border); border-radius: 14px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+      text-decoration: none; color: var(--text-dim);
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      opacity: 0; transform: translateY(20px) scale(0.7); position: relative; overflow: hidden;
+    }
+    .nav-card::before { content: ''; position: absolute; inset: 0; border-radius: 14px; background: radial-gradient(circle at 50% 0%, rgba(220,38,38,0.15), transparent 70%); opacity: 0; transition: opacity 0.4s; }
+    .nav-card:hover::before { opacity: 1; }
+    .floating-nav:hover .nav-card, .floating-nav.open .nav-card { opacity: 1; transform: translateY(0) scale(1); }
+    .nav-card:nth-child(1){transition-delay:.04s} .nav-card:nth-child(2){transition-delay:.08s} .nav-card:nth-child(3){transition-delay:.12s} .nav-card:nth-child(4){transition-delay:.16s} .nav-card:nth-child(5){transition-delay:.20s} .nav-card:nth-child(6){transition-delay:.24s} .nav-card:nth-child(7){transition-delay:.28s}
+    .nav-card:hover { border-color: var(--crimson); color: #fff; transform: translateY(-10px) scale(1.12) !important; box-shadow: 0 20px 40px rgba(0,0,0,0.6), 0 0 20px rgba(220,38,38,0.2); }
+    .nav-card:hover .nc-icon { color: var(--crimson); }
+    .nc-icon { width: 20px; height: 20px; position: relative; z-index: 1; }
+    .nc-label { font-size: 8px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; position: relative; z-index: 1; }
+    .nav-trigger {
+      padding: 14px 48px; background: var(--crimson); color: #fff;
+      font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 800;
+      letter-spacing: 0.5em; cursor: pointer; border: none; border-radius: 40px;
+      position: relative; overflow: hidden;
+      box-shadow: 0 8px 32px rgba(220,38,38,0.35), 0 0 0 1px rgba(220,38,38,0.5);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .nav-trigger:hover { background: #b91c1c; letter-spacing: 0.65em; transform: translateY(-2px); }
+    .nav-trigger:active { transform: scale(0.95); }
+    .nav-trigger::after { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent); animation: shine 3s ease-in-out infinite; }
+    @keyframes shine { 0%,100%{left:-100%} 50%{left:100%} }
+
+    @media (max-width: 768px) {
+      .page-wrap { padding: 60px 20px 140px; }
+      .hero { margin-bottom: 90px; }
+      .section { margin-bottom: 80px; }
+      .floating-nav { bottom: 16px; }
+      .nav-card { width: 66px; height: 76px; }
+      .nc-label { font-size: 7px; }
+      .nav-trigger { padding: 12px 32px; font-size: 9px; letter-spacing: 0.35em; }
+    }
+    @media (max-width: 480px) {
+      .page-wrap { padding: 48px 16px 120px; }
+      .feature-card { padding: 20px; }
+      .nav-cards { gap: 6px; }
+      .nav-card { width: 56px; height: 64px; }
+      .nc-label { font-size: 6px; }
+      .nav-trigger { padding: 10px 24px; letter-spacing: 0.25em; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="ambient"></canvas>
+  <div class="noise"></div>
+  <div class="vignette"></div>
+  <div class="scanline"></div>
+
+  <div class="page-wrap">
+
+    <a class="back-link" href="index.html">BACK TO INTERFACE</a>
+
+    <div class="hero">
+      <img class="hero-logo" data-animate src="assets/spectra-logo.png" alt="Spectra logo">
+      <div class="hero-label" data-animate><span class="pulse-dot"></span>AI-Native API Client</div>
+      <h1 class="hero-title" data-animate>SPEC<span>TRA</span></h1>
+      <p class="hero-tagline" data-animate>Fast, beautiful, and built for the agentic era. A native API client with a Rust core, a 60+ tool MCP server, and a UI that doesn't get in your way.</p>
+      <div class="hero-badges" data-animate>
+        <span class="badge">Tauri v2</span>
+        <span class="badge">React 19</span>
+        <span class="badge">Rust</span>
+        <span class="badge">MCP Supported</span>
+        <span class="badge">MIT License</span>
+      </div>
+      <div class="hero-cta" data-animate>
+        <a class="btn btn-primary" href="https://github.com/rishabhyadavm07/Spectra/releases" target="_blank" rel="noopener">Download for macOS</a>
+        <a class="btn btn-ghost" href="https://github.com/rishabhyadavm07/Spectra" target="_blank" rel="noopener">View on GitHub</a>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">Capabilities</div>
+      <h2 class="section-title">Everything you need to test an API</h2>
+      <div class="feature-grid">
+        <div class="feature-card" data-animate-card>
+          <div class="feature-icon">🚀</div>
+          <div class="feature-title">Core API Client</div>
+          <ul class="feature-list">
+            <li>Full HTTP support — GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS</li>
+            <li>Headers, query params, JSON/form/raw body editor with syntax highlighting</li>
+            <li>Monaco-powered response viewer with JSON/XML/HTML/YAML formatting</li>
+            <li>Workspaces & collections with drag-and-drop organization</li>
+            <li>Environments with secret masking and per-environment overrides</li>
+            <li>Automatic request history with replay and saved responses</li>
+          </ul>
+        </div>
+        <div class="feature-card" data-animate-card>
+          <div class="feature-icon">🎨</div>
+          <div class="feature-title">Beautiful Interface</div>
+          <ul class="feature-list">
+            <li>Native macOS feel — overlay title bar, transparent window</li>
+            <li>Adaptive themes — System, Light, Dark, and Crimson</li>
+            <li>Full VS Code-grade syntax highlighting via Monaco Editor</li>
+            <li>Resizable panels for sidebar, request/response split, and console</li>
+          </ul>
+        </div>
+        <div class="feature-card" data-animate-card>
+          <div class="feature-icon">🔐</div>
+          <div class="feature-title">Authentication</div>
+          <ul class="feature-list">
+            <li>OAuth 2.0 — Authorization Code, Client Credentials, PKCE</li>
+            <li>Bearer Token, Basic Auth, API Key at any scope</li>
+            <li>AWS Signature v4, Hawk, and Digest built-in</li>
+            <li>Auth inheritance — set once, override per-folder or per-request</li>
+          </ul>
+        </div>
+        <div class="feature-card" data-animate-card>
+          <div class="feature-icon">🤖</div>
+          <div class="feature-title">AI-Native (MCP)</div>
+          <ul class="feature-list">
+            <li>Built-in MCP server ships as a sidecar binary — zero config</li>
+            <li>60+ MCP tools to read workspaces, send requests, analyze responses</li>
+            <li>Works with Claude Desktop, Cursor, Windsurf, or any MCP client</li>
+            <li>Agents can even take GUI screenshots of the app</li>
+          </ul>
+        </div>
+        <div class="feature-card" data-animate-card>
+          <div class="feature-icon">⚡</div>
+          <div class="feature-title">Performance</div>
+          <ul class="feature-list">
+            <li>Rust backend — HTTP execution, SQLite storage, crypto run natively</li>
+            <li>Web Worker formatting keeps large JSON off the main thread</li>
+            <li>Virtual scrolling handles massive request trees without lag</li>
+            <li>~105 KB gzipped frontend bundle</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">Under the hood</div>
+      <h2 class="section-title">Tech stack</h2>
+      <div class="stack-wrap">
+        <table class="stack-table">
+          <thead>
+            <tr><th>Layer</th><th>Technology</th><th>Purpose</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Shell</td><td>Tauri v2</td><td>Native window, IPC, bundling</td></tr>
+            <tr><td>Backend</td><td>Rust</td><td>HTTP execution, SQLite, crypto, MCP server</td></tr>
+            <tr><td>Frontend</td><td>React 19 + TypeScript</td><td>UI components and state</td></tr>
+            <tr><td>Editor</td><td>Monaco Editor</td><td>Syntax highlighting for requests/responses</td></tr>
+            <tr><td>State</td><td>Zustand</td><td>Lightweight React state management</td></tr>
+            <tr><td>Database</td><td>SQLite (via sqlx)</td><td>Persistent storage for workspaces, history</td></tr>
+            <tr><td>Bundler</td><td>Vite 7</td><td>Fast HMR and production builds</td></tr>
+            <tr><td>Testing</td><td>Vitest</td><td>Unit testing framework</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">How it stacks up</div>
+      <h2 class="section-title">Spectra vs. Postman vs. Insomnia</h2>
+      <div class="stack-wrap">
+        <table class="stack-table compare-table">
+          <thead>
+            <tr><th>Capability</th><th>Spectra</th><th>Postman</th><th>Insomnia</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Native MCP server (AI agents drive the app directly)</td><td class="yes">✓ 60+ tools</td><td class="no">✗</td><td class="no">✗</td></tr>
+            <tr><td>Native app (Rust/Tauri) — small, fast startup</td><td class="yes">✓ ~105 KB bundle</td><td class="no">✗ Electron</td><td class="no">✗ Electron</td></tr>
+            <tr><td>Monaco (VS Code-grade) editor</td><td class="yes">✓</td><td class="partial">Partial (CodeMirror)</td><td class="partial">Partial (CodeMirror)</td></tr>
+            <tr><td>OAuth 2.0 / Bearer / Basic / API Key auth</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+            <tr><td>AWS Signature v4, Hawk, Digest auth</td><td class="yes">✓</td><td class="yes">✓</td><td class="partial">Partial</td></tr>
+            <tr><td>Auth inheritance (workspace → folder → request)</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+            <tr><td>Environments with secret masking</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+            <tr><td>Custom adaptive themes (incl. Crimson)</td><td class="yes">✓</td><td class="partial">Light/Dark only</td><td class="partial">Light/Dark only</td></tr>
+            <tr><td>Open source / MIT licensed</td><td class="yes">✓</td><td class="no">✗ Closed source</td><td class="partial">Fair Source (post-2021)</td></tr>
+            <tr><td>Free, no account required</td><td class="yes">✓</td><td class="partial">Free tier requires login</td><td class="partial">Free tier requires login</td></tr>
+            <tr><td>Team workspaces & cloud sync</td><td class="no">✗ Not yet</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+            <tr><td>Mock servers</td><td class="no">✗ Not yet</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+            <tr><td>Automated test runner / CI (Newman-style)</td><td class="no">✗ Not yet</td><td class="yes">✓ Newman</td><td class="yes">✓ Inso CLI</td></tr>
+            <tr><td>gRPC / GraphQL / WebSocket support</td><td class="no">✗ REST-focused</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+            <tr><td>Plugin / extension ecosystem</td><td class="no">✗ Not yet</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+            <tr><td>Cross-platform (Windows / Linux builds)</td><td class="no">✗ macOS only</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+            <tr><td>Mobile companion app</td><td class="no">✗</td><td class="yes">✓</td><td class="no">✗</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="compare-note">Spectra trades team features and cross-platform reach for a native macOS-first build and an MCP server built into the core — not bolted on. Where Postman and Insomnia are collaboration platforms, Spectra is optimized to be driven by both you and your AI agent, locally, with zero telemetry.</p>
+    </div>
+
+    <div class="section">
+      <div class="section-label">Get started</div>
+      <h2 class="section-title">Build from source</h2>
+      <div class="code-block"><span class="cm"># 1. Clone the repository</span>
+<span class="cx">git</span> clone https://github.com/rishabhyadavm07/Spectra.git
+<span class="cx">cd</span> Spectra
+
+<span class="cm"># 2. Install frontend dependencies</span>
+<span class="cx">npm</span> install
+
+<span class="cm"># 3. Run in development mode (hot reload)</span>
+<span class="cx">npm</span> run tauri dev
+
+<span class="cm"># 4. Build for production</span>
+<span class="cx">npm</span> run build:mac</div>
+    </div>
+
+  </div>
+
+  <footer>
+    <div class="footer-copy">© FANATICALNERD // SPECTRA — MIT LICENSED · BUILT WITH RUST · REACT · TAURI · MCP</div>
+  </footer>
+
+  <div class="floating-nav" id="floatingNav">
+    <div class="nav-cards" id="navCards"></div>
+    <button class="nav-trigger" id="navTrigger">NAV</button>
+  </div>
+
+  <script>
+  (function() {
+    const NAV_LINKS = [
+      {name:"HOME",url:"index.html",icon:"home"},
+      {name:"INTEL",url:"intel.html",icon:"radar"},
+      {name:"BLOGS",url:"blogs.html",icon:"book-open"},
+      {name:"REPORTS",url:"Disclosed-Reports/reports_index.html",icon:"file-text"},
+      {name:"PREPPP",url:"interview_ques.html",icon:"cloud"},
+      {name:"JOURNAL",url:"journal.html",icon:"book"},
+      {name:"PRIVATE",url:"private.html",icon:"lock"}
+    ];
+
+    const iconSvgs = {
+      home:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
+      radar:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19.07 4.93A10 10 0 0 0 6.99 3.34"/><path d="M4 6h.01"/><path d="M2.29 9.62A10 10 0 1 0 21.31 8.35"/><circle cx="12" cy="12" r="2"/></svg>',
+      'book-open':'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg>',
+      'file-text':'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8l6 6v12a2 2 0 0 1-2 2z"/><path d="M14 2v6h6"/></svg>',
+      cloud:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>',
+      book:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>',
+      lock:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>'
+    };
+
+    document.getElementById('navCards').innerHTML = NAV_LINKS.map(l =>
+      `<a class="nav-card" href="${l.url}"><div class="nc-icon">${iconSvgs[l.icon]}</div><div class="nc-label">${l.name}</div></a>`
+    ).join('');
+    const floatingNav = document.getElementById('floatingNav');
+    document.getElementById('navTrigger').addEventListener('click', e => { e.stopPropagation(); floatingNav.classList.toggle('open'); });
+    document.addEventListener('click', () => floatingNav.classList.remove('open'));
+    floatingNav.addEventListener('click', e => e.stopPropagation());
+
+    // Ambient particles
+    const canvas = document.getElementById('ambient');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    resize(); window.addEventListener('resize', resize);
+    class P {
+      constructor() { this.x=Math.random()*canvas.width; this.y=Math.random()*canvas.height; this.size=Math.random()*1.2+0.4; this.sx=(Math.random()-0.5)*0.25; this.sy=(Math.random()-0.5)*0.25; this.o=Math.random()*0.4+0.1; }
+      update() { this.x+=this.sx; this.y+=this.sy; if(this.x>canvas.width)this.x=0; if(this.x<0)this.x=canvas.width; if(this.y>canvas.height)this.y=0; if(this.y<0)this.y=canvas.height; }
+      draw() { ctx.fillStyle=`rgba(220,38,38,${this.o})`; ctx.beginPath(); ctx.arc(this.x,this.y,this.size,0,Math.PI*2); ctx.fill(); }
+    }
+    for(let i=0;i<90;i++) particles.push(new P());
+    (function loop() { ctx.clearRect(0,0,canvas.width,canvas.height); particles.forEach(p=>{p.update();p.draw();}); requestAnimationFrame(loop); })();
+
+    // Hero entrance
+    document.querySelectorAll('[data-animate]').forEach((el, i) => {
+      setTimeout(() => el.classList.add('visible'), 150 + i * 120);
+    });
+
+    // Feature cards on scroll
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => { if(e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('[data-animate-card]').forEach((el, i) => {
+      el.style.transitionDelay = `${i * 80}ms`;
+      observer.observe(el);
+    });
+  })();
+  </script>
+</body>
+</html>
