@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AZ-500 Study Hub</title>
+<meta name="description" content="Free AZ-500 study hub: a 369-question practice quiz, full study notes, revision sheets, 17 architecture decks and 100 flashcards.">
+<link rel="canonical" href="https://fanaticalnerd.com/az500/">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="fanaticalnerd">
+<meta property="og:url" content="https://fanaticalnerd.com/az500/">
+<meta property="og:title" content="AZ-500 Azure Security Engineer Study Hub">
+<meta property="og:description" content="Everything I gathered preparing for AZ-500 — a 369-question practice quiz with answer rationales, full study notes, 8 revision sheets, 17 architecture decks and 100 flashcards. Free.">
+<meta property="og:image" content="https://fanaticalnerd.com/az500/preview.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+<meta property="og:image:alt" content="AZ-500 Azure Security Engineer Study Hub — 369 questions, 17 decks, 8 revision sheets, 100 flashcards.">
+
+<meta property="twitter:card" content="summary_large_image">
+<meta property="twitter:url" content="https://fanaticalnerd.com/az500/">
+<meta property="twitter:title" content="AZ-500 Azure Security Engineer Study Hub">
+<meta property="twitter:description" content="Everything I gathered preparing for AZ-500 — a 369-question practice quiz with answer rationales, full study notes, 8 revision sheets, 17 architecture decks and 100 flashcards. Free.">
+<meta property="twitter:image" content="https://fanaticalnerd.com/az500/preview.jpg">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Sora:wght@300;400;600;700;800&display=swap');
+
+  :root {
+    --bg: #0a0e1a;
+    --bg2: #0f1628;
+    --surface: #141d36;
+    --surface2: #1a2340;
+    --border: #2a3a5c;
+    --border2: #3a4f7a;
+    --accent: #4fc3f7;
+    --accent2: #00e5ff;
+    --accent3: #7c4dff;
+    --gold: #ffd740;
+    --green: #69ff47;
+    --orange: #ff9100;
+    --pink: #ff4081;
+    --text: #e8eaf6;
+    --text2: #b0bec5;
+    --text3: #78909c;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Sora', system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: inherit; text-decoration: none; }
+
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 28px; }
+
+  /* ── HEADER ─────────────────────────────────────────────── */
+  header {
+    background: linear-gradient(135deg, #0a0e1a 0%, #131c35 45%, #1a0a2e 100%);
+    border-bottom: 2px solid var(--accent3);
+    padding: 56px 0 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: -140px; right: -100px;
+    width: 460px; height: 460px;
+    background: radial-gradient(circle, rgba(124,77,255,.18) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: .22em;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: clamp(30px, 5vw, 46px);
+    font-weight: 800;
+    letter-spacing: -.02em;
+    line-height: 1.12;
+    background: linear-gradient(100deg, #e8eaf6 0%, #4fc3f7 55%, #7c4dff 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .tagline { color: var(--text2); margin-top: 12px; max-width: 62ch; font-weight: 300; }
+
+  .stats {
+    display: flex; flex-wrap: wrap; gap: 10px;
+    margin-top: 28px;
+  }
+  .stat {
+    background: rgba(20,29,54,.75);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 9px 15px;
+    display: flex; align-items: baseline; gap: 8px;
+  }
+  .stat b {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 17px; color: var(--accent);
+  }
+  .stat span { font-size: 12px; color: var(--text3); letter-spacing: .04em; }
+
+  /* ── FILTER ─────────────────────────────────────────────── */
+  .toolbar {
+    position: sticky; top: 0; z-index: 20;
+    background: rgba(10,14,26,.92);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 0;
+  }
+  .toolbar-in { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  #filter {
+    flex: 1; min-width: 220px;
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 9px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-family: 'Sora', sans-serif;
+    font-size: 14px;
+  }
+  #filter:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(79,195,247,.14); }
+  #filter::placeholder { color: var(--text3); }
+  .jump { display: flex; gap: 6px; flex-wrap: wrap; }
+  .jump a {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; letter-spacing: .05em;
+    padding: 7px 11px; border-radius: 7px;
+    border: 1px solid var(--border);
+    color: var(--text2);
+    transition: .15s;
+  }
+  .jump a:hover { border-color: var(--accent); color: var(--accent); }
+  .no-hits { display: none; color: var(--text3); padding: 30px 0; font-style: italic; }
+
+  /* ── SECTIONS ───────────────────────────────────────────── */
+  section { padding: 46px 0 8px; }
+  .sec-head { display: flex; align-items: center; gap: 13px; margin-bottom: 6px; }
+  .sec-head h2 { font-size: 21px; font-weight: 700; letter-spacing: -.01em; }
+  .sec-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; color: var(--bg);
+    background: var(--accent); border-radius: 5px;
+    padding: 3px 8px; font-weight: 700;
+  }
+  .sec-desc { color: var(--text3); font-size: 13.5px; margin-bottom: 22px; max-width: 74ch; }
+
+  .grid { display: grid; gap: 13px; }
+  .g2 { grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); }
+  .g3 { grid-template-columns: repeat(auto-fill, minmax(255px, 1fr)); }
+
+  /* ── CARDS ──────────────────────────────────────────────── */
+  .card {
+    display: block;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 17px 19px;
+    transition: transform .16s, border-color .16s, background .16s;
+    position: relative;
+  }
+  a.card:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent);
+    background: var(--surface2);
+  }
+  .card h3 { font-size: 15px; font-weight: 600; margin-bottom: 5px; letter-spacing: -.005em; }
+  .card p { font-size: 12.5px; color: var(--text3); line-height: 1.55; }
+  .meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px; color: var(--text3);
+    margin-top: 11px; display: flex; gap: 9px; flex-wrap: wrap;
+  }
+  .meta em { font-style: normal; color: var(--border2); }
+
+  /* cards that should span the full grid rather than sit in one column */
+  .wide { grid-column: 1 / -1; }
+
+  /* hero card */
+  .hero {
+    grid-column: 1 / -1;
+    background: linear-gradient(120deg, #131c35 0%, #1a2340 55%, #221537 100%);
+    border: 1px solid var(--accent3);
+    padding: 26px 28px;
+  }
+  a.hero:hover { border-color: var(--accent2); }
+  .hero h3 { font-size: 20px; }
+  .hero p { font-size: 13.5px; color: var(--text2); max-width: 66ch; }
+  .badge {
+    position: absolute; top: 17px; right: 19px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: .1em;
+    background: var(--accent3); color: #fff;
+    padding: 4px 9px; border-radius: 20px; font-weight: 700;
+  }
+  .chips { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 15px; }
+  .chip {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    background: rgba(79,195,247,.1);
+    border: 1px solid rgba(79,195,247,.3);
+    color: var(--accent);
+    padding: 4px 9px; border-radius: 6px;
+  }
+
+  /* accent variants */
+  .k-gold  { border-left: 3px solid var(--gold); }
+  .k-green { border-left: 3px solid var(--green); }
+  .k-pink  { border-left: 3px solid var(--pink); }
+  .k-or    { border-left: 3px solid var(--orange); }
+
+  /* notes TOC */
+  .toc { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 14px; }
+  .toc a {
+    font-size: 12px; padding: 6px 11px;
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 20px; color: var(--text2); transition: .15s;
+  }
+  .toc a:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* local-only tools */
+  .local { opacity: .82; }
+  .local .card { border-style: dashed; }
+  .tag-local {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px; letter-spacing: .09em;
+    color: var(--orange); border: 1px solid rgba(255,145,0,.4);
+    background: rgba(255,145,0,.08);
+    padding: 2px 7px; border-radius: 5px; margin-left: 8px;
+    vertical-align: middle;
+  }
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px; background: var(--bg2);
+    border: 1px solid var(--border); border-radius: 4px;
+    padding: 1px 5px; color: var(--accent2);
+  }
+
+  footer {
+    margin-top: 60px; border-top: 1px solid var(--border);
+    padding: 26px 0 44px; color: var(--text3); font-size: 12.5px;
+    display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+  }
+  footer a { color: var(--accent); }
+
+  @media (max-width: 640px) {
+    .wrap { padding: 0 18px; }
+    header { padding: 40px 0 30px; }
+    .jump { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="eyebrow">Microsoft Certified · Exam AZ-500</div>
+    <h1>Azure Security Engineer<br>Study Hub</h1>
+    <p class="tagline">Everything I gathered preparing for AZ-500 — a 369-question practice engine, full study notes, last-mile revision sheets, architecture decks and flashcards, in one place.</p>
+    <div class="stats">
+      <div class="stat"><b>369</b><span>practice questions</span></div>
+      <div class="stat"><b>17</b><span>slide decks</span></div>
+      <div class="stat"><b>8</b><span>revision sheets</span></div>
+      <div class="stat"><b>100</b><span>flashcards</span></div>
+      <div class="stat"><b>349</b><span>extra bank questions</span></div>
+    </div>
+  </div>
+</header>
+
+<div class="toolbar">
+  <div class="wrap toolbar-in">
+    <input id="filter" type="search" placeholder="Filter everything — try &quot;sentinel&quot;, &quot;key vault&quot;, &quot;kql&quot;…" autocomplete="off">
+    <nav class="jump">
+      <a href="#quiz">QUIZ</a>
+      <a href="#notes">NOTES</a>
+      <a href="#revision">REVISION</a>
+      <a href="#slides">DECKS</a>
+      <a href="#flashcards">CARDS</a>
+      <a href="#banks">BANKS</a>
+      <a href="#tools">TOOLS</a>
+    </nav>
+  </div>
+</div>
+
+<main class="wrap">
+
+  <p class="no-hits" id="noHits">Nothing matches that filter.</p>
+
+  <!-- ── QUIZ ─────────────────────────────────────────── -->
+  <section id="quiz">
+    <div class="sec-head"><span class="sec-num">01</span><h2>Practice Quiz</h2></div>
+    <p class="sec-desc">The main event. Full exam simulation, batch drilling, or single-question review — with per-option rationales explaining why each answer is right or wrong.</p>
+    <div class="grid g2">
+      <a class="card hero" href="quiz/index.html" data-tags="quiz practice exam simulation questions drill mock test">
+        <span class="badge">START HERE</span>
+        <h3>AZ-500 Practice Quiz</h3>
+        <p>369 questions across all exam topics, including 87 with architecture diagrams. Answer-level rationales, a timer for exam mode, and progress that survives a reload.</p>
+        <div class="chips">
+          <span class="chip">186 multiple choice</span>
+          <span class="chip">73 hotspot dropdown</span>
+          <span class="chip">37 hotspot yes/no</span>
+          <span class="chip">33 simulation</span>
+          <span class="chip">27 drag &amp; drop</span>
+          <span class="chip">13 multi-select</span>
+        </div>
+        <div class="meta"><span>21 batches</span><em>·</em><span>87 diagrams</span><em>·</em><span>exam · batch · single modes</span></div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ── NOTES ────────────────────────────────────────── -->
+  <section id="notes">
+    <div class="sec-head"><span class="sec-num">02</span><h2>Study Notes</h2></div>
+    <p class="sec-desc">One long-form reference covering the whole syllabus, with exam traps called out inline.</p>
+    <div class="grid g2">
+      <div class="card k-green wide" data-tags="notes study reference identity network paas firewall key vault governance defender container kql">
+        <h3><a href="notes/study-notes.html">Full Study Notes →</a></h3>
+        <p>Twelve sections, from identity fundamentals through container security, ending in a quick-reference sheet of critical exam tips.</p>
+        <div class="toc">
+          <a href="notes/study-notes.html#s1">Identity &amp; Access</a>
+          <a href="notes/study-notes.html#s2">Network Security</a>
+          <a href="notes/study-notes.html#s3">PaaS Security</a>
+          <a href="notes/study-notes.html#s4">Web App Security</a>
+          <a href="notes/study-notes.html#s5">Firewall &amp; Architecture</a>
+          <a href="notes/study-notes.html#s6">Key Mgmt &amp; Encryption</a>
+          <a href="notes/study-notes.html#s7">Governance &amp; Compliance</a>
+          <a href="notes/study-notes.html#s8">Security Operations</a>
+          <a href="notes/study-notes.html#s9">Defender for Cloud</a>
+          <a href="notes/study-notes.html#s10">Database &amp; Storage</a>
+          <a href="notes/study-notes.html#s11">Container Security</a>
+          <a href="notes/study-notes.html#s12">Quick Reference</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── REVISION ─────────────────────────────────────── -->
+  <section id="revision">
+    <div class="sec-head"><span class="sec-num">03</span><h2>Revision Sheets</h2></div>
+    <p class="sec-desc">Dense, printable last-mile material. Start with the 24-hour sheet the night before.</p>
+    <div class="grid g3">
+      <a class="card k-gold" href="revision/00-FINAL-24-HOURS.pdf" data-tags="revision final 24 hours cram last minute night before">
+        <h3>Final 24 Hours</h3><p>The night-before cram sheet.</p>
+        <div class="meta"><span>8 pages</span><em>·</em><span>337 KB</span></div>
+      </a>
+      <a class="card" href="revision/01-Identity-and-Access.pdf" data-tags="revision identity access entra rbac pim conditional">
+        <h3>Identity &amp; Access</h3><p>Entra ID, RBAC, PIM, Conditional Access.</p>
+        <div class="meta"><span>13 pages</span><em>·</em><span>379 KB</span></div>
+      </a>
+      <a class="card" href="revision/02-Networking.pdf" data-tags="revision networking nsg vnet firewall bastion ddos">
+        <h3>Networking</h3><p>VNets, NSGs, Firewall, Bastion, DDoS.</p>
+        <div class="meta"><span>17 pages</span><em>·</em><span>845 KB</span></div>
+      </a>
+      <a class="card" href="revision/03-Compute-Storage-Databases.pdf" data-tags="revision compute storage database sql vm disk encryption">
+        <h3>Compute, Storage &amp; DB</h3><p>VMs, disks, storage and SQL security.</p>
+        <div class="meta"><span>15 pages</span><em>·</em><span>1.2 MB</span></div>
+      </a>
+      <a class="card" href="revision/04-Defender-and-Sentinel.pdf" data-tags="revision defender sentinel siem soar cnapp monitoring">
+        <h3>Defender &amp; Sentinel</h3><p>Defender for Cloud plus Sentinel SIEM/SOAR.</p>
+        <div class="meta"><span>24 pages</span><em>·</em><span>952 KB</span></div>
+      </a>
+      <a class="card k-pink" href="revision/05-Decision-Tables.pdf" data-tags="revision decision tables which service when comparison choose">
+        <h3>Decision Tables</h3><p>"Which service when" comparison grids.</p>
+        <div class="meta"><span>16 pages</span><em>·</em><span>453 KB</span></div>
+      </a>
+      <a class="card k-pink" href="revision/06-Exam-Traps.pdf" data-tags="revision exam traps gotchas mistakes tricky distractors">
+        <h3>Exam Traps</h3><p>The gotchas and distractor patterns.</p>
+        <div class="meta"><span>12 pages</span><em>·</em><span>337 KB</span></div>
+      </a>
+      <a class="card k-or" href="revision/07-KQL-Cheatsheet.pdf" data-tags="revision kql kusto query log analytics sentinel hunting">
+        <h3>KQL Cheatsheet</h3><p>Kusto queries for Log Analytics &amp; Sentinel.</p>
+        <div class="meta"><span>11 pages</span><em>·</em><span>377 KB</span></div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ── SLIDES ───────────────────────────────────────── -->
+  <section id="slides">
+    <div class="sec-head"><span class="sec-num">04</span><h2>Architecture Decks</h2></div>
+    <p class="sec-desc">Visual blueprints generated from the source material — one concept per deck, heavy on diagrams.</p>
+    <div class="grid g3">
+      <a class="card" href="slides/Azure_Identity_Architecture_Blueprint.pdf" data-tags="slides identity entra architecture blueprint">
+        <h3>Identity Architecture</h3><div class="meta"><span>15 pages</span><em>·</em><span>2.1 MB</span></div></a>
+      <a class="card" href="slides/Advanced_Azure_Identity_Architecture.pdf" data-tags="slides identity advanced entra architecture">
+        <h3>Advanced Identity</h3><div class="meta"><span>15 pages</span><em>·</em><span>1.8 MB</span></div></a>
+      <a class="card" href="slides/Hybrid_Identity_Blueprint.pdf" data-tags="slides hybrid identity connect sync ad">
+        <h3>Hybrid Identity</h3><div class="meta"><span>11 pages</span><em>·</em><span>1.3 MB</span></div></a>
+      <a class="card" href="slides/Azure_Network_Architecture.pdf" data-tags="slides network vnet architecture">
+        <h3>Network Architecture</h3><div class="meta"><span>11 pages</span><em>·</em><span>1.3 MB</span></div></a>
+      <a class="card" href="slides/Azure_PaaS_Network_Security.pdf" data-tags="slides paas network security endpoint">
+        <h3>PaaS Network Security</h3><div class="meta"><span>15 pages</span><em>·</em><span>2.5 MB</span></div></a>
+      <a class="card" href="slides/Azure_Private_Connectivity_Architecture.pdf" data-tags="slides private link endpoint connectivity peering">
+        <h3>Private Connectivity</h3><div class="meta"><span>14 pages</span><em>·</em><span>1.8 MB</span></div></a>
+      <a class="card" href="slides/AZ-500_Network_Diagnostics.pdf" data-tags="slides network diagnostics watcher troubleshoot">
+        <h3>Network Diagnostics</h3><div class="meta"><span>12 pages</span><em>·</em><span>1.5 MB</span></div></a>
+      <a class="card" href="slides/Azure_Key_Vault_Security_Blueprint.pdf" data-tags="slides key vault secrets certificates hsm">
+        <h3>Key Vault Security</h3><div class="meta"><span>13 pages</span><em>·</em><span>1.8 MB</span></div></a>
+      <a class="card" href="slides/Key_Vault_Access_Blueprint.pdf" data-tags="slides key vault access policy rbac secrets">
+        <h3>Key Vault Access</h3><div class="meta"><span>15 pages</span><em>·</em><span>1.5 MB</span></div></a>
+      <a class="card" href="slides/Azure_Storage_Security_Blueprint.pdf" data-tags="slides storage blob sas encryption security">
+        <h3>Storage Security</h3><div class="meta"><span>14 pages</span><em>·</em><span>1.5 MB</span></div></a>
+      <a class="card" href="slides/Microsoft_Sentinel_Architecture.pdf" data-tags="slides sentinel siem architecture analytics">
+        <h3>Sentinel Architecture</h3><div class="meta"><span>16 pages</span><em>·</em><span>1.8 MB</span></div></a>
+      <a class="card" href="slides/Sentinel_Orchestration_Blueprint.pdf" data-tags="slides sentinel soar playbook orchestration logic apps">
+        <h3>Sentinel Orchestration</h3><div class="meta"><span>10 pages</span><em>·</em><span>971 KB</span></div></a>
+      <a class="card" href="slides/Microsoft_Defender_CNAPP_Blueprint.pdf" data-tags="slides defender cnapp cloud workload protection">
+        <h3>Defender CNAPP</h3><div class="meta"><span>11 pages</span><em>·</em><span>1.4 MB</span></div></a>
+      <a class="card" href="slides/Azure_Zero_Trust_Blueprint.pdf" data-tags="slides zero trust model verify">
+        <h3>Zero Trust</h3><div class="meta"><span>15 pages</span><em>·</em><span>1.9 MB</span></div></a>
+      <a class="card" href="slides/Azure_Security_Architecture_Blueprint.pdf" data-tags="slides security architecture overall blueprint">
+        <h3>Security Architecture</h3><div class="meta"><span>15 pages</span><em>·</em><span>1.9 MB</span></div></a>
+      <a class="card" href="slides/Azure_Security_Architectural_Matrix.pdf" data-tags="slides security matrix comparison architecture">
+        <h3>Security Matrix</h3><div class="meta"><span>11 pages</span><em>·</em><span>1.2 MB</span></div></a>
+      <a class="card" href="slides/Azure_Security_Data_Refinery.pdf" data-tags="slides security data refinery logs pipeline">
+        <h3>Security Data Refinery</h3><div class="meta"><span>14 pages</span><em>·</em><span>1.8 MB</span></div></a>
+    </div>
+  </section>
+
+  <!-- ── FLASHCARDS ───────────────────────────────────── -->
+  <section id="flashcards">
+    <div class="sec-head"><span class="sec-num">05</span><h2>Flashcards</h2></div>
+    <p class="sec-desc">Plain two-column CSV — front/back. Imports directly into Anki, Quizlet or any spaced-repetition app.</p>
+    <div class="grid g2">
+      <a class="card k-green" href="flashcards/notebooklm-flashcards.csv" data-tags="flashcards anki quizlet csv spaced repetition cards">
+        <h3>AZ-500 Flashcards (CSV)</h3>
+        <p>100 question/answer pairs covering the core service and licensing facts that get tested directly.</p>
+        <div class="meta"><span>100 cards</span><em>·</em><span>CSV</span><em>·</em><span>16 KB</span></div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ── BANKS ────────────────────────────────────────── -->
+  <section id="banks">
+    <div class="sec-head"><span class="sec-num">06</span><h2>Extra Question Banks</h2></div>
+    <p class="sec-desc">Seven additional sets held as raw JSON — source data, not wired into the quiz player above. Useful for import or review.</p>
+    <div class="grid g3">
+      <a class="card" href="question-banks/azure-quiz.json" data-tags="bank json azure quiz questions raw data">
+        <h3>Azure Quiz</h3><div class="meta"><span>49 questions</span><em>·</em><span>JSON</span></div></a>
+      <a class="card" href="question-banks/azure-quiz-2.json" data-tags="bank json azure quiz 2 questions raw data">
+        <h3>Azure Quiz 2</h3><div class="meta"><span>50 questions</span><em>·</em><span>JSON</span></div></a>
+      <a class="card" href="question-banks/security-quiz.json" data-tags="bank json security quiz questions raw data">
+        <h3>Security Quiz</h3><div class="meta"><span>50 questions</span><em>·</em><span>JSON</span></div></a>
+      <a class="card" href="question-banks/security-quiz-1.json" data-tags="bank json security quiz 1 questions raw data">
+        <h3>Security Quiz 1</h3><div class="meta"><span>51 questions</span><em>·</em><span>JSON</span></div></a>
+      <a class="card" href="question-banks/security-quiz-3.json" data-tags="bank json security quiz 3 questions raw data">
+        <h3>Security Quiz 3</h3><div class="meta"><span>50 questions</span><em>·</em><span>JSON</span></div></a>
+      <a class="card" href="question-banks/security-quiz-new.json" data-tags="bank json security quiz new questions raw data">
+        <h3>Security Quiz (new)</h3><div class="meta"><span>49 questions</span><em>·</em><span>JSON</span></div></a>
+      <a class="card" href="question-banks/networking-quiz.json" data-tags="bank json networking quiz questions raw data">
+        <h3>Networking Quiz</h3><div class="meta"><span>50 questions</span><em>·</em><span>JSON</span></div></a>
+    </div>
+  </section>
+
+  <!-- ── TOOLS ────────────────────────────────────────── -->
+  <section id="tools" class="local">
+    <div class="sec-head"><span class="sec-num">07</span><h2>Authoring Tools <span class="tag-local">LOCAL ONLY</span></h2></div>
+    <p class="sec-desc">The pipeline that built the quiz. These need a local runtime and are excluded from the published site — they live in <code>az500/tools/</code> in the working copy only.</p>
+    <div class="grid g3">
+      <div class="card" data-tags="tools ios app swift xcode azprep native mobile">
+        <h3>iOS App (AZPrep)</h3>
+        <p>SwiftUI build of the same quiz. Generate the project with <code>xcodegen</code>, then open in Xcode.</p>
+        <div class="meta"><span>tools/ios-app/</span></div>
+      </div>
+      <div class="card" data-tags="tools diagram cropper server python simulator crop images">
+        <h3>Diagram Cropper</h3>
+        <p>Crops diagrams out of exam screenshots into the shared image set. Run <code>python3 server.py</code>, then open <code>localhost:3737</code>.</p>
+        <div class="meta"><span>tools/diagram-cropper/</span></div>
+      </div>
+      <div class="card" data-tags="tools rationale pipeline batches merge validate python">
+        <h3>Rationale Pipeline</h3>
+        <p>Batch scripts that generated and merged the per-option rationales into <code>questions.json</code>.</p>
+        <div class="meta"><span>tools/rationale-pipeline/</span><em>·</em><span>24 batches</span></div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span>AZ-500 study material · <a href="../index.html">← back to site</a></span>
+    <span>Quiz data: <code>quiz/data/questions.json</code></span>
+  </footer>
+</main>
+
+<script>
+// Filter every card by its visible text plus its data-tags keywords.
+(function () {
+  const input = document.getElementById('filter');
+  const noHits = document.getElementById('noHits');
+  const cards = [...document.querySelectorAll('.card')];
+  const sections = [...document.querySelectorAll('section')];
+
+  // Precompute the haystack once so typing stays cheap.
+  cards.forEach(c => {
+    c._hay = (c.textContent + ' ' + (c.dataset.tags || '')).toLowerCase();
+  });
+
+  input.addEventListener('input', () => {
+    const q = input.value.trim().toLowerCase();
+    let hits = 0;
+
+    cards.forEach(c => {
+      const show = !q || c._hay.includes(q);
+      c.style.display = show ? '' : 'none';
+      if (show) hits++;
+    });
+
+    // Hide a section whose cards are all filtered out.
+    sections.forEach(s => {
+      const visible = [...s.querySelectorAll('.card')].some(c => c.style.display !== 'none');
+      s.style.display = visible ? '' : 'none';
+    });
+
+    noHits.style.display = hits ? 'none' : 'block';
+  });
+
+  // "/" focuses the filter, Escape clears it.
+  document.addEventListener('keydown', e => {
+    if (e.key === '/' && document.activeElement !== input) {
+      e.preventDefault(); input.focus();
+    } else if (e.key === 'Escape' && document.activeElement === input) {
+      input.value = ''; input.dispatchEvent(new Event('input')); input.blur();
+    }
+  });
+})();
+</script>
+</body>
+</html>

@@ -22,3 +22,11 @@ npm-debug.log*
 
 # Misc
 *.log
+
+# AZ-500: local-only authoring tools (iOS/Xcode project, localhost crop server,
+# rationale batch scripts). Not servable from a static site.
+az500/tools/
+
+# AZ-500: uncompressed source PDFs (~248 MB). The published slides/*.pdf are
+# ghostscript /ebook rebuilds of these; keep the originals locally only.
+az500/slides/_originals/
