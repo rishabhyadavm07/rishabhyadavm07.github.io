@@ -3,18 +3,76 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AZ-500 Microsoft Azure Security Technologies — Full Study Notes</title>
+  <title>AZ-500 study notes — Rishabh Yadav</title>
+  <meta name="description" content="Complete AZ-500 study notes: identity, networking, PaaS, Key Vault, governance, Defender for Cloud, Sentinel and containers, with exam traps flagged.">
+  <link rel="canonical" href="https://fanaticalnerd.com/az500/notes/study-notes.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="fanaticalnerd">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:url" content="https://fanaticalnerd.com/az500/notes/study-notes.html">
+  <meta property="og:title" content="AZ-500 study notes">
+  <meta property="og:description" content="Complete AZ-500 study notes: identity, networking, PaaS, Key Vault, governance, Defender for Cloud, Sentinel and containers, with exam traps flagged.">
+  <meta property="og:image" content="https://fanaticalnerd.com/assets/og/az500.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="AZ-500 study notes">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@fanaticalnerd">
+  <meta name="twitter:creator" content="@fanaticalnerd">
+  <meta name="twitter:title" content="AZ-500 study notes">
+  <meta name="twitter:description" content="Complete AZ-500 study notes: identity, networking, PaaS, Key Vault, governance, Defender for Cloud, Sentinel and containers, with exam traps flagged.">
+  <meta name="twitter:image" content="https://fanaticalnerd.com/assets/og/az500.jpg">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Article",
+        "headline": "AZ-500 study notes",
+        "url": "https://fanaticalnerd.com/az500/notes/study-notes.html",
+        "author": {
+          "@type": "Person",
+          "name": "Rishabh Yadav",
+          "url": "https://fanaticalnerd.com/"
+        }
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://fanaticalnerd.com/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "AZ-500 study hub",
+            "item": "https://fanaticalnerd.com/az500/index.html"
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "Study notes",
+            "item": "https://fanaticalnerd.com/az500/notes/study-notes.html"
+          }
+        ]
+      }
+    ]
+  }
+  </script>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Sora:wght@300;400;600;700;800&family=Space+Mono:wght@400;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
 
   :root {
-    --bg: #0a0e1a;
-    --bg2: #0f1628;
-    --bg3: #131c35;
-    --surface: #1a2340;
-    --surface2: #1f2a4a;
-    --border: #2a3a5c;
-    --border2: #3a4f7a;
+    --bg: #0e0d0c;
+    --bg2: #121110;
+    --bg3: #121110;
+    --surface: #1c1b19;
+    --surface2: #211f1d;
+    --border: #2a2825;
+    --border2: #3a3733;
     --accent: #4fc3f7;
     --accent2: #00e5ff;
     --accent3: #7c4dff;
@@ -23,9 +81,9 @@
     --green: #69ff47;
     --orange: #ff9100;
     --pink: #ff4081;
-    --text: #e8eaf6;
-    --text2: #b0bec5;
-    --text3: #78909c;
+    --text: #ece7df;
+    --text2: #aaa49a;
+    --text3: #8a847b;
     --critical: #ff1744;
     --exam: #ffe57f;
   }
@@ -35,7 +93,7 @@
   body {
     background: var(--bg);
     color: var(--text);
-    font-family: 'Sora', sans-serif;
+    font-family: 'Schibsted Grotesk', sans-serif;
     font-size: 14px;
     line-height: 1.7;
     padding: 0;
@@ -43,7 +101,7 @@
 
   /* HEADER */
   .master-header {
-    background: linear-gradient(135deg, #0a0e1a 0%, #131c35 40%, #1a0a2e 100%);
+    background: linear-gradient(135deg, #0e0d0c 0%, #121110 40%, #1a0a2e 100%);
     border-bottom: 2px solid var(--accent3);
     padding: 48px 60px 40px;
     position: relative;
@@ -78,8 +136,9 @@
     margin-bottom: 16px;
   }
   .master-header h1 {
-    font-size: 42px;
-    font-weight: 800;
+    font-family: 'Instrument Serif', serif; letter-spacing: -0.03em;
+    font-size: clamp(40px, 6vw, 72px);
+    font-weight: 400;
     color: #fff;
     line-height: 1.1;
     margin-bottom: 12px;
@@ -189,7 +248,7 @@
     margin-bottom: 14px;
     padding-left: 12px;
     border-left: 3px solid var(--accent);
-    font-family: 'Sora', sans-serif;
+    font-family: 'Schibsted Grotesk', sans-serif;
   }
   .subsection h4 {
     font-size: 13px;
@@ -453,7 +512,7 @@
     position: relative;
     color: var(--text2);
     font-size: 13.5px;
-    border-bottom: 1px solid rgba(42,58,92,0.5);
+    border-bottom: 1px solid rgba(58,55,51,0.5);
   }
   .key-list li:last-child { border-bottom: none; }
   .key-list li::before {
@@ -473,7 +532,7 @@
     position: relative;
     color: var(--text2);
     font-size: 13.5px;
-    border-bottom: 1px solid rgba(42,58,92,0.4);
+    border-bottom: 1px solid rgba(58,55,51,0.4);
   }
   .step-list li:last-child { border-bottom: none; }
   .step-list li::before {
@@ -571,7 +630,7 @@
   /* RESPONSIVE */
   @media (max-width: 768px) {
     .master-header { padding: 32px 24px; }
-    .master-header h1 { font-size: 28px; }
+    .master-header h1 { font-size: 40px; }
     .container { padding: 24px; }
     .toc-grid { grid-template-columns: 1fr; }
     .compare-grid { grid-template-columns: 1fr; }
@@ -583,9 +642,31 @@
     body { background: #fff; color: #000; }
     .master-header { background: #1a1a2e; }
   }
+
+  /* fanaticalnerd theme: page chrome in crimson. Category colours (blue, purple, red tags,
+     diagram strokes) are left alone because they carry meaning in the notes. */
+  .master-header { background: linear-gradient(135deg, #0e0d0c 0%, #121110 45%, #1a0a0a 100%); border-bottom-color: #dc2626; }
+  .master-header::before { background: radial-gradient(circle, rgba(220,38,38,0.16) 0%, transparent 70%); }
+  .master-header::after { background: radial-gradient(circle, rgba(220,38,38,0.05) 0%, transparent 70%); }
+  .master-header h1 span { color: #ff5a4e; font-style: italic; }
+  .header-stat { color: #aaa49a; }
+  .badge { background: #dc2626; }
+  .toc { border-left-color: #dc2626; }
+  .toc h2, .toc-num { color: #f87171; }
+  .toc a:hover { color: #f87171; border-color: #f87171; }
+  thead tr { background: linear-gradient(90deg, #991b1b, #7f1d1d); }
 </style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Martian+Mono:wdth,wght@75..112.5,300..600&family=Schibsted+Grotesk:wght@400..800&family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/app-bar.css">
 </head>
 <body>
+<nav class="fn-bar" aria-label="Site">
+  <div style="display:flex;align-items:center;min-width:0"><a class="fn-bar__brand" href="/">Rishabh Yadav</a><span class="fn-bar__crumb"><a href="/az500/index.html">AZ-500</a> / Notes</span></div>
+  <a class="fn-bar__back" href="/#tools"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="square" aria-hidden="true"><path d="M21 12H4"/><path d="M9.5 6.5 4 12"/></svg><span>All tools</span></a>
+</nav>
+
 
 <!-- MASTER HEADER -->
 <div class="master-header">
@@ -1539,38 +1620,38 @@
           </marker>
         </defs>
         <!-- Hub -->
-        <rect x="260" y="130" width="180" height="120" rx="6" fill="#1a2340" stroke="#7c4dff" stroke-width="2"/>
+        <rect x="260" y="130" width="180" height="120" rx="6" fill="#1c1b19" stroke="#7c4dff" stroke-width="2"/>
         <text x="350" y="158" fill="#b39ddb" font-size="11" text-anchor="middle" font-family="JetBrains Mono">HUB VNet</text>
-        <rect x="275" y="165" width="150" height="24" rx="3" fill="#131c35" stroke="#2a3a5c"/>
+        <rect x="275" y="165" width="150" height="24" rx="3" fill="#121110" stroke="#2a2825"/>
         <text x="350" y="181" fill="#4fc3f7" font-size="10" text-anchor="middle" font-family="JetBrains Mono">Azure Firewall</text>
-        <rect x="275" y="194" width="150" height="24" rx="3" fill="#131c35" stroke="#2a3a5c"/>
+        <rect x="275" y="194" width="150" height="24" rx="3" fill="#121110" stroke="#2a2825"/>
         <text x="350" y="210" fill="#4fc3f7" font-size="10" text-anchor="middle" font-family="JetBrains Mono">VPN / ExpressRoute GW</text>
-        <rect x="275" y="223" width="150" height="18" rx="3" fill="#131c35" stroke="#2a3a5c"/>
+        <rect x="275" y="223" width="150" height="18" rx="3" fill="#121110" stroke="#2a2825"/>
         <text x="350" y="235" fill="#69ff47" font-size="9" text-anchor="middle" font-family="JetBrains Mono">Azure Bastion</text>
         <!-- Spoke 1 -->
-        <rect x="20" y="60" width="160" height="70" rx="6" fill="#1a2340" stroke="#4fc3f7" stroke-width="1.5"/>
+        <rect x="20" y="60" width="160" height="70" rx="6" fill="#1c1b19" stroke="#4fc3f7" stroke-width="1.5"/>
         <text x="100" y="83" fill="#4fc3f7" font-size="11" text-anchor="middle" font-family="JetBrains Mono">Spoke VNet 1</text>
-        <text x="100" y="100" fill="#78909c" font-size="10" text-anchor="middle">Web/App Workloads</text>
-        <text x="100" y="117" fill="#78909c" font-size="10" text-anchor="middle">Dev Environment</text>
+        <text x="100" y="100" fill="#8a847b" font-size="10" text-anchor="middle">Web/App Workloads</text>
+        <text x="100" y="117" fill="#8a847b" font-size="10" text-anchor="middle">Dev Environment</text>
         <!-- Spoke 2 -->
-        <rect x="520" y="60" width="160" height="70" rx="6" fill="#1a2340" stroke="#4fc3f7" stroke-width="1.5"/>
+        <rect x="520" y="60" width="160" height="70" rx="6" fill="#1c1b19" stroke="#4fc3f7" stroke-width="1.5"/>
         <text x="600" y="83" fill="#4fc3f7" font-size="11" text-anchor="middle" font-family="JetBrains Mono">Spoke VNet 2</text>
-        <text x="600" y="100" fill="#78909c" font-size="10" text-anchor="middle">DB Workloads</text>
-        <text x="600" y="117" fill="#78909c" font-size="10" text-anchor="middle">Prod Environment</text>
+        <text x="600" y="100" fill="#8a847b" font-size="10" text-anchor="middle">DB Workloads</text>
+        <text x="600" y="117" fill="#8a847b" font-size="10" text-anchor="middle">Prod Environment</text>
         <!-- Spoke 3 -->
-        <rect x="20" y="260" width="160" height="70" rx="6" fill="#1a2340" stroke="#4fc3f7" stroke-width="1.5"/>
+        <rect x="20" y="260" width="160" height="70" rx="6" fill="#1c1b19" stroke="#4fc3f7" stroke-width="1.5"/>
         <text x="100" y="283" fill="#4fc3f7" font-size="11" text-anchor="middle" font-family="JetBrains Mono">Spoke VNet 3</text>
-        <text x="100" y="300" fill="#78909c" font-size="10" text-anchor="middle">Management</text>
+        <text x="100" y="300" fill="#8a847b" font-size="10" text-anchor="middle">Management</text>
         <!-- Spoke 4 -->
-        <rect x="520" y="260" width="160" height="70" rx="6" fill="#1a2340" stroke="#4fc3f7" stroke-width="1.5"/>
+        <rect x="520" y="260" width="160" height="70" rx="6" fill="#1c1b19" stroke="#4fc3f7" stroke-width="1.5"/>
         <text x="600" y="283" fill="#4fc3f7" font-size="11" text-anchor="middle" font-family="JetBrains Mono">On-Premises</text>
-        <text x="600" y="300" fill="#78909c" font-size="10" text-anchor="middle">VPN/ExpressRoute</text>
+        <text x="600" y="300" fill="#8a847b" font-size="10" text-anchor="middle">VPN/ExpressRoute</text>
         <!-- Arrows -->
         <line x1="180" y1="95" x2="260" y2="160" stroke="#4fc3f7" stroke-width="1.5" marker-end="url(#arrow)" stroke-dasharray="5,3"/>
         <line x1="520" y1="95" x2="440" y2="160" stroke="#4fc3f7" stroke-width="1.5" marker-end="url(#arrow)" stroke-dasharray="5,3"/>
         <line x1="180" y1="295" x2="260" y2="220" stroke="#4fc3f7" stroke-width="1.5" marker-end="url(#arrow)" stroke-dasharray="5,3"/>
         <line x1="520" y1="295" x2="440" y2="220" stroke="#4fc3f7" stroke-width="1.5" marker-end="url(#arrow)" stroke-dasharray="5,3"/>
-        <text x="350" y="355" fill="#78909c" font-size="10" text-anchor="middle">All traffic flows through Hub — Firewall inspects everything</text>
+        <text x="350" y="355" fill="#8a847b" font-size="10" text-anchor="middle">All traffic flows through Hub — Firewall inspects everything</text>
       </svg>
     </div>
     <div class="card">
@@ -2111,11 +2192,11 @@
     </div>
     <div class="enc-diagram">
       <div class="enc-row">
-        <div class="enc-box" style="border-color:#4fc3f7; color:#4fc3f7;">Column Master Key (CMK)<br><small style="color:#78909c">Stored in Key Vault or Windows Cert Store</small></div>
+        <div class="enc-box" style="border-color:#4fc3f7; color:#4fc3f7;">Column Master Key (CMK)<br><small style="color:#8a847b">Stored in Key Vault or Windows Cert Store</small></div>
         <div class="enc-arrow">protects ↓</div>
-        <div class="enc-box" style="border-color:#7c4dff; color:#b39ddb;">Column Encryption Key (CEK)<br><small style="color:#78909c">Encrypts actual column data</small></div>
+        <div class="enc-box" style="border-color:#7c4dff; color:#b39ddb;">Column Encryption Key (CEK)<br><small style="color:#8a847b">Encrypts actual column data</small></div>
         <div class="enc-arrow">encrypts ↓</div>
-        <div class="enc-box" style="border-color:#69ff47; color:#69ff47;">Column Data<br><small style="color:#78909c">e.g., Credit Card Numbers</small></div>
+        <div class="enc-box" style="border-color:#69ff47; color:#69ff47;">Column Data<br><small style="color:#8a847b">e.g., Credit Card Numbers</small></div>
       </div>
     </div>
     <div class="compare-grid">

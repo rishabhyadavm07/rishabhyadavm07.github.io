@@ -1,1 +1,21 @@
-{"name":"fanaticalnerd","short_name":"fanaticalnerd","icons":[{"src":"/assets/favicon_io/android-chrome-192x192.png","sizes":"192x192","type":"image/png"},{"src":"/assets/favicon_io/android-chrome-512x512.png","sizes":"512x512","type":"image/png"}],"theme_color":"#050505","background_color":"#050505","display":"standalone"}
+{
+  "name": "Rishabh Yadav \u2014 fanaticalnerd",
+  "short_name": "fanaticalnerd",
+  "icons": [
+    {
+      "src": "/assets/favicon_io/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/favicon_io/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#0e0d0c",
+  "background_color": "#0e0d0c",
+  "display": "standalone",
+  "description": "Cloud and SaaS security research, projects, field notes and free security tools.",
+  "start_url": "/"
+}

@@ -1,0 +1,32 @@
+/* Site bar for app pages (AZ-500, KCNA, Exc).
+   Self-contained so it never depends on, or collides with, an app's own CSS.
+   Mirrors the main site's header: ink background, red node, mono labels. */
+.fn-bar {
+  position: relative; z-index: 60;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  height: 56px; padding: 0 clamp(16px, 3vw, 40px);
+  background: #0e0d0c; border-bottom: 1px solid rgba(236, 231, 223, 0.12);
+  font: 500 15px/1 'Schibsted Grotesk', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  color: #ece7df; -webkit-font-smoothing: antialiased;
+}
+.fn-bar a { color: inherit; text-decoration: none; display: inline-flex; align-items: center; gap: 10px; }
+.fn-bar__brand::before { content: ''; width: 8px; height: 8px; background: #e0302a; transition: transform 0.6s cubic-bezier(0.19, 1, 0.22, 1); }
+.fn-bar__brand:hover::before { transform: rotate(45deg); }
+.fn-bar__crumb, .fn-bar__back {
+  font: 400 11px/1 'Martian Mono', ui-monospace, Menlo, monospace !important; font-stretch: 87.5%;
+  letter-spacing: 0.04em; text-transform: uppercase; color: #8a847b !important;
+}
+.fn-bar__crumb { margin-left: 16px; }
+.fn-bar__crumb a:hover, .fn-bar__back:hover { color: #ece7df !important; }
+.fn-bar svg { width: 16px; height: 16px; }
+@media (max-width: 520px) { .fn-bar__crumb { display: none; } }
+
+/* Variant for full-height app shells: a link that sits inside the app's sidebar */
+.fn-home {
+  display: flex; align-items: center; gap: 10px;
+  margin: 0 20px 16px; padding: 10px 0; border-top: 1px solid rgba(236, 231, 223, 0.12); border-bottom: 1px solid rgba(236, 231, 223, 0.12);
+  font: 400 10.5px/1.2 'Martian Mono', ui-monospace, Menlo, monospace; font-stretch: 87.5%; letter-spacing: 0.04em; text-transform: uppercase;
+  color: #8a847b; text-decoration: none; transition: color 0.25s;
+}
+.fn-home::before { content: ''; width: 6px; height: 6px; background: #e0302a; }
+.fn-home:hover { color: #ece7df; }

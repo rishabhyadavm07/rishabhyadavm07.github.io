@@ -1,7 +1,18 @@
 #!/usr/bin/env python3
 """
-Build blog post HTML from BLOGS/<folder>/blog.md frontmatter.
-blogs.json and index.html are kept in sync automatically.
+Build the static parts of fanaticalnerd.com.
+
+  1. Blog posts:  BLOGS/<folder>/blog.md  →  posts/<folder>.html
+  2. Listings:    BLOGS/blogs.json, the latest-posts index in index.html and
+                  the full index in blogs.html (between build: markers)
+  3. Site chrome: partials/head.html, header.html and footer.html are stamped
+                  into every content page between <!-- partial:NAME --> markers.
+                  The nav link whose data-nav matches <body data-nav="..."> gets
+                  aria-current="page".
+  4. SEO:         sitemap.xml and feed.xml (RSS) are regenerated on every run.
+                  Posts are rendered to static HTML with vendor/marked.min.js,
+                  so Node.js must be installed. A post's social card is
+                  assets/og/post-<folder>.jpg when it exists, else the default.
 
 Frontmatter format (YAML block at the top of blog.md):
 ---
@@ -14,253 +25,297 @@ thumbnail: /BLOGS/<folder>/src/thumb.png
 ---
 
 Usage:
-  python3 build.py <folder>    # build one post
-  python3 build.py --all       # rebuild everything
+  python3 build.py <folder>    # build one post, then refresh listings + chrome
+  python3 build.py --all       # rebuild every post, listings and chrome
+  python3 build.py --chrome    # only refresh listings + head/header/footer
 """
 
+import html
 import json
 import re
+import subprocess
 import sys
+from email.utils import format_datetime
+from datetime import datetime, timezone
+from datetime import date
 from pathlib import Path
 
 ROOT       = Path(__file__).parent
 BLOGS_JSON = ROOT / "BLOGS" / "blogs.json"
 POSTS_DIR  = ROOT / "posts"
-BASE_URL   = "https://rishabhyadavm07.github.io"
+PARTIALS   = ROOT / "partials"
+BASE_URL   = "https://fanaticalnerd.com"
+WPM        = 220
+
+# Pages that use the shared partials (posts get them from TEMPLATE)
+CHROME_PAGES = [
+    "index.html",
+    "404.html",
+    "blogs.html",
+    "intel.html",
+    "jobs.html",
+    "interview_ques.html",
+    "Spectra.html",
+    "resudit.html",
+    "Disclosed-Reports/reports_index.html",
+    "Disclosed-Reports/BAC-hackerone.html",
+    "Disclosed-Reports/hackerone-authentication.html",
+    "Disclosed-Reports/hackerone-injection.html",
+]
+
+# Indexable pages for sitemap.xml (posts are added automatically)
+SITEMAP_PAGES = [
+    "index.html",
+    "blogs.html",
+    "Spectra.html",
+    "Disclosed-Reports/reports_index.html",
+    "Disclosed-Reports/BAC-hackerone.html",
+    "Disclosed-Reports/hackerone-authentication.html",
+    "Disclosed-Reports/hackerone-injection.html",
+    "interview_ques.html",
+    "intel.html",
+    "jobs.html",
+    "resudit.html",
+    "az500/index.html",
+    "az500/notes/study-notes.html",
+    "az500/quiz/index.html",
+    "kcna/KCNA.html",
+    "Exc/Exc.html",
+]
 
 FRONTMATTER_RE = re.compile(r"^---\s*\n(.*?)\n---\s*\n", re.DOTALL)
 
-# ── HTML template (inlined — blog-template.html is no longer needed) ──────────
+ARROW = ('<svg class="row__a" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" '
+         'stroke-linecap="square" aria-hidden="true"><path class="ic-stroke" d="M3 12h17"/>'
+         '<path class="ic-stroke" d="M14.5 6.5 20 12"/></svg>')
+
+# ── Post template ─────────────────────────────────────────────────────────────
 TEMPLATE = r"""<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <link rel="icon" type="image/x-icon" href="/assets/favicon_io/favicon.ico">
-  <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon_io/favicon-16x16.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon_io/favicon-32x32.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon_io/apple-touch-icon.png">
-  <link rel="manifest" href="/assets/favicon_io/site.webmanifest">
-  <title>{{TITLE}} | fanaticalnerd</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{PAGE_TITLE}}</title>
   <meta name="author" content="{{AUTHOR}}">
   <meta name="description" content="{{DESCRIPTION}}">
+  <link rel="canonical" href="{{URL}}">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="fanaticalnerd">
   <meta property="og:title" content="{{TITLE}}">
   <meta property="og:description" content="{{DESCRIPTION}}">
   <meta property="og:image" content="{{THUMBNAIL}}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="{{TITLE}}">
   <meta property="og:url" content="{{URL}}">
-  <meta property="og:type" content="article">
-  <meta property="og:site_name" content="fanaticalnerd">
+  <meta property="og:locale" content="en_US">
+  <meta property="article:published_time" content="{{DATE}}">
+  <meta property="article:author" content="Rishabh Yadav">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="{{TITLE}}">
   <meta name="twitter:description" content="{{DESCRIPTION}}">
   <meta name="twitter:image" content="{{THUMBNAIL}}">
   <meta name="twitter:creator" content="@fanaticalnerd">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700;800&family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <script type="application/ld+json">{{JSONLD}}</script>
+{{HEAD}}
   <style>
-    :root{--crimson:#dc2626;--crimson-dim:rgba(220,38,38,0.12);--black:#020202;--surface:#0a0a0a;--elevated:#111111;--border:#1a1a1a;--text:#dddddd;--text-dim:#888888;--text-faint:#3a3a3a}
-    *{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
-    body{font-family:'JetBrains Mono',monospace;background-color:var(--black);color:var(--text);overflow-x:hidden}
-    ::selection{background:var(--crimson);color:#fff}::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:var(--crimson)}
-    #ambient{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0.35}
-    .scanline{position:fixed;top:0;left:0;width:100%;height:2px;background:var(--crimson);opacity:0.07;z-index:50;pointer-events:none;animation:scan 7s linear infinite}
-    @keyframes scan{0%{top:-5%}100%{top:105%}}
-    .noise{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:0.025;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-repeat:repeat;background-size:256px}
-    .vignette{position:fixed;inset:0;z-index:2;pointer-events:none;background:radial-gradient(circle at center,transparent 0%,var(--black) 100%)}
-    .page-wrap{position:relative;z-index:10;max-width:1100px;margin:0 auto;padding:80px 40px 160px}
-    .back-link{display:inline-flex;align-items:center;gap:10px;font-size:10px;font-weight:700;letter-spacing:0.3em;text-transform:uppercase;color:var(--text-faint);text-decoration:none;border:1px solid var(--border);padding:10px 20px;margin-bottom:60px;transition:all 0.4s cubic-bezier(0.16,1,0.3,1)}
-    .back-link::before{content:'←'}.back-link:hover{color:var(--crimson);border-color:rgba(220,38,38,0.4)}
-    .post-header{margin-bottom:60px;padding-bottom:40px;border-bottom:1px solid var(--border)}
-    .post-meta{display:flex;flex-wrap:wrap;gap:20px;margin-bottom:24px;font-size:9px;font-weight:700;letter-spacing:0.3em;text-transform:uppercase;color:var(--text-faint)}
-    .post-meta-ai{color:rgba(220,38,38,0.7)}
-    .post-title{font-family:'Inter',sans-serif;font-size:clamp(1.2rem,3vw,1.8rem);font-weight:800;line-height:1.1;letter-spacing:-0.02em;color:#fff;text-transform:uppercase}
-    #blog-content{font-size:14px;line-height:1.9;font-weight:300;color:#aaa}
-    #blog-content h1{font-family:'Inter',sans-serif;font-size:clamp(1.1rem,2.5vw,1.5rem);font-weight:800;color:#fff;letter-spacing:-0.01em;text-transform:uppercase;margin:2.5em 0 0.6em;line-height:1.2}
-    #blog-content h2{font-size:12px;font-weight:800;color:var(--crimson);letter-spacing:0.25em;text-transform:uppercase;margin:2.2em 0 0.9em;display:flex;align-items:center;gap:10px}
-    #blog-content h2::before{content:'';display:block;width:24px;height:1px;background:var(--crimson);flex-shrink:0}
-    #blog-content h3{font-size:10px;font-weight:800;color:var(--text-dim);letter-spacing:0.2em;text-transform:uppercase;margin:1.8em 0 0.7em}
-    #blog-content p{margin:1.4em 0;color:#aaaaaa}
-    #blog-content a{color:var(--crimson);text-decoration:underline;text-underline-offset:4px;transition:color 0.2s}#blog-content a:hover{color:#fff}
-    #blog-content strong{color:#ddd;font-weight:700}#blog-content em{color:var(--text-dim);font-style:italic}
-    #blog-content code{background:#0e0e0e;border:1px solid var(--border);padding:2px 7px;color:#fb7185;font-family:'JetBrains Mono',monospace;font-size:0.88em}
-    #blog-content pre{background:var(--elevated);border:1px solid var(--border);border-left:3px solid var(--crimson);padding:24px 20px;overflow-x:auto;margin:2em 0}
-    #blog-content pre code{background:none;border:none;padding:0;color:#e5e7eb;font-size:12px}
-    #blog-content blockquote{border-left:3px solid var(--crimson);padding:16px 24px;margin:2em 0;background:rgba(220,38,38,0.04);color:var(--text-dim);font-style:italic}
-    #blog-content ul,#blog-content ol{margin:1.5em 0;padding-left:0;list-style:none}
-    #blog-content li{margin:0.7em 0;padding-left:20px;position:relative;color:#aaa}
-    #blog-content ul li::before{content:'›';position:absolute;left:0;color:var(--crimson);font-size:16px;line-height:1.4}
-    #blog-content ol{counter-reset:item}#blog-content ol li::before{counter-increment:item;content:counter(item,decimal-leading-zero)'.';position:absolute;left:0;color:var(--text-faint);font-size:10px;font-weight:700;letter-spacing:0.1em;line-height:1.9}
-    #blog-content img{max-width:100%;height:auto;display:block;margin:2.5em 0;border:1px solid var(--border);filter:contrast(1.05) brightness(0.95);cursor:pointer;transition:border-color 0.3s}#blog-content img:hover{border-color:rgba(220,38,38,0.4)}
-    #blog-content table{border-collapse:collapse;width:100%;margin:2em 0;font-size:12px}
-    #blog-content th,#blog-content td{border:1px solid var(--border);padding:12px 16px;text-align:left}
-    #blog-content th{background:var(--elevated);color:var(--crimson);font-size:9px;letter-spacing:0.25em;text-transform:uppercase;font-weight:800}
-    #blog-content td{color:#aaa}#blog-content hr{border:none;border-top:1px solid var(--border);margin:3em 0}
-    .lightbox{display:none;position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,0.95);justify-content:center;align-items:center}
-    .lightbox.active{display:flex}.lightbox img{max-width:90%;max-height:90%;border:1px solid var(--border)}
-    .lightbox-close{position:absolute;top:24px;right:40px;font-size:32px;color:var(--text-faint);cursor:pointer;transition:color 0.2s}.lightbox-close:hover{color:#fff}
-    .post-layout{display:grid;grid-template-columns:180px 1fr;gap:48px;align-items:start}
-    .toc-sidebar{position:sticky;top:40px;z-index:20}
-    .toc-label{font-size:8px;font-weight:800;letter-spacing:0.35em;text-transform:uppercase;color:var(--text-faint);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)}
-    .toc-list{list-style:none;display:flex;flex-direction:column;gap:4px}
-    .toc-item a{display:block;font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-faint);text-decoration:none;padding:6px 10px;border-left:2px solid transparent;transition:all 0.25s;line-height:1.4}
-    .toc-item a:hover,.toc-item a.active{color:var(--crimson);border-left-color:var(--crimson);padding-left:14px}
-    .toc-item.h3 a{font-size:8px;padding-left:18px;letter-spacing:0.08em;opacity:0.7}
-    .toc-item.h3 a:hover,.toc-item.h3 a.active{padding-left:22px;opacity:1}
-    .post-contact{margin-top:80px;padding:40px;border:1px solid var(--border);background:var(--surface)}
-    .contact-heading{font-size:9px;font-weight:800;letter-spacing:0.35em;text-transform:uppercase;color:var(--text-faint);margin-bottom:6px}
-    .contact-title{font-family:'Inter',sans-serif;font-size:1.25rem;font-weight:800;color:#fff;letter-spacing:-0.02em;margin-bottom:20px}
-    .contact-socials{display:flex;flex-wrap:wrap;gap:12px}
-    .contact-social{display:inline-flex;align-items:center;gap:10px;padding:10px 18px;border:1px solid var(--border);text-decoration:none;color:var(--text-dim);font-size:9px;font-weight:800;letter-spacing:0.2em;text-transform:uppercase;transition:all 0.3s}
-    .contact-social:hover{color:var(--crimson);border-color:rgba(220,38,38,0.4);background:rgba(220,38,38,0.04)}
-    .explore-section{margin-top:60px}
-    .explore-label{font-size:9px;font-weight:800;letter-spacing:0.35em;text-transform:uppercase;color:var(--text-faint);margin-bottom:24px;display:flex;align-items:center;gap:12px}
-    .explore-label::before{content:'';display:block;width:24px;height:1px;background:var(--text-faint)}
-    .explore-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-    .explore-card{display:flex;flex-direction:column;text-decoration:none;background:var(--elevated);border:1px solid var(--border);border-left:3px solid var(--crimson);padding:28px 24px;transition:all 0.3s cubic-bezier(0.16,1,0.3,1);position:relative;overflow:hidden;min-height:160px}
-    .explore-card::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,var(--crimson-dim),transparent);opacity:0;transition:opacity 0.3s}
-    .explore-card:hover::before{opacity:1}
-    .explore-card:hover{border-color:rgba(220,38,38,0.45);transform:translateY(-4px);box-shadow:0 14px 40px rgba(0,0,0,0.5)}
-    .explore-date{font-size:8px;color:var(--text-faint);letter-spacing:0.2em;font-weight:700;margin-bottom:10px;position:relative;z-index:1}
-    .explore-title{font-size:13px;font-weight:700;color:#ddd;line-height:1.4;margin-bottom:12px;transition:color 0.3s;position:relative;z-index:1}
-    .explore-card:hover .explore-title{color:var(--crimson)}
-    .explore-excerpt{font-size:11px;color:#777;line-height:1.65;font-weight:300;position:relative;z-index:1;margin-top:auto}
-    .explore-read{font-size:9px;color:var(--text-faint);letter-spacing:0.2em;font-weight:700;text-transform:uppercase;margin-top:16px;position:relative;z-index:1;transition:color 0.3s}
-    .explore-card:hover .explore-read{color:var(--crimson)}
-    .post-footer{margin-top:40px;padding-top:24px;border-top:1px solid var(--border);text-align:center}
-    .footer-copy{font-size:10px;color:var(--text-faint);opacity:0.4;letter-spacing:0.3em}
-    .floating-nav{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:1000;display:flex;flex-direction:column;align-items:center;gap:16px}
-    .nav-cards{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;max-width:90vw;opacity:0;transform:translateY(30px) scale(0.9);pointer-events:none;transition:all 0.6s cubic-bezier(0.16,1,0.3,1)}
-    .floating-nav:hover .nav-cards,.floating-nav.open .nav-cards{opacity:1;transform:translateY(0) scale(1);pointer-events:auto}
-    .nav-card{width:82px;height:92px;background:rgba(12,12,12,0.95);backdrop-filter:blur(16px);border:1px solid var(--border);border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-decoration:none;color:var(--text-dim);transition:all 0.4s cubic-bezier(0.34,1.56,0.64,1);opacity:0;transform:translateY(20px) scale(0.7);position:relative;overflow:hidden}
-    .nav-card::before{content:'';position:absolute;inset:0;border-radius:14px;background:radial-gradient(circle at 50% 0%,rgba(220,38,38,0.15),transparent 70%);opacity:0;transition:opacity 0.4s}.nav-card:hover::before{opacity:1}
-    .floating-nav:hover .nav-card,.floating-nav.open .nav-card{opacity:1;transform:translateY(0) scale(1)}
-    .nav-card:nth-child(1){transition-delay:.04s}.nav-card:nth-child(2){transition-delay:.08s}.nav-card:nth-child(3){transition-delay:.12s}.nav-card:nth-child(4){transition-delay:.16s}.nav-card:nth-child(5){transition-delay:.20s}.nav-card:nth-child(6){transition-delay:.24s}.nav-card:nth-child(7){transition-delay:.28s}
-    .nav-card:hover{border-color:var(--crimson);color:#fff;transform:translateY(-10px) scale(1.12)!important;box-shadow:0 20px 40px rgba(0,0,0,0.6),0 0 20px rgba(220,38,38,0.2)}.nav-card:hover .nc-icon{color:var(--crimson)}
-    .nc-icon{width:20px;height:20px;position:relative;z-index:1}.nc-label{font-size:8px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;position:relative;z-index:1}
-    .nav-trigger{padding:14px 48px;background:var(--crimson);color:#fff;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:800;letter-spacing:0.5em;cursor:pointer;border:none;border-radius:40px;position:relative;overflow:hidden;box-shadow:0 8px 32px rgba(220,38,38,0.35),0 0 0 1px rgba(220,38,38,0.5);transition:all 0.4s cubic-bezier(0.16,1,0.3,1)}
-    .nav-trigger:hover{background:#b91c1c;letter-spacing:0.65em;transform:translateY(-2px)}.nav-trigger:active{transform:scale(0.95)}
-    .nav-trigger::after{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);animation:shine 3s ease-in-out infinite}
-    @keyframes shine{0%,100%{left:-100%}50%{left:100%}}
-    @media(max-width:900px){.post-layout{grid-template-columns:1fr}.toc-sidebar{display:none}.explore-grid{grid-template-columns:1fr}}
-    @media(max-width:768px){.page-wrap{padding:60px 20px 140px}.post-title{font-size:clamp(1rem,5vw,1.4rem)}.floating-nav{bottom:16px}.nav-card{width:66px;height:76px}.nc-label{font-size:7px}.nav-trigger{padding:12px 32px;font-size:9px;letter-spacing:0.35em}.post-contact{padding:24px 20px}.contact-socials{gap:8px}.contact-social{padding:8px 12px;font-size:8px}}
-    @media(max-width:480px){.page-wrap{padding:40px 14px 110px}.post-header{margin-bottom:32px}.back-link{padding:8px 14px;font-size:9px;margin-bottom:40px}.nav-cards{gap:6px}.nav-card{width:56px;height:64px}.nc-label{font-size:6px}.nav-trigger{padding:10px 24px;letter-spacing:0.25em}.contact-social{width:100%;justify-content:center}.explore-grid{grid-template-columns:1fr}}
+    .post-meta { grid-column: 4 / -1; margin-top: clamp(24px, 3vw, 40px); display: flex; flex-wrap: wrap; gap: 8px 28px; }
+    .post-intro { grid-column: 4 / 11; margin-top: 20px; }
+    .post-body { padding-bottom: clamp(64px, 9vw, 120px); align-items: start; }
+    .post-body .prose { grid-column: 4 / 11; min-width: 0; }
+    .toc { grid-column: 1 / 4; grid-row: 1; position: sticky; top: calc(var(--header-h) + 32px); padding-right: 24px; }
+    .toc[hidden] { display: none; }
+    .toc ol { list-style: none; display: grid; gap: 2px; margin-top: 16px; }
+    .toc a { display: grid; grid-template-columns: 28px 1fr; padding: 5px 0; font-size: 14px; line-height: 1.35; color: var(--fg-3); transition: color 0.25s; }
+    .toc a::before { content: attr(data-n); font: 400 11px/1.9 var(--f-mono); }
+    .toc a:hover, .toc a.is-active { color: var(--fg); }
+    .toc a.is-active::before { color: var(--accent-text); }
+    .toc .lvl-3 a { padding-left: 28px; font-size: 13px; }
+    @media (pointer: coarse) { .toc a { padding-block: 12px; } }
+    .toc .lvl-3 a::before { content: ''; }
+    .post-end { padding-block: clamp(48px, 6vw, 72px); border-top: 1px solid var(--line); }
+    .post-end .d3 { grid-column: 4 / 11; }
+    .post-end__links { grid-column: 4 / -1; margin-top: 24px; display: flex; flex-wrap: wrap; gap: 12px; }
+    .more { padding-bottom: clamp(64px, 9vw, 120px); }
+    @media (max-width: 900px) {
+      .post-meta, .post-intro, .post-body .prose, .post-end .d3, .post-end__links { grid-column: 1 / -1; }
+      .toc { display: none; }
+    }
   </style>
 </head>
-<body>
-  <canvas id="ambient"></canvas>
-  <div class="noise"></div>
-  <div class="vignette"></div>
-  <div class="scanline"></div>
-  <div class="lightbox" id="lightbox"><span class="lightbox-close" id="lightboxClose">&times;</span><img id="lightboxImg" src="" alt=""></div>
+<body data-nav="writing" id="top">
+  <a class="skip" href="#main">Skip to content</a>
+{{HEADER}}
+  <main id="main">
+    <article>
+      <header class="wrap grid mast">
+        <div class="mast__crumb"><a class="label u" href="/blogs.html">← Writing</a></div>
+        <h1 class="mast__title d2" data-split>{{TITLE}}</h1>
+        <p class="post-intro intro reveal" style="--d:300ms">{{DESCRIPTION}}</p>
+        <div class="post-meta reveal" style="--d:400ms">
+          <span class="label"><span class="node"></span><time datetime="{{DATE}}">{{DATE_HUMAN}}</time></span>
+          <span class="label">{{MINUTES}}</span>
+          <span class="label">By {{AUTHOR}}</span>
+          <span class="label">{{AI_GENERATED}}</span>
+        </div>
+      </header>
 
-  <div class="page-wrap">
-    <a class="back-link" href="../blogs.html">BACK TO ARCHIVE</a>
-    <header class="post-header">
-      <div class="post-meta">
-        <span>{{DATE}}</span>
-        <span>BY {{AUTHOR}}</span>
-        <span class="post-meta-ai">{{AI_GENERATED}}</span>
+      <div class="wrap"><div class="rule"></div></div>
+
+      <div class="wrap grid post-body" style="padding-top:clamp(40px,6vw,72px)">
+        <nav class="toc" id="toc" aria-label="On this page" hidden>
+          <span class="label">On this page</span>
+          <ol id="toc-list"></ol>
+        </nav>
+        <div class="prose" id="post-content">
+{{CONTENT}}
+        </div>
       </div>
-      <h1 class="post-title">{{TITLE}}</h1>
-    </header>
-    <div class="post-layout">
-      <aside class="toc-sidebar">
-        <div class="toc-label">CONTENTS</div>
-        <ul class="toc-list" id="tocList"></ul>
-      </aside>
-      <article id="blog-content"></article>
-    </div>
-    <section class="explore-section">
-      <div class="explore-label">MORE FROM THE ARCHIVE</div>
-      <div class="explore-grid" id="exploreGrid"></div>
-    </section>
-    <section class="post-contact">
-      <div class="contact-heading">ENJOYED THIS?</div>
-      <div class="contact-title">Send me how you liked the blog</div>
-      <div class="contact-socials">
-        <a class="contact-social" href="https://twitter.com/fanaticalnerd" target="_blank">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg>
-          TWITTER
-        </a>
-        <a class="contact-social" href="https://www.linkedin.com/in/rishabhyadavm07" target="_blank">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>
-          LINKEDIN
-        </a>
-        <a class="contact-social" href="https://github.com/rishabhyadavm07" target="_blank">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
-          GITHUB
-        </a>
-        <a class="contact-social" href="mailto:rishabhyadavm07@gmail.com">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-          EMAIL
-        </a>
+    </article>
+
+    <section class="wrap grid post-end" aria-label="Feedback">
+      <span class="sec__label label">Feedback</span>
+      <p class="d3">Spotted a mistake, or a better way to break it? <em>Tell me.</em></p>
+      <div class="post-end__links">
+        <a class="btn btn--solid btn--sm" href="mailto:rishabhyadav.inbox@gmail.com">Email</a>
+        <a class="btn btn--sm" href="https://twitter.com/fanaticalnerd" target="_blank" rel="noopener">X / Twitter</a>
+        <a class="btn btn--sm" href="https://www.linkedin.com/in/rishabhyadavm07" target="_blank" rel="noopener">LinkedIn</a>
       </div>
     </section>
-    <div class="post-footer"><div class="footer-copy">© FANATICALNERD // h4ppy_h4cking</div></div>
-  </div>
 
-  <div class="floating-nav" id="floatingNav">
-    <div class="nav-cards" id="navCards"></div>
-    <button class="nav-trigger" id="navTrigger">NAV</button>
-  </div>
+    {{MORE}}
+  </main>
+{{FOOTER}}
+  <div class="lightbox" id="lightbox" role="dialog" aria-label="Image preview"><img id="lightbox-img" src="" alt=""></div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
   <script>
-  (function(){
-    const FOLDER='{{FOLDER}}';
-    const ALL_BLOGS={{ALL_BLOGS}};
-    const NAV=[{name:"HOME",url:"/index.html",icon:"home"},{name:"JOB DASH",url:"/jobs.html",icon:"activity"},{name:"INTEL",url:"/intel.html",icon:"radar"},{name:"BLOGS",url:"/blogs.html",icon:"book-open"},{name:"REPORTS",url:"/Disclosed-Reports/reports_index.html",icon:"file-text"}];
-    const SVG={home:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',activity:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/></svg>',radar:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19.07 4.93A10 10 0 0 0 6.99 3.34"/><path d="M4 6h.01"/><path d="M2.29 9.62A10 10 0 1 0 21.31 8.35"/><circle cx="12" cy="12" r="2"/></svg>',"book-open":'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg>',"file-text":'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8l6 6v12a2 2 0 0 1-2 2z"/><path d="M14 2v6h6"/></svg>',book:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>',lock:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>'};
-    document.getElementById('navCards').innerHTML=NAV.map(l=>`<a class="nav-card" href="${l.url}"><div class="nc-icon">${SVG[l.icon]}</div><div class="nc-label">${l.name}</div></a>`).join('');
-    const fn=document.getElementById('floatingNav');
-    document.getElementById('navTrigger').addEventListener('click',e=>{e.stopPropagation();fn.classList.toggle('open');});
-    document.addEventListener('click',()=>fn.classList.remove('open'));fn.addEventListener('click',e=>e.stopPropagation());
-    const canvas=document.getElementById('ambient'),ctx=canvas.getContext('2d');
-    function resize(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;}resize();window.addEventListener('resize',resize);
-    class P{constructor(){this.x=Math.random()*canvas.width;this.y=Math.random()*canvas.height;this.size=Math.random()*1.2+0.4;this.sx=(Math.random()-0.5)*0.25;this.sy=(Math.random()-0.5)*0.25;this.o=Math.random()*0.4+0.1;}update(){this.x+=this.sx;this.y+=this.sy;if(this.x>canvas.width)this.x=0;if(this.x<0)this.x=canvas.width;if(this.y>canvas.height)this.y=0;if(this.y<0)this.y=canvas.height;}draw(){ctx.fillStyle=`rgba(220,38,38,${this.o})`;ctx.beginPath();ctx.arc(this.x,this.y,this.size,0,Math.PI*2);ctx.fill();}}
-    let pts=[];for(let i=0;i<90;i++)pts.push(new P());
-    (function loop(){ctx.clearRect(0,0,canvas.width,canvas.height);pts.forEach(p=>{p.update();p.draw();});requestAnimationFrame(loop);})();
-    const lb=document.getElementById('lightbox'),lbImg=document.getElementById('lightboxImg'),lbClose=document.getElementById('lightboxClose');
-    function closeLb(){lb.classList.remove('active');document.body.style.overflow='';}
-    lbClose.addEventListener('click',closeLb);lb.addEventListener('click',e=>{if(e.target===lb)closeLb();});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeLb();});
-    {{LOAD_POST}}
-    function buildTOC(){
-      const toc=document.getElementById('tocList');if(!toc)return;
-      const headings=[...document.getElementById('blog-content').querySelectorAll('h1,h2,h3')];if(!headings.length)return;
-      headings.forEach((h,i)=>{const id='h'+i;h.id=id;const li=document.createElement('li');li.className='toc-item '+(h.tagName==='H3'?'h3':'h2');const a=document.createElement('a');a.href='#'+id;a.textContent=h.textContent.replace(/^[›—–]\s*/,'').trim().replace(/[^\w\s]/g,'').trim().slice(0,50);a.addEventListener('click',e=>{e.preventDefault();h.scrollIntoView({behavior:'smooth',block:'start'});});li.appendChild(a);toc.appendChild(li);});
-      const obs=new IntersectionObserver(entries=>{entries.forEach(en=>{const idx=headings.indexOf(en.target);if(idx<0)return;const links=toc.querySelectorAll('a');if(en.isIntersecting)links.forEach((l,i)=>l.classList.toggle('active',i===idx));});},{rootMargin:'-10% 0px -80% 0px'});
-      headings.forEach(h=>obs.observe(h));
+  (function () {
+    const content = document.getElementById('post-content');
+
+    const lb = document.getElementById('lightbox'), lbImg = document.getElementById('lightbox-img');
+    const closeLb = () => { lb.classList.remove('is-open'); document.body.style.overflow = ''; };
+    lb.addEventListener('click', closeLb);
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLb(); });
+
+    function buildTOC() {
+      const headings = [...content.querySelectorAll('h2, h3')];
+      if (headings.length < 2) return;
+      const list = document.getElementById('toc-list');
+      let n = 0;
+      headings.forEach((h, i) => {
+        h.id = h.id || 'section-' + (i + 1);
+        const li = document.createElement('li');
+        li.className = 'lvl-' + h.tagName[1];
+        const a = document.createElement('a');
+        a.href = '#' + h.id;
+        if (h.tagName === 'H2') a.dataset.n = String(++n).padStart(2, '0');
+        a.textContent = h.textContent.replace(/[^\p{L}\p{N}\s:&'?,.-]/gu, '').trim().slice(0, 60);
+        li.appendChild(a);
+        list.appendChild(li);
+      });
+      document.getElementById('toc').hidden = false;
+      const links = [...list.querySelectorAll('a')];
+      const io = new IntersectionObserver(entries => entries.forEach(en => {
+        if (!en.isIntersecting) return;
+        const idx = headings.indexOf(en.target);
+        links.forEach((l, i) => l.classList.toggle('is-active', i === idx));
+      }), { rootMargin: '-15% 0px -75% 0px' });
+      headings.forEach(h => io.observe(h));
     }
-    function buildExplore(){
-      const grid=document.getElementById('exploreGrid');if(!grid)return;
-      const others=ALL_BLOGS.filter(b=>b.folder!==FOLDER).slice(0,3);
-      if(!others.length){grid.parentElement.style.display='none';return;}
-      grid.innerHTML=others.map(b=>`<a class="explore-card" href="${b.folder}.html"><div class="explore-date">${b.date||''}</div><div class="explore-title">${b.title}</div><div class="explore-excerpt">${b.excerpt||''}</div><div class="explore-read">>> READ</div></a>`).join('');
-    }
-    loadPost();
-    setTimeout(()=>{buildTOC();buildExplore();},80);
+
+    content.querySelectorAll('img').forEach(img => {
+      img.addEventListener('click', () => { lbImg.src = img.src; lbImg.alt = img.alt; lb.classList.add('is-open'); document.body.style.overflow = 'hidden'; });
+    });
+    buildTOC();
   })();
   </script>
+  <script src="/assets/site.js" defer></script>
 </body>
 </html>
 """
 
 
-def make_load_post(md_body: str, folder: str) -> str:
-    escaped = md_body.replace("\\", "\\\\").replace("`", "\\`").replace("${", "\\${")
-    return f"""function loadPost(){{
-      const content=document.getElementById('blog-content');
-      const md=`{escaped}`;
-      marked.setOptions({{breaks:true,gfm:true}});
-      let html=marked.parse(md);
-      html=html.replace(/src="(?!http|\\/|data)([^"]+)"/g,`src="../BLOGS/{folder}/src/$1"`);
-      html=html.replace(/src='(?!http|\\/|data)([^']+)'/g,`src='../BLOGS/{folder}/src/$1'`);
-      const tmp=document.createElement('div');tmp.innerHTML=html;
-      const h1=tmp.querySelector('h1');if(h1)h1.remove();
-      content.innerHTML=tmp.innerHTML;
-      content.querySelectorAll('img').forEach(img=>{{img.addEventListener('click',()=>{{lb.classList.add('active');lbImg.src=img.src;document.body.style.overflow='hidden';}});}});
-    }}"""
+MARKED_JS = r"""
+const { marked } = require(process.argv[1]);
+let src = '';
+process.stdin.setEncoding('utf8');
+process.stdin.on('data', d => src += d).on('end', () => process.stdout.write(marked.parse(src, { breaks: true, gfm: true })));
+"""
+
+
+def slugify(text: str) -> str:
+    text = re.sub(r"<[^>]+>", "", html.unescape(text)).lower()
+    text = re.sub(r"[^a-z0-9\s-]", "", text)
+    return re.sub(r"[\s-]+", "-", text).strip("-")[:60] or "section"
+
+
+def render_markdown(md_body: str, folder: str) -> str:
+    """Render a post to static HTML with the same marked settings the site used."""
+    try:
+        out = subprocess.run(["node", "-e", MARKED_JS, str(ROOT / "vendor" / "marked.min.js")],
+                             input=md_body, capture_output=True, text=True, check=True).stdout
+    except FileNotFoundError:
+        sys.exit("build.py needs Node.js to render posts (https://nodejs.org).")
+    out = re.sub(r'src="(?!https?:|/|data:)([^"]+)"', rf'src="/BLOGS/{folder}/src/\1"', out)
+    out = re.sub(r"<h1[^>]*>.*?</h1>\s*", "", out, count=1, flags=re.S)          # title is already in the page header
+    out = re.sub(r"<(/?)h1(\b[^>]*)>", r"<\1h2\2>", out)                        # one h1 per page
+    out = re.sub(r'<a href="(https?://[^"]+)"', r'<a href="\1" target="_blank" rel="noopener"', out)
+    out = out.replace("<img ", '<img loading="lazy" decoding="async" ')
+    seen = {}
+    def add_id(m):
+        slug = slugify(m.group(3))
+        seen[slug] = seen.get(slug, 0) + 1
+        if seen[slug] > 1:
+            slug += f"-{seen[slug]}"
+        return f'<{m.group(1)}{m.group(2)} id="{slug}">{m.group(3)}</{m.group(1)}>'
+    out = re.sub(r"<(h[23])([^>]*)>(.*?)</\1>", add_id, out, flags=re.S)
+    out = out.strip()
+    return out or '<p class="note-box">This file is still open. The journal has no entries yet.</p>'
+
+
+def page_title(title: str) -> str:
+    """Keep <title> within ~65 characters so search results don't truncate it."""
+    full = f"{title} — Rishabh Yadav"
+    return full if len(full) <= 65 else title
+
+
+def post_image(folder: str, meta: dict) -> str:
+    og = ROOT / "assets" / "og" / f"post-{folder}.jpg"
+    if og.exists():
+        return f"{BASE_URL}/assets/og/post-{folder}.jpg"
+    thumb = meta.get("thumbnail", "")
+    if thumb:
+        return BASE_URL + thumb if thumb.startswith("/") else thumb
+    return f"{BASE_URL}/assets/og/default.jpg"
+
+
+def post_jsonld(folder: str, meta: dict, image: str) -> str:
+    url = f"{BASE_URL}/posts/{folder}.html"
+    data = {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "BlogPosting",
+                "headline": meta.get("title", folder),
+                "description": meta.get("excerpt", ""),
+                "datePublished": meta.get("date", ""),
+                "image": image,
+                "url": url,
+                "mainEntityOfPage": url,
+                "author": {"@type": "Person", "name": "Rishabh Yadav", "url": f"{BASE_URL}/"},
+                "publisher": {"@type": "Person", "name": "Rishabh Yadav", "url": f"{BASE_URL}/"},
+            },
+            {
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                    {"@type": "ListItem", "position": 1, "name": "Home", "item": f"{BASE_URL}/"},
+                    {"@type": "ListItem", "position": 2, "name": "Writing", "item": f"{BASE_URL}/blogs.html"},
+                    {"@type": "ListItem", "position": 3, "name": meta.get("title", folder), "item": url},
+                ],
+            },
+        ],
+    }
+    return json.dumps(data, ensure_ascii=False).replace("</", "<\\/")
 
 
 def parse_frontmatter(md_text: str) -> tuple[dict, str]:
@@ -273,6 +328,32 @@ def parse_frontmatter(md_text: str) -> tuple[dict, str]:
             key, _, val = line.partition(":")
             meta[key.strip().lower()] = val.strip()
     return meta, md_text[m.end():]
+
+
+def human_date(iso: str) -> str:
+    try:
+        y, mth, d = (int(p) for p in iso.split("-"))
+        return date(y, mth, d).strftime("%d %b %Y")
+    except ValueError:
+        return iso
+
+
+def reading_time(folder: str) -> str:
+    md = ROOT / "BLOGS" / folder / "blog.md"
+    if not md.exists():
+        return ""
+    _, body = parse_frontmatter(md.read_text(encoding="utf-8"))
+    words = len(re.findall(r"[A-Za-z0-9']+", re.sub(r"!\[.*?\]\(.*?\)|<[^>]+>", " ", body)))
+    if words < 60:
+        return "Open file"
+    return f"{max(1, round(words / WPM))} min read"
+
+
+def load_blogs() -> list:
+    data = json.loads(BLOGS_JSON.read_text(encoding="utf-8")) if BLOGS_JSON.exists() else {}
+    blogs = data.get("blogs", [])
+    blogs.sort(key=lambda b: b.get("date", ""), reverse=True)
+    return blogs
 
 
 def sync_blogs_json(folder: str, meta: dict) -> list:
@@ -299,48 +380,121 @@ def sync_blogs_json(folder: str, meta: dict) -> list:
     return blogs
 
 
-def sync_index_inline(blogs: list):
-    index_path = ROOT / "index.html"
-    if not index_path.exists():
-        return
-    html = index_path.read_text(encoding="utf-8")
-    inline_data = {"blogs": [{"title": b["title"], "folder": b["folder"], "date": b["date"], "excerpt": b.get("excerpt", "")} for b in blogs]}
-    new_const = f'const BLOGS_INLINE = {json.dumps(inline_data, ensure_ascii=False)};'
-    html = re.sub(r'const BLOGS_INLINE = \{[^;]+\};', lambda _: new_const, html)
-    index_path.write_text(html, encoding="utf-8")
+# ── Listings ──────────────────────────────────────────────────────────────────
+
+def post_rows(blogs: list, indent: str) -> str:
+    rows = []
+    for n, b in enumerate(blogs, 1):
+        meta = human_date(b.get("date", ""))
+        mins = reading_time(b["folder"])
+        if mins:
+            meta += f" · {mins}"
+        rows.append(
+            f'{indent}<li><a class="row" href="/posts/{b["folder"]}.html">\n'
+            f'{indent}  <span class="row__n">{n:02d}</span>\n'
+            f'{indent}  <span class="row__t">{html.escape(b["title"])}</span>\n'
+            f'{indent}  <span class="row__m">{meta}</span>\n'
+            f'{indent}  {ARROW}\n'
+            f'{indent}  <span class="row__d">{html.escape(b.get("excerpt", ""))}</span>\n'
+            f'{indent}</a></li>'
+        )
+    return "\n".join(rows)
 
 
-def build(folder: str) -> Path:
+def replace_block(text: str, name: str, body: str) -> str:
+    """Replace everything between <!-- build:NAME --> and <!-- /build:NAME -->."""
+    pattern = re.compile(rf"(<!-- build:{name} -->\n)(.*?)(\n?)([ \t]*<!-- /build:{name} -->)", re.S)
+    if not pattern.search(text):
+        return text
+    return pattern.sub(lambda m: m.group(1) + body + "\n" + m.group(4), text)
+
+
+def sync_listings(blogs: list):
+    index = ROOT / "index.html"
+    if index.exists():
+        text = index.read_text(encoding="utf-8")
+        text = replace_block(text, "latest-posts", post_rows(blogs[:3], " " * 12))
+        index.write_text(text, encoding="utf-8")
+    listing = ROOT / "blogs.html"
+    if listing.exists():
+        text = listing.read_text(encoding="utf-8")
+        text = replace_block(text, "all-posts", post_rows(blogs, " " * 12))
+        text = re.sub(r'(<span id="post-count">)\d+(</span>)', rf"\g<1>{len(blogs):02d}\g<2>", text)
+        listing.write_text(text, encoding="utf-8")
+
+
+# ── Site chrome ───────────────────────────────────────────────────────────────
+
+def render_partial(name: str, nav: str = "") -> str:
+    text = (PARTIALS / f"{name}.html").read_text(encoding="utf-8")
+    if nav:
+        text = text.replace(f'data-nav="{nav}"', f'data-nav="{nav}" aria-current="page"', 1)
+    return text
+
+
+def sync_chrome():
+    for rel in CHROME_PAGES:
+        path = ROOT / rel
+        if not path.exists():
+            continue
+        text = path.read_text(encoding="utf-8")
+        m = re.search(r'<body[^>]*\bdata-nav="([^"]*)"', text)
+        nav = m.group(1) if m else ""
+        for name in ("head", "header", "footer"):
+            pattern = re.compile(rf"(<!-- partial:{name} -->\n)(.*?)([ \t]*<!-- /partial:{name} -->)", re.S)
+            text = pattern.sub(lambda mm: mm.group(1) + render_partial(name, nav) + mm.group(3), text)
+        path.write_text(text, encoding="utf-8")
+    print(f"  chrome → {len(CHROME_PAGES)} pages")
+
+
+# ── Posts ─────────────────────────────────────────────────────────────────────
+
+def more_section(blogs: list, folder: str) -> str:
+    others = [b for b in blogs if b["folder"] != folder][:3]
+    if not others:
+        return ""
+    return (
+        '<section class="wrap grid more" aria-labelledby="more-title">\n'
+        '      <div class="sec__head">\n'
+        '        <span class="sec__label label">Next</span>\n'
+        '        <h2 class="sec__title d3" id="more-title">More from the <em>notebook</em></h2>\n'
+        '      </div>\n'
+        '      <ol class="index sec__body">\n'
+        + post_rows(others, " " * 8) +
+        '\n      </ol>\n'
+        '    </section>'
+    )
+
+
+def build(folder: str, blogs: list | None = None) -> Path:
     md_path = ROOT / "BLOGS" / folder / "blog.md"
     if not md_path.exists():
         raise FileNotFoundError(f"BLOGS/{folder}/blog.md not found")
 
-    md_text = md_path.read_text(encoding="utf-8")
-    meta, md_body = parse_frontmatter(md_text)
+    meta, md_body = parse_frontmatter(md_path.read_text(encoding="utf-8"))
+    blogs = sync_blogs_json(folder, meta) if blogs is None else blogs
 
-    blogs = sync_blogs_json(folder, meta)
-    sync_index_inline(blogs)
-    print(f"  synced → BLOGS/blogs.json + index.html")
+    thumb = post_image(folder, meta)
 
-    # Slim blog list for explore section (title, folder, date only)
-    all_blogs_js = json.dumps(
-        [{"title": b["title"], "folder": b["folder"], "date": b.get("date", ""), "excerpt": b.get("excerpt", "")} for b in blogs],
-        ensure_ascii=False
-    )
-
-    url = f"{BASE_URL}/posts/{folder}.html"
     output = TEMPLATE
-    output = output.replace("{{LOAD_POST}}", make_load_post(md_body, folder))
-    output = output.replace("{{ALL_BLOGS}}", all_blogs_js)
+    output = output.replace("{{HEAD}}", render_partial("head").rstrip("\n"))
+    output = output.replace("{{HEADER}}", render_partial("header", "writing"))
+    output = output.replace("{{FOOTER}}", render_partial("footer"))
+    output = output.replace("{{MORE}}", more_section(blogs, folder))
+    output = output.replace("{{CONTENT}}", render_markdown(md_body, folder))
+    output = output.replace("{{JSONLD}}", post_jsonld(folder, meta, thumb))
     for placeholder, value in {
-        "{{TITLE}}":        meta.get("title", folder),
+        "{{PAGE_TITLE}}":   html.escape(page_title(meta.get("title", folder))),
+        "{{TITLE}}":        html.escape(meta.get("title", folder)),
         "{{FOLDER}}":       folder,
         "{{DATE}}":         meta.get("date", ""),
-        "{{AUTHOR}}":       meta.get("author", "Rishabh"),
-        "{{AI_GENERATED}}": meta.get("ai_generated", "Human Written"),
-        "{{DESCRIPTION}}":  meta.get("excerpt", ""),
-        "{{THUMBNAIL}}":    meta.get("thumbnail", ""),
-        "{{URL}}":          url,
+        "{{DATE_HUMAN}}":   human_date(meta.get("date", "")),
+        "{{MINUTES}}":      reading_time(folder),
+        "{{AUTHOR}}":       html.escape(meta.get("author", "Rishabh")),
+        "{{AI_GENERATED}}": html.escape(meta.get("ai_generated", "Human Written")),
+        "{{DESCRIPTION}}":  html.escape(meta.get("excerpt", "")),
+        "{{THUMBNAIL}}":    thumb,
+        "{{URL}}":          f"{BASE_URL}/posts/{folder}.html",
     }.items():
         output = output.replace(placeholder, value)
 
@@ -354,16 +508,87 @@ def build(folder: str) -> Path:
 def build_all():
     blogs_dir = ROOT / "BLOGS"
     folders = sorted(d.name for d in blogs_dir.iterdir() if d.is_dir() and (d / "blog.md").exists())
-    if not folders:
-        print("No blog.md files found in BLOGS/")
-        return
     print(f"Building {len(folders)} post(s)...")
     for folder in folders:
+        meta, _ = parse_frontmatter((blogs_dir / folder / "blog.md").read_text(encoding="utf-8"))
+        sync_blogs_json(folder, meta)
+    blogs = load_blogs()
+    for folder in folders:
         try:
-            build(folder)
+            build(folder, blogs)
         except Exception as e:
             print(f"  SKIP {folder}: {e}")
-    print("Done.")
+
+
+def lastmod(path: Path) -> str:
+    """Last commit date of a file, falling back to its modification time."""
+    try:
+        dirty = subprocess.run(["git", "status", "--porcelain", "--", str(path)], cwd=ROOT,
+                               capture_output=True, text=True).stdout.strip()
+        if dirty:  # changed since the last commit, so it's new as of today
+            return datetime.now().strftime("%Y-%m-%d")
+        out = subprocess.run(["git", "log", "-1", "--format=%cs", "--", str(path)], cwd=ROOT,
+                             capture_output=True, text=True).stdout.strip()
+        if out:
+            return out
+    except FileNotFoundError:
+        pass
+    return datetime.fromtimestamp(path.stat().st_mtime).strftime("%Y-%m-%d")
+
+
+def write_sitemap(blogs: list):
+    urls = []
+    for rel in SITEMAP_PAGES:
+        path = ROOT / rel
+        if path.exists():
+            loc = f"{BASE_URL}/" if rel == "index.html" else f"{BASE_URL}/{rel}"
+            urls.append((loc, lastmod(path)))
+    for b in blogs:
+        if (POSTS_DIR / f"{b['folder']}.html").exists():
+            urls.append((f"{BASE_URL}/posts/{b['folder']}.html", b.get("date", "")))
+    body = "\n".join(f"  <url>\n    <loc>{html.escape(loc)}</loc>\n    <lastmod>{mod}</lastmod>\n  </url>" for loc, mod in urls)
+    (ROOT / "sitemap.xml").write_text(
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + body + "\n</urlset>\n", encoding="utf-8")
+    print(f"  sitemap → {len(urls)} urls")
+
+
+def write_feed(blogs: list):
+    items = []
+    for b in blogs:
+        url = f"{BASE_URL}/posts/{b['folder']}.html"
+        try:
+            pub = format_datetime(datetime.strptime(b.get("date", ""), "%Y-%m-%d").replace(tzinfo=timezone.utc))
+        except ValueError:
+            continue
+        items.append(
+            "    <item>\n"
+            f"      <title>{html.escape(b['title'])}</title>\n"
+            f"      <link>{url}</link>\n"
+            f"      <guid isPermaLink=\"true\">{url}</guid>\n"
+            f"      <pubDate>{pub}</pubDate>\n"
+            f"      <description>{html.escape(b.get('excerpt', ''))}</description>\n"
+            "    </item>")
+    (ROOT / "feed.xml").write_text(
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">\n'
+        "  <channel>\n"
+        "    <title>The notebook — Rishabh Yadav</title>\n"
+        f"    <link>{BASE_URL}/blogs.html</link>\n"
+        "    <description>Field notes on AI red teaming, security automation and cloud security.</description>\n"
+        "    <language>en</language>\n"
+        f'    <atom:link href="{BASE_URL}/feed.xml" rel="self" type="application/rss+xml"/>\n'
+        + "\n".join(items) + "\n  </channel>\n</rss>\n", encoding="utf-8")
+    print(f"  feed   → {len(items)} posts")
+
+
+def refresh():
+    blogs = load_blogs()
+    sync_listings(blogs)
+    print("  synced → index.html + blogs.html listings")
+    sync_chrome()
+    write_sitemap(blogs)
+    write_feed(blogs)
 
 
 if __name__ == "__main__":
@@ -373,6 +598,12 @@ if __name__ == "__main__":
     arg = sys.argv[1]
     if arg == "--all":
         build_all()
-    else:
+    elif arg != "--chrome":
         build(arg)
-        print("Done.")
+        # Rebuild siblings so their "More" lists include the new post
+        blogs = load_blogs()
+        for b in blogs:
+            if b["folder"] != arg and (ROOT / "BLOGS" / b["folder"] / "blog.md").exists():
+                build(b["folder"], blogs)
+    refresh()
+    print("Done.")

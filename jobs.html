@@ -2,351 +2,246 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <link rel="icon" type="image/x-icon" href="/assets/favicon_io/favicon.ico">
-  <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon_io/favicon-16x16.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Job radar: cloud security &amp; AppSec roles — Rishabh Yadav</title>
+  <meta name="description" content="Saved searches for cloud security, AppSec, VAPT and analyst roles in India or remote, across ATS boards, LinkedIn and Naukri.">
+  <link rel="canonical" href="https://fanaticalnerd.com/jobs.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="fanaticalnerd">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:url" content="https://fanaticalnerd.com/jobs.html">
+  <meta property="og:title" content="Job radar: cloud security &amp; AppSec roles">
+  <meta property="og:description" content="Saved searches for cloud security, AppSec, VAPT and analyst roles in India or remote, across ATS boards, LinkedIn and Naukri.">
+  <meta property="og:image" content="https://fanaticalnerd.com/assets/og/jobs.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Job radar: cloud security &amp; AppSec roles">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@fanaticalnerd">
+  <meta name="twitter:creator" content="@fanaticalnerd">
+  <meta name="twitter:title" content="Job radar: cloud security &amp; AppSec roles">
+  <meta name="twitter:description" content="Saved searches for cloud security, AppSec, VAPT and analyst roles in India or remote, across ATS boards, LinkedIn and Naukri.">
+  <meta name="twitter:image" content="https://fanaticalnerd.com/assets/og/jobs.jpg">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebPage",
+        "name": "Job radar",
+        "url": "https://fanaticalnerd.com/jobs.html",
+        "author": {
+          "@type": "Person",
+          "name": "Rishabh Yadav",
+          "url": "https://fanaticalnerd.com/"
+        }
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://fanaticalnerd.com/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Tools",
+            "item": "https://fanaticalnerd.com/#tools"
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "Job radar",
+            "item": "https://fanaticalnerd.com/jobs.html"
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+  <!-- partial:head -->
+  <meta name="theme-color" content="#0e0d0c">
+  <meta name="color-scheme" content="dark light">
+  <link rel="alternate" type="application/rss+xml" title="The notebook — Rishabh Yadav" href="https://fanaticalnerd.com/feed.xml">
+  <link rel="icon" href="/assets/favicon_io/favicon.ico" sizes="any">
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon_io/favicon-32x32.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon_io/apple-touch-icon.png">
+  <link rel="apple-touch-icon" href="/assets/favicon_io/apple-touch-icon.png">
   <link rel="manifest" href="/assets/favicon_io/site.webmanifest">
-  <title>Job Dashboard | fanaticalnerd</title>
-  <meta name="description" content="Cybersecurity job board and opportunity tracker — curated listings for security engineers, penetration testers, and bug bounty hunters.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700;800&family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Martian+Mono:wdth,wght@75..112.5,300..600&family=Schibsted+Grotesk:ital,wght@0,400..800;1,400..800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/site.css">
+  <script>(function(){var d=document.documentElement;d.classList.add('js');try{var t=localStorage.getItem('fn-theme');if(t)d.dataset.theme=t}catch(e){}})()</script>
+  <!-- /partial:head -->
   <style>
-    :root {
-      --crimson: #dc2626;
-      --crimson-dim: rgba(220, 38, 38, 0.12);
-      --crimson-glow: rgba(220, 38, 38, 0.45);
-      --black: #020202;
-      --void: #050505;
-      --surface: #0a0a0a;
-      --elevated: #111111;
-      --border: #1a1a1a;
-      --text: #dddddd;
-      --text-dim: #888888;
-      --text-faint: #3a3a3a;
-    }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body {
-      font-family: 'JetBrains Mono', monospace;
-      background-color: var(--black);
-      color: var(--text);
-      overflow-x: hidden;
-    }
-    ::selection { background: var(--crimson); color: #fff; }
-    ::-webkit-scrollbar { width: 3px; }
-    ::-webkit-scrollbar-thumb { background: var(--crimson); }
-
-    #ambient { position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0.35; }
-    .scanline { position: fixed; top: 0; left: 0; width: 100%; height: 2px; background: var(--crimson); opacity: 0.07; z-index: 50; pointer-events: none; animation: scan 7s linear infinite; }
-    @keyframes scan { 0%{top:-5%} 100%{top:105%} }
-    .noise { position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: 0.025; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); background-repeat: repeat; background-size: 256px; }
-    .vignette { position: fixed; inset: 0; z-index: 2; pointer-events: none; background: radial-gradient(circle at center, transparent 0%, var(--black) 100%); }
-
-    .page-wrap { position: relative; z-index: 10; max-width: 1100px; margin: 0 auto; padding: 80px 24px 160px; }
-
-    .back-link {
-      display: inline-flex; align-items: center; gap: 10px;
-      font-size: 10px; font-weight: 700; letter-spacing: 0.3em; text-transform: uppercase;
-      color: var(--text-faint); text-decoration: none;
-      border: 1px solid var(--border); padding: 10px 20px;
-      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); margin-bottom: 60px;
-    }
-    .back-link:hover { color: var(--crimson); border-color: rgba(220,38,38,0.4); }
-    .back-link::before { content: '←'; }
-
-    .page-header { margin-bottom: 80px; }
-    .page-header__label {
-      font-size: 10px; letter-spacing: 0.5em; color: var(--crimson);
-      text-transform: uppercase; font-weight: 800; margin-bottom: 16px;
-      display: flex; align-items: center; gap: 12px;
-      opacity: 0; transform: translateX(-20px);
-      transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .page-header__label.visible { opacity: 1; transform: translateX(0); }
-    .page-header__label::before { content: ''; display: block; width: 32px; height: 1px; background: var(--crimson); }
-    .page-header__title {
-      font-family: 'Inter', sans-serif; font-size: clamp(1.2rem, 3vw, 1.8rem);
-      font-weight: 800; line-height: 1; letter-spacing: -0.03em; color: #fff;
-      opacity: 0; transform: translateY(20px);
-      transition: all 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.1s;
-    }
-    .page-header__title.visible { opacity: 1; transform: translateY(0); }
-    .page-header__meta {
-      margin-top: 14px; font-size: 10px; letter-spacing: 0.25em; color: var(--text-faint);
-      opacity: 0; transition: opacity 0.8s ease 0.3s;
-    }
-    .page-header__meta.visible { opacity: 1; }
-    .pulse-dot { display: inline-block; width: 7px; height: 7px; background: var(--crimson); border-radius: 50%; box-shadow: 0 0 10px var(--crimson); animation: pulse 2s ease-in-out infinite; margin-right: 8px; }
-    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
-
-    /* ─── Job grid ─── */
-    .jobs-grid {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px;
-    }
-
-    /* ─── Job node card ─── */
-    .job-node {
-      background: var(--elevated); border: 1px solid var(--border);
-      border-top: 2px solid var(--crimson); padding: 32px;
-      position: relative; overflow: hidden;
-      opacity: 0; transform: translateY(40px);
-      transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .job-node.visible { opacity: 1; transform: translateY(0); }
-    .job-node::before {
-      content: ''; position: absolute; inset: 0;
-      background: linear-gradient(135deg, var(--crimson-dim) 0%, transparent 50%);
-      pointer-events: none; opacity: 0; transition: opacity 0.6s;
-    }
-    .job-node:hover::before { opacity: 1; }
-    .job-node:hover { border-color: rgba(220,38,38,0.35); box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(220,38,38,0.08); }
-
-    .job-node-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
-    .job-node-id { font-size: 9px; color: var(--text-faint); letter-spacing: 0.3em; font-weight: 700; }
-    .job-node-title {
-      font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 800;
-      color: var(--crimson); text-transform: uppercase; letter-spacing: 0.08em;
-      margin-bottom: 24px;
-    }
-
-    .job-category { margin-bottom: 24px; }
-    .job-category-label {
-      font-size: 9px; color: var(--text-dim); letter-spacing: 0.25em; text-transform: uppercase;
-      font-weight: 700; margin-bottom: 12px;
-      border-left: 2px solid rgba(220,38,38,0.4); padding-left: 10px;
-    }
-    .job-links { display: flex; flex-direction: column; gap: 8px; padding-left: 14px; }
-    .job-link {
-      display: flex; align-items: center; gap: 8px;
-      font-size: 12px; color: var(--text-dim); text-decoration: none;
-      transition: color 0.3s; font-weight: 400;
-    }
-    .job-link::before { content: '›'; color: var(--text-faint); font-size: 14px; transition: color 0.3s; }
-    .job-link:hover { color: var(--crimson); }
-    .job-link:hover::before { color: var(--crimson); }
-
-    .job-node-footer {
-      margin-top: 28px; padding-top: 16px; border-top: 1px solid var(--border);
-      display: flex; justify-content: space-between;
-      font-size: 8px; color: var(--text-faint); letter-spacing: 0.2em; font-weight: 700; opacity: 0.4;
-    }
-
-    /* ─── Floating Nav ─── */
-    .floating-nav {
-      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
-      z-index: 1000; display: flex; flex-direction: column; align-items: center; gap: 16px;
-    }
-    .nav-cards {
-      display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; max-width: 90vw;
-      opacity: 0; transform: translateY(30px) scale(0.9); pointer-events: none;
-      transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .floating-nav:hover .nav-cards, .floating-nav.open .nav-cards { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
-    .nav-card {
-      width: 82px; height: 92px; background: rgba(12,12,12,0.95);
-      backdrop-filter: blur(16px); border: 1px solid var(--border); border-radius: 14px;
-      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
-      text-decoration: none; color: var(--text-dim);
-      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-      opacity: 0; transform: translateY(20px) scale(0.7); position: relative; overflow: hidden;
-    }
-    .nav-card::before { content: ''; position: absolute; inset: 0; border-radius: 14px; background: radial-gradient(circle at 50% 0%, rgba(220,38,38,0.15), transparent 70%); opacity: 0; transition: opacity 0.4s; }
-    .nav-card:hover::before { opacity: 1; }
-    .floating-nav:hover .nav-card, .floating-nav.open .nav-card { opacity: 1; transform: translateY(0) scale(1); }
-    .nav-card:nth-child(1){transition-delay:.04s} .nav-card:nth-child(2){transition-delay:.08s} .nav-card:nth-child(3){transition-delay:.12s} .nav-card:nth-child(4){transition-delay:.16s} .nav-card:nth-child(5){transition-delay:.20s} .nav-card:nth-child(6){transition-delay:.24s} .nav-card:nth-child(7){transition-delay:.28s}
-    .nav-card:hover { border-color: var(--crimson); color: #fff; transform: translateY(-10px) scale(1.12) !important; box-shadow: 0 20px 40px rgba(0,0,0,0.6), 0 0 20px rgba(220,38,38,0.2); }
-    .nav-card:hover .nc-icon { color: var(--crimson); }
-    .nc-icon { width: 20px; height: 20px; position: relative; z-index: 1; }
-    .nc-label { font-size: 8px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; position: relative; z-index: 1; }
-    .nav-trigger {
-      padding: 14px 48px; background: var(--crimson); color: #fff;
-      font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 800;
-      letter-spacing: 0.5em; cursor: pointer; border: none; border-radius: 40px;
-      position: relative; overflow: hidden;
-      box-shadow: 0 8px 32px rgba(220,38,38,0.35), 0 0 0 1px rgba(220,38,38,0.5);
-      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .nav-trigger:hover { background: #b91c1c; letter-spacing: 0.65em; transform: translateY(-2px); }
-    .nav-trigger:active { transform: scale(0.95); }
-    .nav-trigger::after { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent); animation: shine 3s ease-in-out infinite; }
-    @keyframes shine { 0%,100%{left:-100%} 50%{left:100%} }
-
-    footer { position: relative; z-index: 10; text-align: center; padding: 60px 24px; border-top: 1px solid var(--border); }
-    .footer-copy { font-size: 10px; color: var(--text-faint); opacity: 0.4; letter-spacing: 0.3em; }
-
-    @media (max-width: 768px) {
-      .page-wrap { padding: 60px 20px 140px; }
-      .jobs-grid { grid-template-columns: 1fr; }
-      .job-node { padding: 22px; }
-      .floating-nav { bottom: 16px; }
-      .nav-card { width: 66px; height: 76px; }
-      .nc-label { font-size: 7px; }
-      .nav-trigger { padding: 12px 32px; font-size: 9px; letter-spacing: 0.35em; }
-    }
-    @media (max-width: 480px) {
-      .page-wrap { padding: 48px 16px 120px; }
-      .job-node { padding: 16px; }
-      .dork-link { font-size: 9px; padding: 8px 10px; }
-      .nav-cards { gap: 6px; }
-      .nav-card { width: 56px; height: 64px; }
-      .nc-label { font-size: 6px; }
-      .nav-trigger { padding: 10px 24px; letter-spacing: 0.25em; }
-    }
+    .boards { padding-bottom: clamp(80px, 12vw, 168px); }
+    #boards { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: clamp(16px, 2vw, 32px); row-gap: 64px; }
+    .board__head { display: grid; gap: 10px; padding-bottom: 20px; border-bottom: 1px solid var(--line-2); }
+    .group { margin-top: 28px; }
+    .group > .label { margin-bottom: 6px; }
+    .links { list-style: none; }
+    .links a { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 13px 0; border-bottom: 1px solid var(--line); font-size: 16px; transition: padding 0.5s var(--ease), color 0.25s; }
+    .links a:hover { padding-left: 8px; color: var(--accent-text); }
+    .links svg { width: 18px; height: 18px; color: var(--fg-3); }
+    .links a:hover svg { color: var(--accent-text); }
+    .fine { grid-column: 1 / -1; margin-top: 48px; }
+    @media (max-width: 960px) { #boards { grid-template-columns: 1fr; } }
   </style>
 </head>
-<body>
-  <canvas id="ambient"></canvas>
-  <div class="noise"></div>
-  <div class="vignette"></div>
-  <div class="scanline"></div>
+<body data-nav="tools" id="top">
+  <a class="skip" href="#main">Skip to content</a>
 
-  <div class="page-wrap">
+  <!-- partial:header -->
+  <header class="hdr">
+    <div class="wrap">
+      <a class="brand" href="/"><span class="node" aria-hidden="true"></span>Rishabh Yadav <small>aka fanaticalnerd</small></a>
+      <nav class="nav" aria-label="Main">
+        <a class="nav__link" href="/#record" data-nav="record" data-scramble>Record</a>
+        <a class="nav__link" href="/#work" data-nav="work" data-scramble>Work</a>
+        <a class="nav__link" href="/blogs.html" data-nav="writing" data-scramble>Writing</a>
+        <a class="nav__link" href="/Disclosed-Reports/reports_index.html" data-nav="reports" data-scramble>Reports</a>
+        <a class="nav__link" href="/#tools" data-nav="tools" aria-current="page" data-scramble>Tools</a>
+        <a class="nav__link" href="/#contact" data-nav="contact" data-scramble>Contact</a>
+        <button class="theme-btn" type="button" data-theme-toggle><svg class="ic" aria-hidden="true"><use href="/assets/icons.svg#theme"/></svg><span data-theme-label>Paper</span></button>
+        <button class="menu-btn" type="button" data-menu-open aria-expanded="false" aria-controls="menu">Menu</button>
+      </nav>
+    </div>
+    <span class="hdr__progress" aria-hidden="true"></span>
+  </header>
+  <div class="menu" id="menu" role="dialog" aria-modal="true" aria-label="Site menu">
+    <div class="menu__top">
+      <a class="brand" href="/"><span class="node" aria-hidden="true"></span>Rishabh Yadav</a>
+      <button class="menu-btn" type="button" data-menu-close style="display:inline-flex">Close</button>
+    </div>
+    <ul class="menu__links">
+      <li><a href="/#record"><span>01</span>Record</a></li>
+      <li><a href="/#work"><span>02</span>Work</a></li>
+      <li><a href="/blogs.html"><span>03</span>Writing</a></li>
+      <li><a href="/Disclosed-Reports/reports_index.html"><span>04</span>Reports</a></li>
+      <li><a href="/#tools"><span>05</span>Tools</a></li>
+      <li><a href="/#contact"><span>06</span>Contact</a></li>
+    </ul>
+    <div class="menu__foot">
+      <a class="label" href="https://github.com/rishabhyadavm07" target="_blank" rel="noopener">GitHub</a>
+      <a class="label" href="https://www.linkedin.com/in/rishabhyadavm07" target="_blank" rel="noopener">LinkedIn</a>
+      <a class="label" href="https://twitter.com/fanaticalnerd" target="_blank" rel="noopener">X / Twitter</a>
+      <a class="label" href="mailto:rishabhyadav.inbox@gmail.com">Email</a>
+    </div>
+  </div>
+  <!-- /partial:header -->
 
-    <a class="back-link" href="index.html">BACK TO INTERFACE</a>
+  <main id="main">
+    <header class="wrap grid mast">
+      <div class="mast__crumb"><a class="label u" href="/#tools">← Tools</a></div>
+      <h1 class="mast__title d1" data-split>Job <em>radar.</em></h1>
+      <p class="mast__intro intro reveal" style="--d:250ms">Saved searches for cloud security, AppSec, VAPT and analyst roles in India or remote. Every link opens a fresh search at the source, so nothing here goes stale.</p>
+    </header>
 
-    <div class="page-header">
-      <div class="page-header__label" data-animate>Opportunity Recon</div>
-      <h1 class="page-header__title" data-animate-delay>JOB_DASHBOARD</h1>
-      <div class="page-header__meta" data-animate-delay2>
-        <span class="pulse-dot"></span>TARGET_DOMAINS: CLOUD_SEC · APPSEC · VAPT · PENTEST
+    <section class="wrap grid boards" aria-label="Searches">
+      <div id="boards"></div>
+      <p class="fine label">Some sources want you signed in. That part is on them.</p>
+    </section>
+  </main>
+
+  <!-- partial:footer -->
+  <footer class="ftr">
+    <div class="wrap ftr__grid">
+      <div class="ftr__col">
+        <span class="label">Index</span>
+        <a href="/#record">Record</a>
+        <a href="/#work">Work</a>
+        <a href="/blogs.html">Writing</a>
+        <a href="/Disclosed-Reports/reports_index.html">Reports</a>
+        <a href="/#tools">Tools</a>
+      </div>
+      <div class="ftr__col">
+        <span class="label">Elsewhere</span>
+        <a href="https://github.com/rishabhyadavm07" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://www.linkedin.com/in/rishabhyadavm07" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="https://twitter.com/fanaticalnerd" target="_blank" rel="noopener">X / Twitter</a>
+        <a href="mailto:rishabhyadav.inbox@gmail.com">Email</a>
+      </div>
+      <div class="ftr__col">
+        <span class="label">Colophon</span>
+        <p class="small">Set in Instrument Serif, Schibsted Grotesk and Martian Mono. No frameworks, no trackers.</p>
+      </div>
+      <div class="ftr__col">
+        <span class="label">Local time</span>
+        <span class="d3" data-clock>--:--:--</span>
+        <span class="label">IST · UTC+05:30</span>
+      </div>
+      <div class="ftr__base">
+        <span class="label">© <span data-year>2026</span> Rishabh Yadav — happy hacking</span>
+        <a class="label u" href="#top">Back to top</a>
       </div>
     </div>
-
-    <div class="jobs-grid" id="jobsGrid"></div>
-
-  </div>
-
-  <footer>
-    <div class="footer-copy">© FANATICALNERD // h4ppy_h4cking | rishabhyadav.inbox@gmail.com</div>
   </footer>
+  <!-- /partial:footer -->
 
-  <div class="floating-nav" id="floatingNav">
-    <div class="nav-cards" id="navCards"></div>
-    <button class="nav-trigger" id="navTrigger">NAV</button>
-  </div>
-
+  <script src="/assets/site.js" defer></script>
   <script>
-  (function() {
-    const DORKS = [
+  (function () {
+    const BOARDS = [
       {
-        id: "01", title: "DIRECT ATS SEARCH", icon: "search",
-        categories: [
-          { label: "// CLOUD SECURITY", links: [
-            { name: "Greenhouse: Cloud Sec", url: "https://www.google.com/search?q=site:greenhouse.io+%22Cloud+Security%22+%28%22India%22+OR+%22Remote%22%29" },
-            { name: "Lever: Cloud Sec", url: "https://www.google.com/search?q=site:lever.co+%22Cloud+Security%22+%28%22India%22+OR+%22Remote%22%29" },
-            { name: "Workday: Cloud Sec", url: "https://www.google.com/search?q=site:myworkdayjobs.com+%22Cloud+Security%22+%28%22India%22+OR+%22Remote%22%29" }
+        title: 'Straight to the ATS',
+        groups: [
+          { label: 'Cloud security', links: [
+            { name: 'Greenhouse', url: 'https://www.google.com/search?q=site:greenhouse.io+%22Cloud+Security%22+%28%22India%22+OR+%22Remote%22%29' },
+            { name: 'Lever', url: 'https://www.google.com/search?q=site:lever.co+%22Cloud+Security%22+%28%22India%22+OR+%22Remote%22%29' },
+            { name: 'Workday', url: 'https://www.google.com/search?q=site:myworkdayjobs.com+%22Cloud+Security%22+%28%22India%22+OR+%22Remote%22%29' }
           ]},
-          { label: "// SECURITY ANALYST", links: [
-            { name: "Greenhouse: Analyst", url: "https://www.google.com/search?q=site:greenhouse.io+%22Security+Analyst%22+%28%22India%22+OR+%22Remote%22%29" },
-            { name: "Lever: Analyst", url: "https://www.google.com/search?q=site:lever.co+%22Security+Analyst%22+%28%22India%22+OR+%22Remote%22%29" }
+          { label: 'Security analyst', links: [
+            { name: 'Greenhouse', url: 'https://www.google.com/search?q=site:greenhouse.io+%22Security+Analyst%22+%28%22India%22+OR+%22Remote%22%29' },
+            { name: 'Lever', url: 'https://www.google.com/search?q=site:lever.co+%22Security+Analyst%22+%28%22India%22+OR+%22Remote%22%29' }
           ]}
         ]
       },
       {
-        id: "02", title: "LINKEDIN & SOCIAL RECON", icon: "radar",
-        categories: [
-          { label: "// JOB BOARDS", links: [
-            { name: "Cloud Security Engineer", url: "https://www.linkedin.com/jobs/search/?keywords=Cloud%20Security%20Engineer&location=India&f_WT=1%2C2&refresh=true" },
-            { name: "Security Analyst", url: "https://www.linkedin.com/jobs/search/?keywords=Security%20Analyst&location=India&f_WT=1%2C2&refresh=true" }
+        title: 'LinkedIn, minus the feed',
+        groups: [
+          { label: 'Job boards', links: [
+            { name: 'Cloud Security Engineer', url: 'https://www.linkedin.com/jobs/search/?keywords=Cloud%20Security%20Engineer&location=India&f_WT=1%2C2&refresh=true' },
+            { name: 'Security Analyst', url: 'https://www.linkedin.com/jobs/search/?keywords=Security%20Analyst&location=India&f_WT=1%2C2&refresh=true' }
           ]},
-          { label: "// CONTENT SEARCH", links: [
-            { name: "Posts: \"Hiring Cloud Sec\"", url: "https://www.linkedin.com/search/results/content/?keywords=%22hiring%22%20AND%20%22Cloud%20Security%20Engineer%22%20AND%20%22email%22" },
-            { name: "Posts: \"DM Me Analyst\"", url: "https://www.linkedin.com/search/results/content/?keywords=%22looking%20for%22%20AND%20%22Security%20Analyst%22%20AND%20%28%22DM%20me%22%20OR%20%22send%20resume%22%29" }
+          { label: 'Hiring posts', links: [
+            { name: '“Hiring” Cloud Security', url: 'https://www.linkedin.com/search/results/content/?keywords=%22hiring%22%20AND%20%22Cloud%20Security%20Engineer%22%20AND%20%22email%22' },
+            { name: '“DM me” Security Analyst', url: 'https://www.linkedin.com/search/results/content/?keywords=%22looking%20for%22%20AND%20%22Security%20Analyst%22%20AND%20%28%22DM%20me%22%20OR%20%22send%20resume%22%29' }
           ]}
         ]
       },
       {
-        id: "03", title: "GLOBAL AGGREGATORS", icon: "globe",
-        categories: [
-          { label: "// NAUKRI (FILTERED)", links: [
-            { name: "Cloud Security Eng", url: "https://www.naukri.com/cloud-security-engineer-jobs?k=Cloud%20Security%20Engineer" },
-            { name: "Security Analyst", url: "https://www.naukri.com/security-analyst-jobs?k=Security%20Analyst" },
-            { name: "VAPT / Pen Testing", url: "https://www.naukri.com/vapt-jobs?k=VAPT" }
+        title: 'The aggregators',
+        groups: [
+          { label: 'Naukri', links: [
+            { name: 'Cloud Security Engineer', url: 'https://www.naukri.com/cloud-security-engineer-jobs?k=Cloud%20Security%20Engineer' },
+            { name: 'Security Analyst', url: 'https://www.naukri.com/security-analyst-jobs?k=Security%20Analyst' },
+            { name: 'VAPT / Pen testing', url: 'https://www.naukri.com/vapt-jobs?k=VAPT' }
           ]},
-          { label: "// OTHER", links: [
-            { name: "Indeed: Cloud Sec", url: "https://in.indeed.com/jobs?q=Cloud+Security+Engineer&l=India&sort=date" },
-            { name: "Google Jobs Module", url: "https://www.google.com/search?q=Cloud+Security+Engineer+jobs+near+me&ibp=htl;jobs" }
+          { label: 'Other', links: [
+            { name: 'Indeed: Cloud Security', url: 'https://in.indeed.com/jobs?q=Cloud+Security+Engineer&l=India&sort=date' },
+            { name: 'Google Jobs', url: 'https://www.google.com/search?q=Cloud+Security+Engineer+jobs+near+me&ibp=htl;jobs' }
           ]}
         ]
       }
     ];
 
-    const NAV_LINKS = [
-      {name:"HOME",url:"index.html",icon:"home"},
-      {name:"INTEL",url:"intel.html",icon:"radar"},
-      {name:"BLOGS",url:"blogs.html",icon:"book-open"},
-      {name:"REPORTS",url:"Disclosed-Reports/reports_index.html",icon:"file-text"},
-      {name:"PREPPP",url:"interview_ques.html",icon:"cloud"}
-    ];
-
-    const iconSvgs = {
-      home:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
-      radar:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19.07 4.93A10 10 0 0 0 6.99 3.34"/><path d="M4 6h.01"/><path d="M2.29 9.62A10 10 0 1 0 21.31 8.35"/><circle cx="12" cy="12" r="2"/></svg>',
-      'book-open':'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg>',
-      'file-text':'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8l6 6v12a2 2 0 0 1-2 2z"/><path d="M14 2v6h6"/></svg>',
-      cloud:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>',
-      book:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>',
-      lock:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>'
-    };
-
-    // Build job nodes
-    const grid = document.getElementById('jobsGrid');
-    DORKS.forEach((section, idx) => {
-      const node = document.createElement('div');
-      node.className = 'job-node';
-      node.style.transitionDelay = `${idx * 100}ms`;
-      node.innerHTML = `
-        <div class="job-node-header">
-          <div class="job-node-id">NODE_${section.id}</div>
-        </div>
-        <div class="job-node-title">${section.title}</div>
-        ${section.categories.map(cat => `
-          <div class="job-category">
-            <div class="job-category-label">${cat.label}</div>
-            <div class="job-links">
-              ${cat.links.map(l => `<a class="job-link" href="${l.url}" target="_blank">${l.name}</a>`).join('')}
-            </div>
+    const arrow = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="square" aria-hidden="true"><path d="M6 18 18 6"/><path d="M10 6h8"/></svg>';
+    const boards = document.getElementById('boards');
+    boards.innerHTML = BOARDS.map((b, i) => `
+      <article class="board reveal" style="--d:${i * 100}ms">
+        <div class="board__head"><span class="label"><span class="node"></span>${String(i + 1).padStart(2, '0')}</span><h2 class="d3">${b.title}</h2></div>
+        ${b.groups.map(g => `
+          <div class="group">
+            <span class="label">${g.label}</span>
+            <ul class="links">
+              ${g.links.map(l => `<li><a href="${l.url}" target="_blank" rel="noopener">${l.name}${arrow}</a></li>`).join('')}
+            </ul>
           </div>`).join('')}
-        <div class="job-node-footer"><span>ENCRYPTED_NODE</span><span>AUTH: REQUIRED</span></div>`;
-      grid.appendChild(node);
-    });
-
-    // Nav
-    document.getElementById('navCards').innerHTML = NAV_LINKS.map(l =>
-      `<a class="nav-card" href="${l.url}"><div class="nc-icon">${iconSvgs[l.icon]}</div><div class="nc-label">${l.name}</div></a>`
-    ).join('');
-    const floatingNav = document.getElementById('floatingNav');
-    document.getElementById('navTrigger').addEventListener('click', e => { e.stopPropagation(); floatingNav.classList.toggle('open'); });
-    document.addEventListener('click', () => floatingNav.classList.remove('open'));
-    floatingNav.addEventListener('click', e => e.stopPropagation());
-
-    // Ambient particles
-    const canvas = document.getElementById('ambient');
-    const ctx = canvas.getContext('2d');
-    let particles = [];
-    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-    resize(); window.addEventListener('resize', resize);
-    class P {
-      constructor() { this.x=Math.random()*canvas.width; this.y=Math.random()*canvas.height; this.size=Math.random()*1.2+0.4; this.sx=(Math.random()-0.5)*0.25; this.sy=(Math.random()-0.5)*0.25; this.o=Math.random()*0.4+0.1; }
-      update() { this.x+=this.sx; this.y+=this.sy; if(this.x>canvas.width)this.x=0; if(this.x<0)this.x=canvas.width; if(this.y>canvas.height)this.y=0; if(this.y<0)this.y=canvas.height; }
-      draw() { ctx.fillStyle=`rgba(220,38,38,${this.o})`; ctx.beginPath(); ctx.arc(this.x,this.y,this.size,0,Math.PI*2); ctx.fill(); }
-    }
-    for(let i=0;i<90;i++) particles.push(new P());
-    (function loop() { ctx.clearRect(0,0,canvas.width,canvas.height); particles.forEach(p=>{p.update();p.draw();}); requestAnimationFrame(loop); })();
-
-    // Intersection observer
-    const observer = new IntersectionObserver(entries => {
-      entries.forEach(e => { if(e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
-    }, { threshold: 0.1 });
-    document.querySelectorAll('.job-node').forEach(el => observer.observe(el));
-
-    // Header anims
-    setTimeout(() => document.querySelector('.page-header__label').classList.add('visible'), 200);
-    setTimeout(() => document.querySelector('.page-header__title').classList.add('visible'), 350);
-    setTimeout(() => document.querySelector('.page-header__meta').classList.add('visible'), 500);
+      </article>`).join('');
+    // site.js (deferred) runs after this and picks up the .reveal boards
   })();
   </script>
 </body>

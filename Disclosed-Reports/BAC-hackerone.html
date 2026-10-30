@@ -1,366 +1,189 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/x-icon" href="/assets/favicon_io/favicon.ico">
-    <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon_io/favicon-16x16.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon_io/favicon-32x32.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon_io/apple-touch-icon.png">
-    <link rel="manifest" href="/assets/favicon_io/site.webmanifest">
-    <title>BAC | Archive</title>
-    <meta name="description" content="Disclosed HackerOne report on Broken Access Control — a detailed write-up of the vulnerability, impact, and remediation steps.">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg: #000000;
-            --card-bg: #000000;
-            --border: #1a1a1a;
-            --text-main: #f1f5f9;
-            --text-dim: #64748b;
-            --accent-blue: #3b82f6;
-            --accent-maroon: #991b1b;
-            --accent-gold: #d97706;
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Broken access control reports — Rishabh Yadav</title>
+  <meta name="description" content="Authorization bypasses, privilege escalation and IDORs from top public HackerOne disclosures, searchable by program and bounty.">
+  <link rel="canonical" href="https://fanaticalnerd.com/Disclosed-Reports/BAC-hackerone.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="fanaticalnerd">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:url" content="https://fanaticalnerd.com/Disclosed-Reports/BAC-hackerone.html">
+  <meta property="og:title" content="Broken access control reports">
+  <meta property="og:description" content="Authorization bypasses, privilege escalation and IDORs from top public HackerOne disclosures, searchable by program and bounty.">
+  <meta property="og:image" content="https://fanaticalnerd.com/assets/og/reports.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Broken access control reports">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@fanaticalnerd">
+  <meta name="twitter:creator" content="@fanaticalnerd">
+  <meta name="twitter:title" content="Broken access control reports">
+  <meta name="twitter:description" content="Authorization bypasses, privilege escalation and IDORs from top public HackerOne disclosures, searchable by program and bounty.">
+  <meta name="twitter:image" content="https://fanaticalnerd.com/assets/og/reports.jpg">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "CollectionPage",
+        "name": "Broken access control reports",
+        "url": "https://fanaticalnerd.com/Disclosed-Reports/BAC-hackerone.html",
+        "author": {
+          "@type": "Person",
+          "name": "Rishabh Yadav",
+          "url": "https://fanaticalnerd.com/"
         }
-        body {
-            font-family: 'JetBrains Mono', monospace;
-            background-color: var(--bg);
-            color: var(--text-main);
-        }
-        .report-card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border);
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            cursor: pointer;
-        }
-        .report-card:hover {
-            border-color: var(--accent-blue);
-            box-shadow: 0 0 20px rgba(59, 130, 246, 0.1);
-            transform: translateY(-2px);
-        }
-        .search-input {
-            background: #000;
-            border: 1px solid var(--border);
-            color: #fff;
-        }
-        .search-input:focus {
-            border-color: var(--accent-blue);
-            outline: none;
-            box-shadow: 0 0 10px rgba(59, 130, 246, 0.15);
-        }
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: #000;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #1e293b;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: var(--accent-blue);
-        }
-        
-        /* Loading Animation */
-        .loader {
-            border: 2px solid #1e293b;
-            border-top: 2px solid var(--accent-blue);
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Full Screen Transition Overlay */
-        #redirectOverlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            z-index: 9999;
-            background-color: var(--bg);
-            overflow: hidden;
-        }
-
-        .transition-bar {
-            position: absolute;
-            left: 0;
-            width: 100%;
-            height: 0%;
-            background-color: #111827;
-            z-index: 10000;
-        }
-
-        .terminal-content {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 10001;
-            opacity: 0;
-        }
-
-        /* Animations */
-        @keyframes fullWipe {
-            0% { top: 100%; height: 0%; }
-            50% { top: 0%; height: 100%; }
-            100% { top: 0%; height: 100%; }
-        }
-
-        @keyframes contentFade {
-            0% { opacity: 0; transform: translateY(10px); }
-            10% { opacity: 1; transform: translateY(0px); }
-            90% { opacity: 1; transform: translateY(0px); }
-            100% { opacity: 0; }
-        }
-
-        .anim-wipe {
-            animation: fullWipe 0.6s cubic-bezier(0.77, 0, 0.175, 1) forwards;
-        }
-
-        .anim-content {
-            animation: contentFade 0.6s ease forwards;
-        }
-
-        .glitch-text {
-            color: var(--accent-blue);
-            font-weight: 800;
-            font-size: 1.2rem;
-            letter-spacing: 0.2em;
-            text-transform: uppercase;
-        }
-    </style>
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://fanaticalnerd.com/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Reports",
+            "item": "https://fanaticalnerd.com/Disclosed-Reports/reports_index.html"
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "Broken access control reports",
+            "item": "https://fanaticalnerd.com/Disclosed-Reports/BAC-hackerone.html"
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+  <!-- partial:head -->
+  <meta name="theme-color" content="#0e0d0c">
+  <meta name="color-scheme" content="dark light">
+  <link rel="alternate" type="application/rss+xml" title="The notebook — Rishabh Yadav" href="https://fanaticalnerd.com/feed.xml">
+  <link rel="icon" href="/assets/favicon_io/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon_io/favicon-32x32.png">
+  <link rel="apple-touch-icon" href="/assets/favicon_io/apple-touch-icon.png">
+  <link rel="manifest" href="/assets/favicon_io/site.webmanifest">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Martian+Mono:wdth,wght@75..112.5,300..600&family=Schibsted+Grotesk:ital,wght@0,400..800;1,400..800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/site.css">
+  <script>(function(){var d=document.documentElement;d.classList.add('js');try{var t=localStorage.getItem('fn-theme');if(t)d.dataset.theme=t}catch(e){}})()</script>
+  <!-- /partial:head -->
+  <link rel="stylesheet" href="/Disclosed-Reports/reports.css">
 </head>
-<body class="custom-scrollbar min-h-screen">
+<body data-nav="reports" id="top">
+  <a class="skip" href="#main">Skip to content</a>
 
-    <!-- Redirect Overlay -->
-    <div id="redirectOverlay">
-        <div id="transitionBar" class="transition-bar"></div>
-        <div id="terminalContent" class="terminal-content">
-            <span class="glitch-text">Redirecting</span>
-            <p id="redirectTarget" class="text-[10px] text-zinc-500 mt-2 uppercase font-bold tracking-widest"></p>
-        </div>
+  <!-- partial:header -->
+  <header class="hdr">
+    <div class="wrap">
+      <a class="brand" href="/"><span class="node" aria-hidden="true"></span>Rishabh Yadav <small>aka fanaticalnerd</small></a>
+      <nav class="nav" aria-label="Main">
+        <a class="nav__link" href="/#record" data-nav="record" data-scramble>Record</a>
+        <a class="nav__link" href="/#work" data-nav="work" data-scramble>Work</a>
+        <a class="nav__link" href="/blogs.html" data-nav="writing" data-scramble>Writing</a>
+        <a class="nav__link" href="/Disclosed-Reports/reports_index.html" data-nav="reports" aria-current="page" data-scramble>Reports</a>
+        <a class="nav__link" href="/#tools" data-nav="tools" data-scramble>Tools</a>
+        <a class="nav__link" href="/#contact" data-nav="contact" data-scramble>Contact</a>
+        <button class="theme-btn" type="button" data-theme-toggle><svg class="ic" aria-hidden="true"><use href="/assets/icons.svg#theme"/></svg><span data-theme-label>Paper</span></button>
+        <button class="menu-btn" type="button" data-menu-open aria-expanded="false" aria-controls="menu">Menu</button>
+      </nav>
     </div>
+    <span class="hdr__progress" aria-hidden="true"></span>
+  </header>
+  <div class="menu" id="menu" role="dialog" aria-modal="true" aria-label="Site menu">
+    <div class="menu__top">
+      <a class="brand" href="/"><span class="node" aria-hidden="true"></span>Rishabh Yadav</a>
+      <button class="menu-btn" type="button" data-menu-close style="display:inline-flex">Close</button>
+    </div>
+    <ul class="menu__links">
+      <li><a href="/#record"><span>01</span>Record</a></li>
+      <li><a href="/#work"><span>02</span>Work</a></li>
+      <li><a href="/blogs.html"><span>03</span>Writing</a></li>
+      <li><a href="/Disclosed-Reports/reports_index.html"><span>04</span>Reports</a></li>
+      <li><a href="/#tools"><span>05</span>Tools</a></li>
+      <li><a href="/#contact"><span>06</span>Contact</a></li>
+    </ul>
+    <div class="menu__foot">
+      <a class="label" href="https://github.com/rishabhyadavm07" target="_blank" rel="noopener">GitHub</a>
+      <a class="label" href="https://www.linkedin.com/in/rishabhyadavm07" target="_blank" rel="noopener">LinkedIn</a>
+      <a class="label" href="https://twitter.com/fanaticalnerd" target="_blank" rel="noopener">X / Twitter</a>
+      <a class="label" href="mailto:rishabhyadav.inbox@gmail.com">Email</a>
+    </div>
+  </div>
+  <!-- /partial:header -->
 
-    <!-- Technical Header -->
-    <header class="border-b border-zinc-900 bg-black/80 backdrop-blur-md sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-6 py-6">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                    <h1 class="text-xl font-bold tracking-tighter text-white flex items-center gap-2">
-                        <span class="text-[var(--accent-blue)]">&gt;</span> 
-                        Broken Access Control Archive
-                    </h1>
-                </div>
-                <div class="flex items-center gap-4 text-xs">
-                    <div id="statusIndicator" class="flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full bg-[var(--accent-gold)] animate-pulse"></span>
-                        <span class="text-zinc-500 font-bold uppercase tracking-tighter">Syncing_Source...</span>
-                    </div>
-                </div>
-            </div>
-        </div>
+  <main id="main" data-source="BAC-Hackerone.txt">
+    <header class="wrap grid mast">
+      <div class="mast__crumb"><a class="label u" href="/Disclosed-Reports/reports_index.html">← Report library</a></div>
+      <h1 class="mast__title d1" data-split>Broken access <em>control.</em></h1>
+      <p class="mast__intro intro reveal" style="--d:250ms">Authorization bypasses, privilege escalation and IDORs: the bugs that happen when an app asks “who are you?” and forgets to ask “should you?”</p>
+      <div class="filters reveal" style="--d:350ms">
+        <label class="search-field">
+          <span class="sr-only">Search reports</span>
+          <svg aria-hidden="true"><use href="/assets/icons.svg#search"/></svg>
+          <input class="input" type="search" id="search" placeholder="Search titles or programs…" autocomplete="off">
+        </label>
+        <label><span class="sr-only">Program</span><select class="input" id="company"><option value="all">All programs</option></select></label>
+        <label><span class="sr-only">Sort by</span><select class="input" id="sort"><option value="rank">Top ranked</option><option value="bounty">Highest bounty</option><option value="upvotes">Most upvoted</option></select></label>
+      </div>
     </header>
 
-    <main class="max-w-7xl mx-auto px-6 py-10 relative z-10">
-        
-        <!-- Controls -->
-        <div class="flex flex-col lg:flex-row gap-4 mb-10">
-            <div class="relative flex-grow">
-                <input type="text" id="searchInput" placeholder="Search reports..." 
-                    class="search-input w-full px-5 py-3 rounded text-zinc-300 placeholder-zinc-800 transition-all">
-                <span class="absolute right-4 top-3.5 text-zinc-800 text-xs font-bold">TERM</span>
-            </div>
-            
-            <div class="flex gap-4">
-                <select id="companyFilter" class="search-input px-4 py-3 rounded text-zinc-400 text-sm bg-black cursor-pointer uppercase tracking-tighter">
-                    <option value="all">filter --all-companies</option>
-                </select>
-                
-                <div class="flex items-center px-4 py-3 border border-zinc-900 rounded bg-black min-w-[120px]">
-                    <span class="text-xs text-zinc-600 mr-2">INDEX:</span>
-                    <span id="reportCount" class="text-[var(--accent-blue)] font-bold">000</span>
-                </div>
-            </div>
-        </div>
+    <section class="wrap grid library" aria-label="Reports">
+      <div class="results-bar">
+        <span class="d3"><span id="count">0</span> <em>matching</em></span>
+        <span class="status status--busy" id="status" aria-live="polite">Loading…</span>
+      </div>
+      <ol class="index" id="reports" aria-live="polite">
+        <li class="empty">Loading reports…</li>
+      </ol>
+      <div class="more-wrap"><button class="btn" id="more" type="button" hidden>Show more</button></div>
+    </section>
+  </main>
 
-        <!-- Terminal Grid -->
-        <div id="reportsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div class="col-span-full flex items-center justify-center py-20 text-zinc-500 text-sm italic">
-                <div class="loader mr-3"></div> Fetching data ...
-            </div>
-        </div>
+  <!-- partial:footer -->
+  <footer class="ftr">
+    <div class="wrap ftr__grid">
+      <div class="ftr__col">
+        <span class="label">Index</span>
+        <a href="/#record">Record</a>
+        <a href="/#work">Work</a>
+        <a href="/blogs.html">Writing</a>
+        <a href="/Disclosed-Reports/reports_index.html">Reports</a>
+        <a href="/#tools">Tools</a>
+      </div>
+      <div class="ftr__col">
+        <span class="label">Elsewhere</span>
+        <a href="https://github.com/rishabhyadavm07" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://www.linkedin.com/in/rishabhyadavm07" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="https://twitter.com/fanaticalnerd" target="_blank" rel="noopener">X / Twitter</a>
+        <a href="mailto:rishabhyadav.inbox@gmail.com">Email</a>
+      </div>
+      <div class="ftr__col">
+        <span class="label">Colophon</span>
+        <p class="small">Set in Instrument Serif, Schibsted Grotesk and Martian Mono. No frameworks, no trackers.</p>
+      </div>
+      <div class="ftr__col">
+        <span class="label">Local time</span>
+        <span class="d3" data-clock>--:--:--</span>
+        <span class="label">IST · UTC+05:30</span>
+      </div>
+      <div class="ftr__base">
+        <span class="label">© <span data-year>2026</span> Rishabh Yadav — happy hacking</span>
+        <a class="label u" href="#top">Back to top</a>
+      </div>
+    </div>
+  </footer>
+  <!-- /partial:footer -->
 
-        <!-- Empty State -->
-        <div id="emptyState" class="hidden text-center py-40 border border-dashed border-zinc-900 rounded-lg">
-            <h3 class="text-[var(--accent-maroon)] font-bold text-lg mb-2 uppercase">Result: Null</h3>
-            <p class="text-zinc-600 text-sm tracking-tight">Query returned zero matches in the dataset.</p>
-        </div>
-    </main>
-
-    <footer class="py-12 border-t border-zinc-900 text-center relative z-10 bg-black/40">
-        <p class="text-[9px] text-zinc-700 uppercase tracking-[0.4em]">Archive</p>
-    </footer>
-
-    <script>
-        let reports = [];
-
-        async function fetchReports() {
-            const statusIndicator = document.getElementById('statusIndicator');
-            try {
-                const response = await fetch('BAC-Hackerone.txt');
-                if (!response.ok) throw new Error('Source failure');
-                
-                const text = await response.text();
-                parseReports(text);
-                
-                populateCompanyFilter();
-                renderReports();
-                
-                statusIndicator.innerHTML = `
-                    <span class="w-2 h-2 rounded-full bg-[var(--accent-blue)]"></span>
-                    <span class="text-white font-bold uppercase tracking-tighter">SYNCED</span>
-                `;
-            } catch (error) {
-                console.error('Fetch error:', error);
-                document.getElementById('reportsGrid').innerHTML = `
-                    <div class="col-span-full text-center py-20">
-                        <p class="text-[var(--accent-maroon)] font-bold uppercase">Critical: Source_Missing</p>
-                        <p class="text-zinc-600 text-xs mt-2 uppercase">Node connection failed.</p>
-                    </div>
-                `;
-                statusIndicator.innerHTML = `
-                    <span class="w-2 h-2 rounded-full bg-[var(--accent-maroon)]"></span>
-                    <span class="text-zinc-600 uppercase tracking-tighter">Offline</span>
-                `;
-            }
-        }
-
-        function parseReports(data) {
-            const lines = data.split('\n');
-            reports = [];
-            lines.forEach(line => {
-                if (!line.trim()) return;
-                const match = line.match(/(\d+)\.\s+\[(.*)\]\((.*)\)\s+to\s+(.*?)\s+-\s+(\d+)\s+upvotes,\s+\$(.*)/);
-                if (match) {
-                    reports.push({
-                        id: parseInt(match[1]),
-                        title: match[2],
-                        url: match[3],
-                        company: match[4].trim(),
-                        upvotes: parseInt(match[5]),
-                        bounty: match[6].trim()
-                    });
-                }
-            });
-        }
-
-        function populateCompanyFilter() {
-            const companies = [...new Set(reports.map(r => r.company))].sort();
-            const filter = document.getElementById('companyFilter');
-            filter.innerHTML = '<option value="all">filter --all-companies</option>';
-            companies.forEach(company => {
-                const opt = document.createElement('option');
-                opt.value = company;
-                opt.textContent = `filter --${company.toLowerCase().replace(/\s+/g, '-')}`;
-                filter.appendChild(opt);
-            });
-        }
-
-        function handleRedirect(event, url, company) {
-            event.preventDefault();
-            const overlay = document.getElementById('redirectOverlay');
-            const bar = document.getElementById('transitionBar');
-            const content = document.getElementById('terminalContent');
-            const targetLabel = document.getElementById('redirectTarget');
-            
-            // targetLabel.innerText = `Redirecting to ${company}...`;
-            overlay.style.display = 'block';
-            bar.classList.add('anim-wipe');
-            content.classList.add('anim-content');
-
-            setTimeout(() => {
-                window.location.href = url;
-            }, 550);
-        }
-
-        function createReportCard(report) {
-            const bountyValue = parseInt(report.bounty.replace(/,/g, '')) || 0;
-            
-            let bountyColor = 'text-[var(--accent-blue)]';
-            if (bountyValue >= 10000) {
-                bountyColor = 'text-[var(--accent-maroon)]';
-            } else if (bountyValue >= 3000) {
-                bountyColor = 'text-[var(--accent-gold)]';
-            }
-
-            return `
-                <div onclick="handleRedirect(event, '${report.url}', '${report.company}')" class="report-card p-6 flex flex-col justify-between h-full relative overflow-hidden group">
-                    <div class="absolute top-0 left-0 w-1 h-full bg-transparent group-hover:bg-[var(--accent-blue)] transition-all"></div>
-                    <div>
-                        <div class="flex justify-between items-start mb-4">
-                            <span class="text-[10px] font-bold text-blue-400/40 bg-zinc-900 px-2 py-0.5 rounded border border-zinc-800 uppercase tracking-tighter">
-                                ${report.company}
-                            </span>
-                            <span class="text-xs font-bold ${bountyColor}">
-                                $${report.bounty}
-                            </span>
-                        </div>
-                        <h3 class="text-sm font-medium text-slate-400 leading-relaxed mb-6 group-hover:text-white transition-colors">
-                            ${report.title}
-                        </h3>
-                    </div>
-                    <div class="mt-auto pt-4 flex items-center justify-between opacity-30 text-[9px] font-bold tracking-tighter uppercase">
-                        <div class="flex items-center gap-2 group-hover:text-white group-hover:opacity-100 transition-all">
-                            <span>Upv:</span>
-                            <span>${report.upvotes}</span>
-                        </div>
-                        <div class="group-hover:text-white group-hover:opacity-100 transition-all">
-                            REF:${report.id.toString().padStart(4, '0')}
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        function renderReports() {
-            const searchVal = document.getElementById('searchInput').value.toLowerCase();
-            const companyVal = document.getElementById('companyFilter').value;
-            const grid = document.getElementById('reportsGrid');
-            const emptyState = document.getElementById('emptyState');
-
-            const filtered = reports.filter(r => {
-                const matchesSearch = r.title.toLowerCase().includes(searchVal) || 
-                                     r.company.toLowerCase().includes(searchVal);
-                const matchesCompany = companyVal === 'all' || r.company === companyVal;
-                return matchesSearch && matchesCompany;
-            });
-
-            grid.innerHTML = filtered.map(createReportCard).join('');
-            document.getElementById('reportCount').innerText = filtered.length.toString().padStart(3, '0');
-
-            if (filtered.length === 0) {
-                grid.classList.add('hidden');
-                emptyState.classList.remove('hidden');
-            } else {
-                grid.classList.remove('hidden');
-                emptyState.classList.add('hidden');
-            }
-        }
-
-        function init() {
-            fetchReports();
-            document.getElementById('searchInput').addEventListener('input', renderReports);
-            document.getElementById('companyFilter').addEventListener('change', renderReports);
-        }
-
-        window.onload = init;
-    </script>
+  <script src="/assets/site.js" defer></script>
+  <script src="/Disclosed-Reports/reports.js" defer></script>
 </body>
 </html>

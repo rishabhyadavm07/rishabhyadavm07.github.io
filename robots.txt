@@ -1,5 +1,7 @@
 User-agent: *
-Disallow: /blog-template.html
-Disallow: /blog.html
- 
+Allow: /
+Disallow: /auto/
+Disallow: /partials/
+Disallow: /vendor/
+
 Sitemap: https://fanaticalnerd.com/sitemap.xml

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg">
+  <!-- fanaticalnerd icon set. 24px grid, 1.25 stroke, square caps, mitred joins.
+       Arrows are single-barb "harpoons"; accent parts read the ic-accent custom property.
+       Use: <svg class="ic"><use href="/assets/icons.svg#name"/></svg> -->
+  <symbol id="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="square" stroke-linejoin="miter"><path d="M3 12h17"/><path d="M14.5 6.5 20 12"/></symbol>
+  <symbol id="arrow-l" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="square" stroke-linejoin="miter"><path d="M21 12H4"/><path d="M9.5 6.5 4 12"/></symbol>
+  <symbol id="arrow-ne" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="square" stroke-linejoin="miter"><path d="M6 18 18 6"/><path d="M10 6h8"/></symbol>
+  <symbol id="download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="square" stroke-linejoin="miter"><path d="M12 3v13"/><path d="M6.5 10.5 12 16"/><path d="M4 21h16"/><rect x="18" y="17" width="2" height="2" style="fill:var(--ic-accent,currentColor);stroke:none"/></symbol>
+  <symbol id="search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="square" stroke-linejoin="miter"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5"/><rect x="9.5" y="9.5" width="2" height="2" style="fill:var(--ic-accent,currentColor);stroke:none"/></symbol>
+  <symbol id="copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="square" stroke-linejoin="miter"><path d="M8 8h12v12H8z"/><path d="M16 4H4v12"/></symbol>
+  <symbol id="refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="square" stroke-linejoin="miter"><path d="M19 12a7 7 0 1 1-2.05-4.95"/><path d="M16.95 7.05V2.5"/><rect x="11" y="11" width="2" height="2" style="fill:var(--ic-accent,currentColor);stroke:none"/></symbol>
+  <symbol id="sliders" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="square" stroke-linejoin="miter"><path d="M3 8h18"/><path d="M3 16h18"/><rect x="13" y="6" width="4" height="4" style="fill:var(--bg,#000)"/><rect x="6" y="14" width="4" height="4" style="fill:var(--ic-accent,currentColor);stroke:var(--ic-accent,currentColor)"/></symbol>
+  <symbol id="mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="square" stroke-linejoin="miter"><path d="M3 5.5h18v13H3z"/><path d="m3 5.5 9 7 9-7"/></symbol>
+  <symbol id="theme" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 0 0 16z" style="fill:currentColor;stroke:none"/></symbol>
+  <symbol id="close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="square"><path d="m5 5 14 14"/><path d="M19 5 5 19"/></symbol>
+  <symbol id="node" viewBox="0 0 24 24"><rect x="8" y="8" width="8" height="8" style="fill:var(--ic-accent,currentColor)"/></symbol>
+</svg>

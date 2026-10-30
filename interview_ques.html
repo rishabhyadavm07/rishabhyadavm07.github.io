@@ -2,629 +2,422 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <link rel="icon" type="image/x-icon" href="/assets/favicon_io/favicon.ico">
-  <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon_io/favicon-16x16.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cloud security interview prep — Rishabh Yadav</title>
+  <meta name="description" content="Searchable cloud security interview questions from the Peachy Cloud Security sheet, with optional AI talking points from your own Gemini key.">
+  <link rel="canonical" href="https://fanaticalnerd.com/interview_ques.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="fanaticalnerd">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:url" content="https://fanaticalnerd.com/interview_ques.html">
+  <meta property="og:title" content="Cloud security interview prep">
+  <meta property="og:description" content="Searchable cloud security interview questions from the Peachy Cloud Security sheet, with optional AI talking points from your own Gemini key.">
+  <meta property="og:image" content="https://fanaticalnerd.com/assets/og/interview.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Cloud security interview prep">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@fanaticalnerd">
+  <meta name="twitter:creator" content="@fanaticalnerd">
+  <meta name="twitter:title" content="Cloud security interview prep">
+  <meta name="twitter:description" content="Searchable cloud security interview questions from the Peachy Cloud Security sheet, with optional AI talking points from your own Gemini key.">
+  <meta name="twitter:image" content="https://fanaticalnerd.com/assets/og/interview.jpg">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebPage",
+        "name": "Cloud security interview prep",
+        "url": "https://fanaticalnerd.com/interview_ques.html",
+        "author": {
+          "@type": "Person",
+          "name": "Rishabh Yadav",
+          "url": "https://fanaticalnerd.com/"
+        }
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://fanaticalnerd.com/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Tools",
+            "item": "https://fanaticalnerd.com/#tools"
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "Interview prep",
+            "item": "https://fanaticalnerd.com/interview_ques.html"
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+  <!-- partial:head -->
+  <meta name="theme-color" content="#0e0d0c">
+  <meta name="color-scheme" content="dark light">
+  <link rel="alternate" type="application/rss+xml" title="The notebook — Rishabh Yadav" href="https://fanaticalnerd.com/feed.xml">
+  <link rel="icon" href="/assets/favicon_io/favicon.ico" sizes="any">
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon_io/favicon-32x32.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon_io/apple-touch-icon.png">
+  <link rel="apple-touch-icon" href="/assets/favicon_io/apple-touch-icon.png">
   <link rel="manifest" href="/assets/favicon_io/site.webmanifest">
-  <title>Interview Prep | fanaticalnerd</title>
-  <meta name="description" content="Curated cybersecurity and technical interview questions to help you prep for security roles — from web vulnerabilities to system design.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700;800&family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Martian+Mono:wdth,wght@75..112.5,300..600&family=Schibsted+Grotesk:ital,wght@0,400..800;1,400..800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/site.css">
+  <script>(function(){var d=document.documentElement;d.classList.add('js');try{var t=localStorage.getItem('fn-theme');if(t)d.dataset.theme=t}catch(e){}})()</script>
+  <!-- /partial:head -->
   <style>
-    :root {
-      --crimson: #dc2626;
-      --crimson-dim: rgba(220, 38, 38, 0.12);
-      --crimson-glow: rgba(220, 38, 38, 0.45);
-      --black: #020202;
-      --void: #050505;
-      --surface: #0a0a0a;
-      --elevated: #111111;
-      --border: #1a1a1a;
-      --text: #dddddd;
-      --text-dim: #888888;
-      --text-faint: #3a3a3a;
+    .toolbar { grid-column: 4 / -1; margin-top: 36px; display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 12px; align-items: center; }
+    .toolbar .status { grid-column: 1 / -1; }
+    .layout { padding-bottom: clamp(80px, 12vw, 168px); align-items: start; }
+    #questions { grid-column: 1 / 9; }
+    .aside { grid-column: 9 / -1; position: sticky; top: calc(var(--header-h) + 24px); display: grid; gap: 40px; padding-left: clamp(0px, 2vw, 24px); }
+    @media (max-width: 960px) {
+      .toolbar { grid-column: 1 / -1; grid-template-columns: 1fr 1fr; }
+      .toolbar .search-field { grid-column: 1 / -1; }
+      #questions, .aside { grid-column: 1 / -1; }
+      .aside { position: static; order: -1; padding: 0 0 48px; }
     }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body { height: 100%; }
-    body {
-      font-family: 'JetBrains Mono', monospace;
-      background-color: var(--black);
-      color: var(--text);
-      overflow: hidden;
-    }
-    ::selection { background: var(--crimson); color: #fff; }
-    ::-webkit-scrollbar { width: 3px; }
-    ::-webkit-scrollbar-thumb { background: var(--crimson); }
-    ::-webkit-scrollbar-track { background: transparent; }
-
-    #ambient { position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0.35; }
-    .scanline { position: fixed; top: 0; left: 0; width: 100%; height: 2px; background: var(--crimson); opacity: 0.07; z-index: 50; pointer-events: none; animation: scan 7s linear infinite; }
-    @keyframes scan { 0%{top:-5%} 100%{top:105%} }
-    .noise { position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: 0.025; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); background-repeat: repeat; background-size: 256px; }
-    .vignette { position: fixed; inset: 0; z-index: 2; pointer-events: none; background: radial-gradient(circle at center, transparent 0%, var(--black) 100%); }
-
-    /* ─── App Shell ─── */
-    .app-shell {
-      position: relative; z-index: 10;
-      display: flex; flex-direction: column;
-      height: 100vh; padding: 32px 32px 0;
-    }
-
-    /* ─── Header ─── */
-    .app-header {
-      display: flex; align-items: flex-start; justify-content: space-between;
-      flex-wrap: wrap; gap: 20px; padding-bottom: 28px;
-      border-bottom: 1px solid var(--border); flex-shrink: 0;
-    }
-    .header-left {}
-    .header-label {
-      font-size: 10px; letter-spacing: 0.4em; color: var(--crimson);
-      text-transform: uppercase; font-weight: 800; margin-bottom: 12px;
-      display: flex; align-items: center; gap: 10px;
-    }
-    .header-label::before { content: ''; display: block; width: 24px; height: 1px; background: var(--crimson); }
-    .header-title {
-      font-family: 'Inter', sans-serif; font-size: clamp(1.2rem, 3vw, 1.8rem);
-      font-weight: 800; line-height: 1; letter-spacing: -0.03em; color: #fff;
-      margin-bottom: 12px;
-    }
-    .header-sub { font-size: 10px; letter-spacing: 0.2em; color: var(--text-faint); text-transform: uppercase; }
-    .header-sub span { color: var(--crimson); }
-
-    .header-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-    .ctrl-badge {
-      font-size: 10px; font-weight: 700; letter-spacing: 0.15em; padding: 10px 16px;
-      border: 1px solid var(--border); color: var(--text-faint); background: var(--surface);
-      text-transform: uppercase; cursor: default;
-    }
-    .ctrl-btn {
-      font-size: 10px; font-weight: 700; letter-spacing: 0.15em; padding: 10px 18px;
-      border: 1px solid var(--border); color: var(--text-faint); background: transparent;
-      font-family: 'JetBrains Mono', monospace; text-transform: uppercase; cursor: pointer;
-      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .ctrl-btn:hover { border-color: var(--crimson); color: var(--crimson); background: var(--crimson-dim); }
-    .ctrl-btn:active { transform: scale(0.95); }
-    .search-wrap { position: relative; }
-    .search-input {
-      background: var(--surface); border: 1px solid var(--border); color: var(--text);
-      font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 400;
-      padding: 10px 18px; outline: none; width: min(240px, 100%); caret-color: var(--crimson);
-      transition: border-color 0.3s;
-    }
-    .search-input::placeholder { color: var(--text-faint); }
-    .search-input:focus { border-color: rgba(220,38,38,0.5); }
-
-    /* ─── Main layout ─── */
-    .app-main {
-      flex: 1; min-height: 0;
-      display: grid; grid-template-columns: 1fr 420px; gap: 20px;
-      padding-top: 24px; padding-bottom: 80px; overflow: hidden;
-    }
-
-    /* ─── Question list ─── */
-    .questions-panel { display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
-    .questions-scroll { flex: 1; overflow-y: auto; padding-right: 8px; }
-    .questions-scroll::-webkit-scrollbar { width: 2px; }
-    .questions-scroll::-webkit-scrollbar-thumb { background: var(--crimson); }
-
-    /* Category header */
-    .cat-header {
-      display: flex; align-items: center; gap: 12px;
-      padding: 8px 0 12px; position: sticky; top: 0;
-      background: rgba(2,2,2,0.95); backdrop-filter: blur(8px); z-index: 5;
-      margin-bottom: 12px;
-    }
-    .cat-header::before, .cat-header::after { content: ''; flex: 1; height: 1px; background: var(--border); }
-    .cat-title {
-      font-size: 9px; font-weight: 800; letter-spacing: 0.4em; color: var(--crimson);
-      text-transform: uppercase; padding: 6px 16px; border: 1px solid var(--border);
-      background: var(--elevated); white-space: nowrap;
-    }
-    .cat-section { margin-bottom: 32px; }
-
-    /* Question button */
-    .q-btn {
-      width: 100%; text-align: left; background: var(--elevated); border: 1px solid var(--border);
-      border-left: 2px solid var(--text-faint); color: inherit; font-family: 'JetBrains Mono', monospace;
-      padding: 16px 20px; margin-bottom: 8px; cursor: pointer; display: flex; align-items: flex-start; gap: 14px;
-      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); position: relative; overflow: hidden;
-    }
-    .q-btn::before {
-      content: ''; position: absolute; inset: 0;
-      background: linear-gradient(90deg, var(--crimson-dim), transparent);
-      opacity: 0; transition: opacity 0.3s;
-    }
-    .q-btn:hover::before, .q-btn.active::before { opacity: 1; }
-    .q-btn:hover, .q-btn.active { border-left-color: var(--crimson); border-color: rgba(220,38,38,0.3); }
-    .q-btn.active { box-shadow: 0 0 20px rgba(220,38,38,0.1); }
-    .q-num { font-size: 10px; color: var(--text-faint); font-weight: 700; min-width: 24px; padding-top: 1px; flex-shrink: 0; transition: color 0.3s; }
-    .q-btn:hover .q-num, .q-btn.active .q-num { color: var(--crimson); }
-    .q-text { font-size: 12px; color: var(--text-dim); line-height: 1.6; font-weight: 400; flex: 1; transition: color 0.3s; }
-    .q-btn:hover .q-text, .q-btn.active .q-text { color: var(--text); }
-    .q-arrow { font-size: 12px; color: var(--text-faint); flex-shrink: 0; transition: color 0.3s; padding-top: 1px; }
-    .q-btn:hover .q-arrow, .q-btn.active .q-arrow { color: var(--crimson); }
-
-    /* Loading & error states */
-    .state-box {
-      background: var(--elevated); border: 1px solid var(--border); border-left: 2px solid var(--crimson);
-      padding: 40px; text-align: center;
-    }
-    .state-text { font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--text-faint); font-weight: 700; animation: flicker 2s ease-in-out infinite; }
-    @keyframes flicker { 0%,100%{opacity:0.4} 50%{opacity:1} }
-    .state-error { color: var(--crimson); }
-    .retry-btn {
-      margin-top: 20px; background: transparent; border: 1px solid var(--crimson); color: var(--crimson);
-      font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; letter-spacing: 0.2em;
-      padding: 10px 24px; cursor: pointer; text-transform: uppercase;
-      transition: background 0.3s;
-    }
-    .retry-btn:hover { background: var(--crimson-dim); }
-
-    /* ─── Right panel (AI + credits) ─── */
-    .aside-panel { display: flex; flex-direction: column; gap: 16px; min-height: 0; overflow-y: auto; }
-    .aside-panel::-webkit-scrollbar { width: 2px; }
-    .aside-panel::-webkit-scrollbar-thumb { background: var(--crimson); }
-
-    /* Credits card */
-    .credits-card {
-      background: var(--elevated); border: 1px solid var(--border);
-      border-top: 2px solid var(--crimson); padding: 24px; flex-shrink: 0;
-    }
-    .credits-label { font-size: 9px; color: var(--text-faint); letter-spacing: 0.3em; text-transform: uppercase; font-weight: 700; margin-bottom: 16px; }
-    .credit-row { margin-bottom: 14px; }
-    .credit-role { font-size: 9px; color: var(--text-faint); letter-spacing: 0.2em; text-transform: uppercase; font-weight: 700; margin-bottom: 4px; }
-    .credit-name { font-size: 13px; color: #ddd; font-weight: 700; }
-    .credit-link { font-size: 12px; color: var(--crimson); text-decoration: none; font-weight: 700; transition: opacity 0.3s; }
-    .credit-link:hover { opacity: 0.7; }
-
-    /* AI card */
-    .ai-card { background: var(--elevated); border: 1px solid var(--border); border-top: 2px solid rgba(220,38,38,0.4); flex-shrink: 0; }
-    .ai-card-header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 14px 20px; border-bottom: 1px solid var(--border); background: rgba(10,10,10,0.8);
-    }
-    .ai-card-title { font-size: 10px; font-weight: 800; letter-spacing: 0.2em; color: #fff; text-transform: uppercase; }
-    .ai-status { font-size: 8px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; }
-    .ai-status.connected { color: var(--text-faint); }
-    .ai-status.offline { color: var(--crimson); }
-    .ai-status.loading { color: #f59e0b; animation: flicker 1.5s ease-in-out infinite; }
-    .ai-body { padding: 20px; min-height: 300px; }
-
-    .ai-idle { display: flex; align-items: center; justify-content: center; height: 260px; }
-    .ai-idle-text {
-      font-size: 10px; letter-spacing: 0.3em; color: var(--text-faint);
-      text-transform: uppercase; font-weight: 700; border: 1px solid var(--border);
-      padding: 16px 24px; animation: flicker 3s ease-in-out infinite;
-    }
-
-    .ai-result { display: flex; flex-direction: column; gap: 16px; }
-    .ai-block-label { font-size: 9px; color: var(--crimson); font-weight: 800; letter-spacing: 0.3em; text-transform: uppercase; margin-bottom: 8px; }
-    .ai-block-content {
-      background: rgba(10,10,10,0.8); border: 1px solid var(--border); border-left: 3px solid var(--crimson);
-      padding: 14px 16px; font-size: 12px; color: #bbb; line-height: 1.65; font-weight: 400;
-    }
-    .ai-block-content.strategy { border-left-color: var(--text-faint); font-style: italic; color: var(--text-dim); }
-    .ai-warning {
-      font-size: 9px; color: var(--text-faint); letter-spacing: 0.15em; text-transform: uppercase;
-      border-top: 1px solid var(--border); padding-top: 12px; margin-top: 4px;
-    }
-    .ai-warning span { color: var(--crimson); }
-
-    .ai-offline-box {
-      display: flex; flex-direction: column; gap: 14px; border: 1px solid rgba(220,38,38,0.2);
-      background: rgba(220,38,38,0.03); padding: 20px;
-    }
-    .ai-offline-text { font-size: 11px; color: var(--text-dim); line-height: 1.7; }
-    .ai-config-btn {
-      background: transparent; border: 1px solid var(--border); color: var(--text-faint);
-      font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; letter-spacing: 0.15em;
-      padding: 10px 20px; cursor: pointer; text-transform: uppercase;
-      transition: all 0.35s; align-self: flex-start;
-    }
-    .ai-config-btn:hover { border-color: var(--crimson); color: var(--crimson); background: var(--crimson-dim); }
-
-    /* Config modal */
-    .modal-overlay {
-      position: fixed; inset: 0; z-index: 500; background: rgba(0,0,0,0.92); backdrop-filter: blur(12px);
-      display: flex; align-items: center; justify-content: center; padding: 24px;
-    }
-    .modal-overlay.hidden { display: none; }
-    .modal-box { background: var(--elevated); border: 1px solid rgba(220,38,38,0.3); padding: 40px; max-width: 480px; width: min(480px, 90vw); }
-    .modal-title { font-family: 'Inter', sans-serif; font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 8px; letter-spacing: -0.02em; }
-    .modal-desc { font-size: 10px; color: var(--text-faint); letter-spacing: 0.15em; text-transform: uppercase; line-height: 1.8; margin-bottom: 28px; }
-    .modal-input {
-      width: 100%; background: var(--surface); border: 1px solid var(--border); color: var(--text);
-      font-family: 'JetBrains Mono', monospace; font-size: 12px; padding: 14px 16px; outline: none;
-      caret-color: var(--crimson); transition: border-color 0.3s; margin-bottom: 16px;
-    }
-    .modal-input:focus { border-color: rgba(220,38,38,0.5); }
-    .modal-input::placeholder { color: var(--text-faint); }
-    .modal-actions { display: flex; gap: 10px; }
-    .modal-submit {
-      flex: 1; background: var(--crimson); color: #fff; border: none;
-      font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 800;
-      letter-spacing: 0.3em; padding: 14px; cursor: pointer; text-transform: uppercase;
-      transition: background 0.3s; box-shadow: 0 4px 20px rgba(220,38,38,0.3);
-    }
-    .modal-submit:hover { background: #b91c1c; }
-    .modal-cancel {
-      background: transparent; border: 1px solid var(--border); color: var(--text-faint);
-      font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700;
-      letter-spacing: 0.2em; padding: 14px 20px; cursor: pointer; text-transform: uppercase;
-      transition: border-color 0.3s;
-    }
-    .modal-cancel:hover { border-color: var(--text-dim); color: var(--text); }
-
-    /* ─── Floating Nav ─── */
-    .floating-nav {
-      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
-      z-index: 1000; display: flex; flex-direction: column; align-items: center; gap: 16px;
-    }
-    .nav-cards {
-      display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; max-width: 90vw;
-      opacity: 0; transform: translateY(30px) scale(0.9); pointer-events: none;
-      transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .floating-nav:hover .nav-cards, .floating-nav.open .nav-cards { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
-    .nav-card {
-      width: 82px; height: 92px; background: rgba(12,12,12,0.95);
-      backdrop-filter: blur(16px); border: 1px solid var(--border); border-radius: 14px;
-      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
-      text-decoration: none; color: var(--text-dim);
-      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-      opacity: 0; transform: translateY(20px) scale(0.7); position: relative; overflow: hidden;
-    }
-    .nav-card::before { content: ''; position: absolute; inset: 0; border-radius: 14px; background: radial-gradient(circle at 50% 0%, rgba(220,38,38,0.15), transparent 70%); opacity: 0; transition: opacity 0.4s; }
-    .nav-card:hover::before { opacity: 1; }
-    .floating-nav:hover .nav-card, .floating-nav.open .nav-card { opacity: 1; transform: translateY(0) scale(1); }
-    .nav-card:nth-child(1){transition-delay:.04s} .nav-card:nth-child(2){transition-delay:.08s} .nav-card:nth-child(3){transition-delay:.12s} .nav-card:nth-child(4){transition-delay:.16s} .nav-card:nth-child(5){transition-delay:.20s} .nav-card:nth-child(6){transition-delay:.24s}
-    .nav-card:hover { border-color: var(--crimson); color: #fff; transform: translateY(-10px) scale(1.12) !important; box-shadow: 0 20px 40px rgba(0,0,0,0.6), 0 0 20px rgba(220,38,38,0.2); }
-    .nav-card:hover .nc-icon { color: var(--crimson); }
-    .nc-icon { width: 20px; height: 20px; position: relative; z-index: 1; }
-    .nc-label { font-size: 8px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; position: relative; z-index: 1; }
-    .nav-trigger {
-      padding: 14px 48px; background: var(--crimson); color: #fff;
-      font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 800;
-      letter-spacing: 0.5em; cursor: pointer; border: none; border-radius: 40px;
-      position: relative; overflow: hidden;
-      box-shadow: 0 8px 32px rgba(220,38,38,0.35), 0 0 0 1px rgba(220,38,38,0.5);
-      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .nav-trigger:hover { background: #b91c1c; letter-spacing: 0.65em; transform: translateY(-2px); }
-    .nav-trigger:active { transform: scale(0.95); }
-    .nav-trigger::after { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent); animation: shine 3s ease-in-out infinite; }
-    @keyframes shine { 0%,100%{left:-100%} 50%{left:100%} }
-
-    @media (max-width: 900px) {
-      .app-shell { padding: 20px 16px 0; overflow-y: auto; }
-      body { overflow: auto; }
-      .app-main { grid-template-columns: 1fr; overflow: visible; height: auto; padding-bottom: 120px; }
-      /* Questions first, AI panel at the bottom */
-      .questions-panel { order: 1; min-height: 60vh; }
-      .aside-panel { overflow: visible; order: 2; }
-      .floating-nav { bottom: 16px; }
-      .nav-card { width: 66px; height: 76px; }
-      .nc-label { font-size: 7px; }
-      .nav-trigger { padding: 12px 32px; font-size: 9px; letter-spacing: 0.35em; }
-      /* Keep controls as a wrapping row, not a column */
-      .header-controls { flex-wrap: wrap; align-items: center; gap: 8px; }
-      .search-input { width: 100%; }
-      .ctrl-btn, .ctrl-badge { font-size: 9px; padding: 8px 12px; letter-spacing: 0.1em; }
-    }
-    @media (max-width: 480px) {
-      .app-shell { padding: 16px 12px 0; }
-      .ctrl-btn, .ctrl-badge { font-size: 8px; padding: 7px 10px; }
-      .modal-box { padding: 24px 20px; }
-      .modal-title { font-size: 16px; }
-      .modal-actions { flex-direction: column; }
-      .modal-submit, .modal-cancel { width: 100%; }
-      .nav-cards { gap: 6px; }
-      .nav-card { width: 56px; height: 64px; }
-      .nc-label { font-size: 6px; }
-      .nav-trigger { padding: 10px 24px; letter-spacing: 0.25em; }
-    }
+    .cat + .cat { margin-top: 64px; }
+    .cat__head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--line-2); }
+    .q-list { list-style: none; }
+    .q { width: 100%; display: grid; grid-template-columns: 40px minmax(0, 1fr) 20px; gap: 12px; align-items: baseline; padding: 16px 0; text-align: left; border-bottom: 1px solid var(--line); font-size: 16.5px; line-height: 1.5; transition: padding 0.5s var(--ease), color 0.25s; }
+    .q:hover { padding-left: 8px; }
+    .q[aria-pressed="true"] { color: var(--accent-text); padding-left: 8px; }
+    .q__num { font: 400 11px var(--f-mono); font-stretch: 87.5%; color: var(--fg-3); }
+    .q svg { width: 18px; height: 18px; color: var(--fg-3); align-self: center; }
+    .q[aria-pressed="true"] svg, .q:hover svg { color: currentColor; }
+    .state { padding: 48px 24px; text-align: center; color: var(--fg-2); border: 1px dashed var(--line-2); }
+    .state--error { color: var(--accent-text); }
+    .state .btn { margin-top: 18px; }
+    .panel { display: grid; gap: 16px; padding-top: 18px; border-top: 1px solid var(--line-2); }
+    .panel__head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+    .ai__q { font-family: var(--f-display); font-size: 1.35rem; line-height: 1.2; }
+    .ai__label { font: 400 11px var(--f-mono); font-stretch: 87.5%; text-transform: uppercase; color: var(--fg-3); margin-bottom: 6px; }
+    .ai__body { display: grid; gap: 18px; font-size: 15.5px; }
+    .ai__warn { font-size: 13.5px; color: var(--fg-3); }
+    .credit { display: grid; gap: 4px; font-size: 15px; }
+    .credit dt { font: 400 11px var(--f-mono); font-stretch: 87.5%; text-transform: uppercase; color: var(--fg-3); }
+    .credit dd + dt { margin-top: 12px; }
+    dialog { margin: auto; width: min(92vw, 480px); padding: 32px; background: var(--bg); color: var(--fg); border: 1px solid var(--line-2); }
+    dialog::backdrop { background: rgba(0, 0, 0, 0.7); }
+    dialog h2 { margin-bottom: 12px; }
+    dialog p { color: var(--fg-2); font-size: 15px; margin-bottom: 20px; }
+    dialog .actions { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; margin-top: 20px; }
   </style>
 </head>
-<body>
-  <canvas id="ambient"></canvas>
-  <div class="noise"></div>
-  <div class="vignette"></div>
-  <div class="scanline"></div>
+<body data-nav="tools" id="top">
+  <a class="skip" href="#main">Skip to content</a>
 
-  <!-- Config Modal -->
-  <div class="modal-overlay hidden" id="modalOverlay">
-    <div class="modal-box">
-      <div class="modal-title">Tactical_Config</div>
-      <div class="modal-desc">Provide your Gemini API key to enable AI tactical suggestions. Key is stored locally in your browser and never sent to a server.</div>
-      <form id="configForm">
-        <input class="modal-input" type="password" name="apiKey" id="apiKeyInput" placeholder="GEMINI_API_KEY_STRING..." required>
-        <div class="modal-actions">
-          <button type="submit" class="modal-submit">ESTABLISH_AI_LINK</button>
-          <button type="button" class="modal-cancel" id="modalCancel">CANCEL</button>
-        </div>
-      </form>
+  <!-- partial:header -->
+  <header class="hdr">
+    <div class="wrap">
+      <a class="brand" href="/"><span class="node" aria-hidden="true"></span>Rishabh Yadav <small>aka fanaticalnerd</small></a>
+      <nav class="nav" aria-label="Main">
+        <a class="nav__link" href="/#record" data-nav="record" data-scramble>Record</a>
+        <a class="nav__link" href="/#work" data-nav="work" data-scramble>Work</a>
+        <a class="nav__link" href="/blogs.html" data-nav="writing" data-scramble>Writing</a>
+        <a class="nav__link" href="/Disclosed-Reports/reports_index.html" data-nav="reports" data-scramble>Reports</a>
+        <a class="nav__link" href="/#tools" data-nav="tools" aria-current="page" data-scramble>Tools</a>
+        <a class="nav__link" href="/#contact" data-nav="contact" data-scramble>Contact</a>
+        <button class="theme-btn" type="button" data-theme-toggle><svg class="ic" aria-hidden="true"><use href="/assets/icons.svg#theme"/></svg><span data-theme-label>Paper</span></button>
+        <button class="menu-btn" type="button" data-menu-open aria-expanded="false" aria-controls="menu">Menu</button>
+      </nav>
+    </div>
+    <span class="hdr__progress" aria-hidden="true"></span>
+  </header>
+  <div class="menu" id="menu" role="dialog" aria-modal="true" aria-label="Site menu">
+    <div class="menu__top">
+      <a class="brand" href="/"><span class="node" aria-hidden="true"></span>Rishabh Yadav</a>
+      <button class="menu-btn" type="button" data-menu-close style="display:inline-flex">Close</button>
+    </div>
+    <ul class="menu__links">
+      <li><a href="/#record"><span>01</span>Record</a></li>
+      <li><a href="/#work"><span>02</span>Work</a></li>
+      <li><a href="/blogs.html"><span>03</span>Writing</a></li>
+      <li><a href="/Disclosed-Reports/reports_index.html"><span>04</span>Reports</a></li>
+      <li><a href="/#tools"><span>05</span>Tools</a></li>
+      <li><a href="/#contact"><span>06</span>Contact</a></li>
+    </ul>
+    <div class="menu__foot">
+      <a class="label" href="https://github.com/rishabhyadavm07" target="_blank" rel="noopener">GitHub</a>
+      <a class="label" href="https://www.linkedin.com/in/rishabhyadavm07" target="_blank" rel="noopener">LinkedIn</a>
+      <a class="label" href="https://twitter.com/fanaticalnerd" target="_blank" rel="noopener">X / Twitter</a>
+      <a class="label" href="mailto:rishabhyadav.inbox@gmail.com">Email</a>
     </div>
   </div>
+  <!-- /partial:header -->
 
-  <div class="app-shell">
-
-    <!-- Header -->
-    <header class="app-header">
-      <div class="header-left">
-        <div class="header-label">Interview Preparation</div>
-        <h1 class="header-title">INTERVIEW_PREP</h1>
-        <div class="header-sub"><span>&gt;&gt; </span>TARGET: CLOUD_SEC · INFRA_AS_CODE · APP_SEC</div>
-      </div>
-      <div class="header-controls">
-        <div class="ctrl-badge" id="syncBadge">&gt;&gt; DATA_SYNCED</div>
-        <button class="ctrl-btn" id="syncBtn">[ SYNC_REPO ]</button>
-        <button class="ctrl-btn" id="configBtn">[ CONFIGURE ]</button>
-        <div class="search-wrap">
-          <input class="search-input" type="text" id="searchInput" placeholder="SEARCH...">
-        </div>
+  <main id="main">
+    <header class="wrap grid mast">
+      <div class="mast__crumb"><a class="label u" href="/#tools">← Tools</a></div>
+      <h1 class="mast__title d1" data-split>Interview <em>prep.</em></h1>
+      <p class="mast__intro intro reveal" style="--d:250ms">The Peachy Cloud Security question sheet, made searchable. Pick a question and, if you've added a Gemini key, get the topics worth mentioning and one tip on how to land the answer.</p>
+      <div class="toolbar reveal" style="--d:350ms">
+        <label class="search-field">
+          <span class="sr-only">Search questions</span>
+          <svg aria-hidden="true"><use href="/assets/icons.svg#search"/></svg>
+          <input class="input" type="search" id="search" placeholder="Search: IAM, buckets, zero trust…" autocomplete="off">
+        </label>
+        <button class="btn btn--sm" id="sync" type="button"><svg class="ic" aria-hidden="true"><use href="/assets/icons.svg#refresh"/></svg>Sync</button>
+        <button class="btn btn--sm" id="configure" type="button"><svg class="ic" aria-hidden="true"><use href="/assets/icons.svg#sliders"/></svg>AI settings</button>
+        <span class="status status--busy" id="sync-status" aria-live="polite">Loading…</span>
       </div>
     </header>
 
-    <!-- Main -->
-    <div class="app-main">
+    <div class="wrap"><div class="rule"></div></div>
 
-      <!-- Questions panel -->
-      <div class="questions-panel">
-        <div class="questions-scroll" id="questionsScroll">
-          <div class="state-box"><div class="state-text">DECRYPTING QUESTION STREAM...</div></div>
+    <div class="wrap grid layout" style="padding-top:clamp(40px,6vw,72px)">
+      <section id="questions" aria-label="Questions" aria-live="polite">
+        <div class="state">Loading questions…</div>
+      </section>
+
+      <aside class="aside">
+        <div class="panel">
+          <div class="panel__head"><span class="label"><span class="node"></span>Talking points</span><span class="status status--off" id="ai-status">Not connected</span></div>
+          <div id="ai"><p class="small">Select a question. You'll get the key topics and a single tip, nothing more.</p></div>
         </div>
+        <div class="panel">
+          <span class="label">Credits</span>
+          <dl class="credit">
+            <dt>Question sheet by</dt>
+            <dd>Divyanshu sir &amp; Anjali Ma'am</dd>
+            <dt>Original sheet</dt>
+            <dd><a class="u u--on" href="https://peachycloudsecurity.com/guides/cloud-security-interview" target="_blank" rel="noopener">peachycloudsecurity.com/guides</a></dd>
+            <dt>More from them</dt>
+            <dd><a class="u u--on" href="https://peachycloudsecurity.com" target="_blank" rel="noopener">peachycloudsecurity.com</a></dd>
+          </dl>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <!-- partial:footer -->
+  <footer class="ftr">
+    <div class="wrap ftr__grid">
+      <div class="ftr__col">
+        <span class="label">Index</span>
+        <a href="/#record">Record</a>
+        <a href="/#work">Work</a>
+        <a href="/blogs.html">Writing</a>
+        <a href="/Disclosed-Reports/reports_index.html">Reports</a>
+        <a href="/#tools">Tools</a>
       </div>
-
-      <!-- Aside -->
-      <div class="aside-panel">
-
-        <!-- Credits -->
-        <div class="credits-card">
-          <div class="credits-label">Question Credits</div>
-          <div class="credit-row">
-            <div class="credit-role">CREATORS OF THIS INTERVIEW SHEET</div>
-            <div class="credit-name">Divyanshu sir &amp; Anjali Mam</div>
-          </div>
-          <div class="credit-row">
-            <div class="credit-role">OFFICIAL INTERVIEW SHEET</div>
-            <a class="credit-link" href="https://peachycloudsecurity.com/guides/cloud-security-interview" target="_blank">peachycloudsecurity.com/guides/...</a>
-          </div>
-          <div class="credit-row">
-            <div class="credit-role">MORE SUCH CONTENT</div>
-            <a class="credit-link" href="https://peachycloudsecurity.com" target="_blank" style="color:var(--text-dim)">peachycloudsecurity.com</a>
-          </div>
-        </div>
-
-        <!-- AI Suggestions -->
-        <div class="ai-card">
-          <div class="ai-card-header">
-            <div class="ai-card-title">AI SUGGESTIONS</div>
-            <div class="ai-status offline" id="aiStatus">NOT CONNECTED — CLICK [CONFIGURE]</div>
-          </div>
-          <div class="ai-body" id="aiBody">
-            <div class="ai-idle"><div class="ai-idle-text">MONITORING QUESTION SELECTION...</div></div>
-          </div>
-        </div>
-
+      <div class="ftr__col">
+        <span class="label">Elsewhere</span>
+        <a href="https://github.com/rishabhyadavm07" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://www.linkedin.com/in/rishabhyadavm07" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="https://twitter.com/fanaticalnerd" target="_blank" rel="noopener">X / Twitter</a>
+        <a href="mailto:rishabhyadav.inbox@gmail.com">Email</a>
+      </div>
+      <div class="ftr__col">
+        <span class="label">Colophon</span>
+        <p class="small">Set in Instrument Serif, Schibsted Grotesk and Martian Mono. No frameworks, no trackers.</p>
+      </div>
+      <div class="ftr__col">
+        <span class="label">Local time</span>
+        <span class="d3" data-clock>--:--:--</span>
+        <span class="label">IST · UTC+05:30</span>
+      </div>
+      <div class="ftr__base">
+        <span class="label">© <span data-year>2026</span> Rishabh Yadav — happy hacking</span>
+        <a class="label u" href="#top">Back to top</a>
       </div>
     </div>
+  </footer>
+  <!-- /partial:footer -->
 
-  </div>
+  <dialog id="config">
+    <form method="dialog" id="config-form">
+      <h2 class="d3">AI settings</h2>
+      <p>Paste a Gemini API key. It's saved in this browser only and sent straight to Google's API, never to this site.</p>
+      <label class="sr-only" for="api-key">Gemini API key</label>
+      <input class="input" type="password" id="api-key" placeholder="Gemini API key" autocomplete="off">
+      <div class="actions">
+        <button class="btn btn--sm" value="cancel" type="submit" formnovalidate>Cancel</button>
+        <button class="btn btn--sm" value="clear" type="submit" formnovalidate>Forget key</button>
+        <button class="btn btn--solid btn--sm" value="save" type="submit">Save</button>
+      </div>
+    </form>
+  </dialog>
 
-  <!-- Floating Nav -->
-  <div class="floating-nav" id="floatingNav">
-    <div class="nav-cards" id="navCards"></div>
-    <button class="nav-trigger" id="navTrigger">NAV</button>
-  </div>
-
+  <script src="/assets/site.js" defer></script>
   <script>
-  (function() {
-    // ── Config ──
-    const GEMINI_MODEL = "gemini-2.5-flash";
-    const SOURCE_URL = "https://raw.githubusercontent.com/peachycloudsecurity/awesome-cloud-security-interview/refs/heads/main/README.md";
-    const NAV_LINKS = [
-      {name:"HOME",url:"index.html",icon:"home"},
-      {name:"JOB DASH",url:"jobs.html",icon:"activity"},
-      {name:"INTEL",url:"intel.html",icon:"radar"},
-      {name:"BLOGS",url:"blogs.html",icon:"book-open"},
-      {name:"REPORTS",url:"Disclosed-Reports/reports_index.html",icon:"file-text"}
-    ];
-    const iconSvgs = {
-      home:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
-      activity:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/></svg>',
-      radar:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19.07 4.93A10 10 0 0 0 6.99 3.34"/><path d="M4 6h.01"/><path d="M2.29 9.62A10 10 0 1 0 21.31 8.35"/><circle cx="12" cy="12" r="2"/></svg>',
-      'book-open':'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg>',
-      'file-text':'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8l6 6v12a2 2 0 0 1-2 2z"/><path d="M14 2v6h6"/></svg>',
-      book:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>'
+  (function () {
+    const GEMINI_MODEL = 'gemini-2.5-flash';
+    const SOURCE_URL = 'https://raw.githubusercontent.com/peachycloudsecurity/awesome-cloud-security-interview/refs/heads/main/README.md';
+    const KEY_STORE = 'PEACHY_GEMINI_KEY';
+
+    const store = {
+      get(k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } },
+      set(k, v) { try { v ? localStorage.setItem(k, v) : localStorage.removeItem(k); } catch (e) {} }
     };
+    const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
-    // ── State ──
-    let categories = [], searchTerm = '', selectedQ = null, apiKey = localStorage.getItem('PEACHY_GEMINI_KEY') || '', isLoadingHint = false, isSyncing = false;
+    let categories = [], term = '', selected = null, apiKey = store.get(KEY_STORE), loadingHint = false, syncing = false;
 
-    // ── Nav ──
-    document.getElementById('navCards').innerHTML = NAV_LINKS.map(l =>
-      `<a class="nav-card" href="${l.url}"><div class="nc-icon">${iconSvgs[l.icon]}</div><div class="nc-label">${l.name}</div></a>`
-    ).join('');
-    const floatingNav = document.getElementById('floatingNav');
-    document.getElementById('navTrigger').addEventListener('click', e => { e.stopPropagation(); floatingNav.classList.toggle('open'); });
-    document.addEventListener('click', () => floatingNav.classList.remove('open'));
-    floatingNav.addEventListener('click', e => e.stopPropagation());
+    const qEl = document.getElementById('questions');
+    const aiEl = document.getElementById('ai');
+    const aiStatus = document.getElementById('ai-status');
+    const syncStatus = document.getElementById('sync-status');
+    const syncBtn = document.getElementById('sync');
+    const dialog = document.getElementById('config');
 
-    // ── Ambient ──
-    const canvas = document.getElementById('ambient');
-    const ctx = canvas.getContext('2d');
-    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-    resize(); window.addEventListener('resize', resize);
-    class P {
-      constructor() { this.x=Math.random()*canvas.width; this.y=Math.random()*canvas.height; this.size=Math.random()*1.2+0.4; this.sx=(Math.random()-0.5)*0.25; this.sy=(Math.random()-0.5)*0.25; this.o=Math.random()*0.4+0.1; }
-      update() { this.x+=this.sx; this.y+=this.sy; if(this.x>canvas.width)this.x=0; if(this.x<0)this.x=canvas.width; if(this.y>canvas.height)this.y=0; if(this.y<0)this.y=canvas.height; }
-      draw() { ctx.fillStyle=`rgba(220,38,38,${this.o})`; ctx.beginPath(); ctx.arc(this.x,this.y,this.size,0,Math.PI*2); ctx.fill(); }
-    }
-    let pts = []; for(let i=0;i<90;i++) pts.push(new P());
-    (function loop() { ctx.clearRect(0,0,canvas.width,canvas.height); pts.forEach(p=>{p.update();p.draw();}); requestAnimationFrame(loop); })();
-
-    // ── AI status display ──
     function updateAIStatus() {
-      const el = document.getElementById('aiStatus');
-      if (isLoadingHint) { el.className = 'ai-status loading'; el.textContent = 'CONNECTING_AI_NODE...'; }
-      else if (apiKey) { el.className = 'ai-status connected'; el.textContent = 'CONNECTED'; }
-      else { el.className = 'ai-status offline'; el.textContent = 'NOT CONNECTED — CLICK [CONFIGURE]'; }
+      if (loadingHint) { aiStatus.className = 'status status--busy'; aiStatus.textContent = 'Thinking…'; }
+      else if (apiKey) { aiStatus.className = 'status'; aiStatus.textContent = 'Connected'; }
+      else { aiStatus.className = 'status status--off'; aiStatus.textContent = 'Not connected'; }
     }
     updateAIStatus();
 
-    // ── Modal ──
-    const modalOverlay = document.getElementById('modalOverlay');
-    document.getElementById('configBtn').addEventListener('click', () => {
-      document.getElementById('apiKeyInput').value = apiKey;
-      modalOverlay.classList.remove('hidden');
+    // ── Settings dialog ──
+    document.getElementById('configure').addEventListener('click', () => {
+      document.getElementById('api-key').value = apiKey;
+      dialog.showModal();
     });
-    document.getElementById('modalCancel').addEventListener('click', () => modalOverlay.classList.add('hidden'));
-    document.getElementById('configForm').addEventListener('submit', e => {
-      e.preventDefault();
-      const key = e.target.elements.apiKey.value.trim();
-      if (key) { apiKey = key; localStorage.setItem('PEACHY_GEMINI_KEY', key); }
-      modalOverlay.classList.add('hidden');
+    dialog.addEventListener('close', () => {
+      if (dialog.returnValue === 'save') {
+        const key = document.getElementById('api-key').value.trim();
+        if (key) { apiKey = key; store.set(KEY_STORE, key); }
+      } else if (dialog.returnValue === 'clear') {
+        apiKey = ''; store.set(KEY_STORE, '');
+      }
       updateAIStatus();
+      if (selected && dialog.returnValue === 'save') handleQuestion(selected);
     });
-    modalOverlay.addEventListener('click', e => { if(e.target === modalOverlay) modalOverlay.classList.add('hidden'); });
 
-    // ── Markdown parser ──
+    // ── Parse the README ──
     function parseMarkdown(md) {
-      const lines = md.split('\n');
       const sections = [];
-      let currentCat = 'GENERAL_INTEL', questions = [];
-      lines.forEach(line => {
-        const catMatch = line.match(/^#{1,3}\s+(.+)/);
-        if (catMatch) {
-          if (questions.length) sections.push({ title: currentCat.toUpperCase().replace(/\s/g,'_'), questions });
-          currentCat = catMatch[1].trim(); questions = [];
-        } else {
-          const qMatch = line.match(/^(\d+\.|-)\s+(.+)/);
-          if (qMatch && (qMatch[2].trim().endsWith('?') || qMatch[2].trim().toLowerCase().includes('cloud'))) {
-            questions.push(qMatch[2].trim());
-          }
+      let current = 'General', questions = [];
+      md.split('\n').forEach(line => {
+        const cat = line.match(/^#{1,3}\s+(.+)/);
+        if (cat) {
+          if (questions.length) sections.push({ title: current, questions });
+          current = cat[1].replace(/[*_`#]/g, '').trim(); questions = [];
+          return;
+        }
+        const q = line.match(/^(\d+\.|-)\s+(.+)/);
+        if (q && (q[2].trim().endsWith('?') || q[2].toLowerCase().includes('cloud'))) {
+          questions.push(q[2].replace(/\*\*|__|`/g, '').trim());
         }
       });
-      if (questions.length) sections.push({ title: currentCat.toUpperCase().replace(/\s/g,'_'), questions });
+      if (questions.length) sections.push({ title: current, questions });
       return sections;
     }
 
-    // ── Render questions ──
-    function renderQuestions() {
-      const scroll = document.getElementById('questionsScroll');
-      const term = searchTerm.toLowerCase();
-      const filtered = categories.map(cat => ({
-        ...cat,
-        questions: cat.questions.filter(q => q.toLowerCase().includes(term))
-      })).filter(c => c.questions.length > 0);
-
+    // ── Render ──
+    function render() {
+      const t = term.toLowerCase();
+      const filtered = categories
+        .map(c => ({ ...c, questions: c.questions.filter(q => q.toLowerCase().includes(t)) }))
+        .filter(c => c.questions.length);
       if (!filtered.length) {
-        scroll.innerHTML = '<div class="state-box"><div class="state-text">NO QUESTIONS MATCH SEARCH</div></div>';
+        qEl.innerHTML = '<div class="state">Nothing matches “' + esc(term) + '”. Try a broader word.</div>';
         return;
       }
-      scroll.innerHTML = filtered.map(cat => `
-        <div class="cat-section">
-          <div class="cat-header"><div class="cat-title">${cat.title}</div></div>
-          ${cat.questions.map((q, i) => `
-            <button class="q-btn${selectedQ === q ? ' active' : ''}" data-q="${encodeURIComponent(q)}">
-              <span class="q-num">${String(i+1).padStart(2,'0')}</span>
-              <span class="q-text">${q}</span>
-              <span class="q-arrow">&gt;&gt;</span>
-            </button>`).join('')}
+      qEl.innerHTML = filtered.map(c => `
+        <div class="cat">
+          <div class="cat__head"><h2 class="d3">${esc(c.title)}</h2><span class="label">${String(c.questions.length).padStart(2, '0')} questions</span></div>
+          <ul class="q-list">
+            ${c.questions.map((q, i) => `
+              <li><button class="q" type="button" data-q="${encodeURIComponent(q)}" aria-pressed="${selected === q}">
+                <span class="q__num">${String(i + 1).padStart(2, '0')}</span>
+                <span>${esc(q)}</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="square" aria-hidden="true"><path d="M3 12h17"/><path d="M14.5 6.5 20 12"/></svg>
+              </button></li>`).join('')}
+          </ul>
         </div>`).join('');
-
-      scroll.querySelectorAll('.q-btn').forEach(btn => {
-        btn.addEventListener('click', () => handleQuestionClick(decodeURIComponent(btn.dataset.q)));
-      });
     }
+    qEl.addEventListener('click', e => {
+      const btn = e.target.closest('.q');
+      if (btn) handleQuestion(decodeURIComponent(btn.dataset.q));
+    });
 
-    // ── AI hint ──
-    async function fetchAIHint(question) {
-      if (!apiKey) return null;
+    // ── AI hints ──
+    async function fetchHint(question) {
       const prompt = `ACT AS: Cloud Security Interview Expert.\nTASK: Provide 3-5 technical keywords and one interview hint for the question provided.\nRESTRICTION: Use NO markdown, bolding, or headers. Respond ONLY in plain text.\n\nFORMAT:\nTOPICS: Topic 1, Topic 2, Topic 3\nHINT: Your single-sentence advice here.\n\nQUESTION: "${question}"`;
       try {
-        const res = await fetch(`https://generativelanguage.googleapis.com/v1/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`, {
-          method: 'POST', headers: {'Content-Type':'application/json'},
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1/models/${GEMINI_MODEL}:generateContent?key=${encodeURIComponent(apiKey)}`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
         });
         const data = await res.json();
-        return data.candidates?.[0]?.content?.parts?.[0]?.text?.replace(/[#*`>]/g,'').trim() || null;
-      } catch(e) { return null; }
+        return data.candidates?.[0]?.content?.parts?.[0]?.text?.replace(/[#*`>]/g, '').trim() || null;
+      } catch (e) { return null; }
     }
 
-    function renderAI(hint) {
-      const body = document.getElementById('aiBody');
-      if (!hint) {
-        body.innerHTML = `<div class="ai-offline-box">
-          <div class="ai-offline-text">Tactical suggestions are offline. To enable AI suggestions for this question, put your Gemini API key in the configuration panel.</div>
-          <div style="font-size:9px;color:var(--text-faint);letter-spacing:0.15em;text-transform:uppercase;">Note: your API key is stored locally only and is never forwarded to a server.</div>
-          <button class="ai-config-btn" onclick="document.getElementById('configBtn').click()">OPEN_CONFIGURATION</button>
-        </div>`;
+    function renderAI(question, hint) {
+      const q = `<p class="ai__q">${esc(question)}</p>`;
+      if (!apiKey) {
+        aiEl.innerHTML = q + `<div class="ai__body"><p class="small">Add a Gemini API key and this panel turns into a study partner.</p>
+          <button class="btn btn--solid btn--sm" type="button" onclick="document.getElementById('configure').click()">Add API key</button></div>`;
         return;
       }
-      const topics = hint.includes('TOPICS:') ? hint.split('HINT:')[0].replace('TOPICS:','').trim() : hint;
+      if (!hint) {
+        aiEl.innerHTML = q + '<p class="small">No answer came back. Check the key in AI settings and try again.</p>';
+        return;
+      }
+      const topics = hint.includes('TOPICS:') ? hint.split('HINT:')[0].replace('TOPICS:', '').trim() : hint;
       const advice = hint.includes('HINT:') ? hint.split('HINT:')[1].trim() : '';
-      body.innerHTML = `<div class="ai-result">
-        <div><div class="ai-block-label">[Key_Topics]</div><div class="ai-block-content">${topics}</div></div>
-        ${advice ? `<div><div class="ai-block-label">[Strategy_Advice]</div><div class="ai-block-content strategy">${advice}</div></div>` : ''}
-        <div class="ai-warning"><span>!WARNING:</span> Generated by AI. Verify via official documentation before interviews.</div>
+      aiEl.innerHTML = q + `<div class="ai__body">
+        <div><div class="ai__label">Key topics</div><div>${esc(topics)}</div></div>
+        ${advice ? `<div><div class="ai__label">Tip</div><div>${esc(advice)}</div></div>` : ''}
+        <p class="ai__warn">AI-generated. Verify against official docs before your interview.</p>
       </div>`;
     }
 
-    async function handleQuestionClick(q) {
-      selectedQ = q;
-      renderQuestions();
-      const body = document.getElementById('aiBody');
-      if (!apiKey) { renderAI(null); return; }
-      if (isLoadingHint) return;
-      isLoadingHint = true; updateAIStatus();
-      body.innerHTML = '<div class="ai-idle"><div class="ai-idle-text">PROCESSING INTEL...</div></div>';
-      const hint = await fetchAIHint(q);
-      isLoadingHint = false; updateAIStatus();
-      renderAI(hint);
+    async function handleQuestion(q) {
+      selected = q;
+      render();
+      if (!apiKey) { renderAI(q, null); return; }
+      if (loadingHint) return;
+      loadingHint = true; updateAIStatus();
+      aiEl.innerHTML = `<p class="ai__q">${esc(q)}</p><div style="display:grid;gap:8px"><div class="skel" style="height:12px;width:90%"></div><div class="skel" style="height:12px;width:70%"></div><div class="skel" style="height:12px;width:80%"></div></div>`;
+      const hint = await fetchHint(q);
+      loadingHint = false; updateAIStatus();
+      if (selected === q) renderAI(q, hint);
     }
 
-    // ── Data fetch ──
-    async function fetchData(silent = false) {
-      if (isSyncing) return;
-      isSyncing = true;
-      const badge = document.getElementById('syncBadge');
-      const btn = document.getElementById('syncBtn');
-      badge.textContent = '>> SYNCING_DATA';
-      btn.textContent = '[ SYNCING... ]';
-      btn.disabled = true;
-      if (!silent) document.getElementById('questionsScroll').innerHTML = '<div class="state-box"><div class="state-text">DECRYPTING QUESTION STREAM...</div></div>';
+    // ── Data ──
+    async function fetchData(silent) {
+      if (syncing) return;
+      syncing = true;
+      syncBtn.disabled = true;
+      syncStatus.className = 'status status--busy'; syncStatus.textContent = 'Syncing…';
+      if (!silent) qEl.innerHTML = '<div class="state">Loading questions…</div>';
       try {
         const res = await fetch(SOURCE_URL);
-        if (!res.ok) throw new Error(`HTTP_${res.status}`);
-        const text = await res.text();
-        const parsed = parseMarkdown(text);
-        if (!parsed.length) throw new Error('DATA_STRUCTURE_INVALID');
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const parsed = parseMarkdown(await res.text());
+        if (!parsed.length) throw new Error('No questions found in the source');
         categories = parsed;
-        renderQuestions();
-      } catch(e) {
-        document.getElementById('questionsScroll').innerHTML = `<div class="state-box"><div class="state-text state-error">!! ${e.message} !!</div><br><button class="retry-btn" onclick="fetchData()">RETRY_ACCESS</button></div>`;
+        render();
+        const total = parsed.reduce((n, c) => n + c.questions.length, 0);
+        syncStatus.className = 'status'; syncStatus.textContent = total + ' questions';
+      } catch (e) {
+        qEl.innerHTML = `<div class="state state--error">Couldn't load questions (${esc(e.message)}).<br><button class="btn btn--sm" type="button" id="retry">Try again</button></div>`;
+        document.getElementById('retry').addEventListener('click', () => fetchData(false));
+        syncStatus.className = 'status status--off'; syncStatus.textContent = 'Offline';
       } finally {
-        isSyncing = false;
-        badge.textContent = '>> DATA_SYNCED';
-        btn.textContent = '[ SYNC_REPO ]';
-        btn.disabled = false;
+        syncing = false;
+        syncBtn.disabled = false;
       }
     }
 
-    // ── Search ──
-    document.getElementById('searchInput').addEventListener('input', e => {
-      searchTerm = e.target.value;
-      renderQuestions();
-    });
-
-    document.getElementById('syncBtn').addEventListener('click', () => fetchData(true));
-
-    fetchData();
+    document.getElementById('search').addEventListener('input', e => { term = e.target.value; render(); });
+    syncBtn.addEventListener('click', () => fetchData(true));
+    fetchData(false);
   })();
   </script>
 </body>

@@ -1,11 +1,11 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#050505;--surface:#0d0e10;--surface2:#111214;--border:#27272a;--border-hi:#3f3f46;
-  --text:#dddddd;--muted:#7a80a2;--accent:#dc2626;--accent-light:#ef4444;
+  --bg:#0e0d0c;--surface:#161513;--surface2:#1c1b19;--border:#2a2825;--border-hi:#3a3733;
+  --text:#dddddd;--muted:#8a847b;--accent:#dc2626;--accent-light:#ef4444;
   --easy:#74ee15;--medium:#f5ff98;--hard:#ffa298;--cyan:#98f5ff;
   --radius:4px;--tr:0.35s cubic-bezier(0.4,0,0.2,1);
 }
-body{font-family:'JetBrains Mono','Courier New',monospace;background:var(--bg);color:var(--text);min-height:100vh;display:flex;font-size:13px;overflow:hidden}
+body{font-family:'Schibsted Grotesk',ui-sans-serif,system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;font-size:13px;overflow:hidden}
 /* SIDEBAR */
 .sidebar{width:230px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:24px 0;flex-shrink:0;height:100vh;overflow-y:auto}
 .sidebar-logo{padding:0 20px 24px;border-bottom:1px solid var(--border);margin-bottom:8px}

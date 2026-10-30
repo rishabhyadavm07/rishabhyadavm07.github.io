@@ -1,114 +1,185 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/x-icon" href="/assets/favicon_io/favicon.ico">
-    <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon_io/favicon-16x16.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon_io/favicon-32x32.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon_io/apple-touch-icon.png">
-    <link rel="manifest" href="/assets/favicon_io/site.webmanifest">
-    <title>Reports</title>
-    <meta name="description" content="Index of publicly disclosed vulnerability reports by fanaticalnerd — including HackerOne write-ups on access control, injection, and authentication flaws.">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg: #000000;
-            --card-bg: #000000;
-            --border: #1a1a1a;
-            --text-main: #f1f5f9;
-            --text-dim: #64748b;
-            --accent-blue: #3b82f6;
-            --accent-maroon: #991b1b;
-            --accent-gold: #d97706;
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The report library — Rishabh Yadav</title>
+  <meta name="description" content="A searchable reading list of 4,059 top public HackerOne reports on broken access control, authentication and injection.">
+  <link rel="canonical" href="https://fanaticalnerd.com/Disclosed-Reports/reports_index.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="fanaticalnerd">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:url" content="https://fanaticalnerd.com/Disclosed-Reports/reports_index.html">
+  <meta property="og:title" content="The report library">
+  <meta property="og:description" content="A searchable reading list of 4,059 top public HackerOne reports on broken access control, authentication and injection.">
+  <meta property="og:image" content="https://fanaticalnerd.com/assets/og/reports.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="The report library">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@fanaticalnerd">
+  <meta name="twitter:creator" content="@fanaticalnerd">
+  <meta name="twitter:title" content="The report library">
+  <meta name="twitter:description" content="A searchable reading list of 4,059 top public HackerOne reports on broken access control, authentication and injection.">
+  <meta name="twitter:image" content="https://fanaticalnerd.com/assets/og/reports.jpg">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "CollectionPage",
+        "name": "The report library",
+        "url": "https://fanaticalnerd.com/Disclosed-Reports/reports_index.html",
+        "author": {
+          "@type": "Person",
+          "name": "Rishabh Yadav",
+          "url": "https://fanaticalnerd.com/"
         }
-        body {
-            font-family: 'JetBrains Mono', monospace;
-            background-color: var(--bg);
-            color: var(--text-main);
-        }
-        .report-card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border);
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            cursor: pointer;
-            text-decoration: none;
-        }
-        .report-card:hover {
-            border-color: var(--accent-blue);
-            box-shadow: 0 0 20px rgba(59, 130, 246, 0.1);
-            transform: translateY(-2px);
-        }
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: #000;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #1e293b;
-        }
-    </style>
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://fanaticalnerd.com/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Reports",
+            "item": "https://fanaticalnerd.com/Disclosed-Reports/reports_index.html"
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+  <!-- partial:head -->
+  <meta name="theme-color" content="#0e0d0c">
+  <meta name="color-scheme" content="dark light">
+  <link rel="alternate" type="application/rss+xml" title="The notebook — Rishabh Yadav" href="https://fanaticalnerd.com/feed.xml">
+  <link rel="icon" href="/assets/favicon_io/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon_io/favicon-32x32.png">
+  <link rel="apple-touch-icon" href="/assets/favicon_io/apple-touch-icon.png">
+  <link rel="manifest" href="/assets/favicon_io/site.webmanifest">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Martian+Mono:wdth,wght@75..112.5,300..600&family=Schibsted+Grotesk:ital,wght@0,400..800;1,400..800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/site.css">
+  <script>(function(){var d=document.documentElement;d.classList.add('js');try{var t=localStorage.getItem('fn-theme');if(t)d.dataset.theme=t}catch(e){}})()</script>
+  <!-- /partial:head -->
+  <link rel="stylesheet" href="/Disclosed-Reports/reports.css">
 </head>
-<body class="custom-scrollbar min-h-screen">
-    <header class="border-b border-zinc-900 bg-black/80 backdrop-blur-md sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-6 py-6">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                    <h1 class="text-xl font-bold tracking-tighter text-white flex items-center gap-2">
-                        <span class="text-[var(--accent-blue)]">&gt;</span> 
-                        Disclosed Reports
-                    </h1>
-                    
-                </div>
-            </div>
-        </div>
+<body data-nav="reports" id="top">
+  <a class="skip" href="#main">Skip to content</a>
+
+  <!-- partial:header -->
+  <header class="hdr">
+    <div class="wrap">
+      <a class="brand" href="/"><span class="node" aria-hidden="true"></span>Rishabh Yadav <small>aka fanaticalnerd</small></a>
+      <nav class="nav" aria-label="Main">
+        <a class="nav__link" href="/#record" data-nav="record" data-scramble>Record</a>
+        <a class="nav__link" href="/#work" data-nav="work" data-scramble>Work</a>
+        <a class="nav__link" href="/blogs.html" data-nav="writing" data-scramble>Writing</a>
+        <a class="nav__link" href="/Disclosed-Reports/reports_index.html" data-nav="reports" aria-current="page" data-scramble>Reports</a>
+        <a class="nav__link" href="/#tools" data-nav="tools" data-scramble>Tools</a>
+        <a class="nav__link" href="/#contact" data-nav="contact" data-scramble>Contact</a>
+        <button class="theme-btn" type="button" data-theme-toggle><svg class="ic" aria-hidden="true"><use href="/assets/icons.svg#theme"/></svg><span data-theme-label>Paper</span></button>
+        <button class="menu-btn" type="button" data-menu-open aria-expanded="false" aria-controls="menu">Menu</button>
+      </nav>
+    </div>
+    <span class="hdr__progress" aria-hidden="true"></span>
+  </header>
+  <div class="menu" id="menu" role="dialog" aria-modal="true" aria-label="Site menu">
+    <div class="menu__top">
+      <a class="brand" href="/"><span class="node" aria-hidden="true"></span>Rishabh Yadav</a>
+      <button class="menu-btn" type="button" data-menu-close style="display:inline-flex">Close</button>
+    </div>
+    <ul class="menu__links">
+      <li><a href="/#record"><span>01</span>Record</a></li>
+      <li><a href="/#work"><span>02</span>Work</a></li>
+      <li><a href="/blogs.html"><span>03</span>Writing</a></li>
+      <li><a href="/Disclosed-Reports/reports_index.html"><span>04</span>Reports</a></li>
+      <li><a href="/#tools"><span>05</span>Tools</a></li>
+      <li><a href="/#contact"><span>06</span>Contact</a></li>
+    </ul>
+    <div class="menu__foot">
+      <a class="label" href="https://github.com/rishabhyadavm07" target="_blank" rel="noopener">GitHub</a>
+      <a class="label" href="https://www.linkedin.com/in/rishabhyadavm07" target="_blank" rel="noopener">LinkedIn</a>
+      <a class="label" href="https://twitter.com/fanaticalnerd" target="_blank" rel="noopener">X / Twitter</a>
+      <a class="label" href="mailto:rishabhyadav.inbox@gmail.com">Email</a>
+    </div>
+  </div>
+  <!-- /partial:header -->
+
+  <main id="main">
+    <header class="wrap grid mast">
+      <div class="mast__crumb"><span class="label"><span class="node"></span>Reports · 4,059 entries</span></div>
+      <h1 class="mast__title d1" data-split>The report <em>library.</em></h1>
+      <p class="mast__intro intro reveal" style="--d:250ms">The best public HackerOne disclosures, sorted by bug class. Read how the winners found it, borrow the technique, report responsibly.</p>
+      <p class="disclaimer label reveal" style="--d:350ms">These reports belong to the researchers who wrote them. Every entry links to the original.</p>
     </header>
+    <section class="wrap grid library" aria-label="Categories">
+      <div class="tiles" style="grid-column:1 / -1">
+        <a class="tile gh reveal" href="/Disclosed-Reports/BAC-hackerone.html" style="--d:0ms">
+          <svg class="glyph" viewBox="0 0 40 40" aria-hidden="true"><path class="g-s3" d="M14 6h20v22"/><path class="g-s2" d="M10 10h20v22"/><path d="M6 14h20v20H6Z"/><rect class="acc" x="10" y="19" width="3" height="3"/><path d="M15 20.5h7"/></svg>
+          <span class="tile__t">Broken access control</span>
+          <p>Authorization bypasses, privilege escalation and IDORs.</p>
+          <span class="label">585 reports</span>
+        </a>
+        <a class="tile gh reveal" href="/Disclosed-Reports/hackerone-authentication.html" style="--d:90ms">
+          <svg class="glyph" viewBox="0 0 40 40" aria-hidden="true"><path class="g-s3" d="M14 6h20v22"/><path class="g-s2" d="M10 10h20v22"/><path d="M6 14h20v20H6Z"/><rect class="acc" x="10" y="19" width="3" height="3"/><path d="M15 20.5h7"/></svg>
+          <span class="tile__t">Authentication</span>
+          <p>Login, session, password-reset and account-takeover bugs.</p>
+          <span class="label">1,002 reports</span>
+        </a>
+        <a class="tile gh reveal" href="/Disclosed-Reports/hackerone-injection.html" style="--d:180ms">
+          <svg class="glyph" viewBox="0 0 40 40" aria-hidden="true"><path class="g-s3" d="M14 6h20v22"/><path class="g-s2" d="M10 10h20v22"/><path d="M6 14h20v20H6Z"/><rect class="acc" x="10" y="19" width="3" height="3"/><path d="M15 20.5h7"/></svg>
+          <span class="tile__t">Injection</span>
+          <p>XSS, SQL injection, SSRF and other ways input becomes code.</p>
+          <span class="label">2,472 reports</span>
+        </a>
+      </div>
+    </section>
+  </main>
 
-    <main class="max-w-7xl mx-auto px-6 py-10 relative z-10">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <a href="BAC-hackerone.html" class="report-card p-6 flex flex-col justify-between h-full relative overflow-hidden group">
-                <div>
-                    <h3 class="text-lg font-bold text-slate-400 leading-relaxed mb-6 group-hover:text-white transition-colors">
-                        BAC Reports
-                    </h3>
-                </div>
-                <div class="mt-auto pt-4 flex items-center justify-between opacity-50 text-xs font-bold tracking-tighter uppercase">
-                    <div class="group-hover:text-white group-hover:opacity-100 transition-all">
-                        HackerOne
-                    </div>
-                </div>
-            </a>
-            <a href="hackerone-authentication.html" class="report-card p-6 flex flex-col justify-between h-full relative overflow-hidden group">
-                <div>
-                    <h3 class="text-lg font-bold text-slate-400 leading-relaxed mb-6 group-hover:text-white transition-colors">
-                        Authentication Reports
-                    </h3>
-                </div>
-                <div class="mt-auto pt-4 flex items-center justify-between opacity-50 text-xs font-bold tracking-tighter uppercase">
-                    <div class="group-hover:text-white group-hover:opacity-100 transition-all">
-                        HackerOne
-                    </div>
-                </div>
-            </a>
-            <a href="hackerone-injection.html" class="report-card p-6 flex flex-col justify-between h-full relative overflow-hidden group">
-                <div>
-                    <h3 class="text-lg font-bold text-slate-400 leading-relaxed mb-6 group-hover:text-white transition-colors">
-                        Injection Reports
-                    </h3>
-                </div>
-                <div class="mt-auto pt-4 flex items-center justify-between opacity-50 text-xs font-bold tracking-tighter uppercase">
-                    <div class="group-hover:text-white group-hover:opacity-100 transition-all">
-                        HackerOne
-                    </div>
-                </div>
-            </a>
-        </div>
-    </main>
+  <!-- partial:footer -->
+  <footer class="ftr">
+    <div class="wrap ftr__grid">
+      <div class="ftr__col">
+        <span class="label">Index</span>
+        <a href="/#record">Record</a>
+        <a href="/#work">Work</a>
+        <a href="/blogs.html">Writing</a>
+        <a href="/Disclosed-Reports/reports_index.html">Reports</a>
+        <a href="/#tools">Tools</a>
+      </div>
+      <div class="ftr__col">
+        <span class="label">Elsewhere</span>
+        <a href="https://github.com/rishabhyadavm07" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://www.linkedin.com/in/rishabhyadavm07" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="https://twitter.com/fanaticalnerd" target="_blank" rel="noopener">X / Twitter</a>
+        <a href="mailto:rishabhyadav.inbox@gmail.com">Email</a>
+      </div>
+      <div class="ftr__col">
+        <span class="label">Colophon</span>
+        <p class="small">Set in Instrument Serif, Schibsted Grotesk and Martian Mono. No frameworks, no trackers.</p>
+      </div>
+      <div class="ftr__col">
+        <span class="label">Local time</span>
+        <span class="d3" data-clock>--:--:--</span>
+        <span class="label">IST · UTC+05:30</span>
+      </div>
+      <div class="ftr__base">
+        <span class="label">© <span data-year>2026</span> Rishabh Yadav — happy hacking</span>
+        <a class="label u" href="#top">Back to top</a>
+      </div>
+    </div>
+  </footer>
+  <!-- /partial:footer -->
 
-    <footer class="py-12 border-t border-zinc-900 text-center bg-black/40">
-        <p class="text-[9px] text-zinc-700 uppercase tracking-[0.4em]">Archive</p>
-    </footer>
+  <script src="/assets/site.js" defer></script>
 </body>
 </html>
