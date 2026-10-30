@@ -13,9 +13,9 @@
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon_io/favicon-32x32.png">
   <link rel="apple-touch-icon" href="/assets/favicon_io/apple-touch-icon.png">
   <link rel="manifest" href="/assets/favicon_io/site.webmanifest">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Martian+Mono:wdth,wght@75..112.5,300..600&family=Schibsted+Grotesk:ital,wght@0,400..800;1,400..800&display=swap" rel="stylesheet">
+  <link rel="preload" href="/assets/fonts/instrument-serif-regular.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/assets/fonts/instrument-serif-italic.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/assets/fonts/schibsted-grotesk-var.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="/assets/site.css">
   <script>(function(){var d=document.documentElement;d.classList.add('js');try{var t=localStorage.getItem('fn-theme');if(t)d.dataset.theme=t}catch(e){}})()</script>
   <!-- /partial:head -->
@@ -71,7 +71,7 @@
 
   <main id="main" class="wrap grid nf">
     <div class="mast__crumb"><span class="label"><span class="node"></span>Error 404</span></div>
-    <h1 class="mast__title d1" data-split>This page was <em><span class="redact redact--live" style="--delay:1.2s">never here.</span></em></h1>
+    <h1 class="mast__title d1" data-split="static" aria-label="This page was never here."><span class="w" aria-hidden="true"><span style="--i:0">This</span></span> <span class="w" aria-hidden="true"><span style="--i:1">page</span></span> <span class="w" aria-hidden="true"><span style="--i:2">was</span></span> <em><span class="w" aria-hidden="true"><span style="--i:3"><span class="redact redact--live" style="--delay:1.2s">never here.</span></span></span></em></h1>
     <p class="intro reveal" style="--d:300ms">Either the link is stale, the URL has a typo, or someone is fuzzing paths again. If it's you: good instincts, wrong target.</p>
     <div class="mast__tools reveal" style="--d:400ms">
       <a class="btn btn--solid" href="/"><svg class="ic" aria-hidden="true"><use href="/assets/icons.svg#arrow-l"/></svg>Back to the start</a>

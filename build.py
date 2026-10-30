@@ -9,7 +9,9 @@ Build the static parts of fanaticalnerd.com.
                   into every content page between <!-- partial:NAME --> markers.
                   The nav link whose data-nav matches <body data-nav="..."> gets
                   aria-current="page".
-  4. SEO:         sitemap.xml and feed.xml (RSS) are regenerated on every run.
+  4. SEO/AEO:     sitemap.xml, feed.xml (RSS), llms.txt and llms-full.txt are
+                  regenerated on every run. The FAQ in llms-full.txt is read
+                  from the FAQPage structured data in index.html.
                   Posts are rendered to static HTML with vendor/marked.min.js,
                   so Node.js must be installed. A post's social card is
                   assets/og/post-<folder>.jpg when it exists, else the default.
@@ -99,6 +101,7 @@ TEMPLATE = r"""<!DOCTYPE html>
   <meta name="author" content="{{AUTHOR}}">
   <meta name="description" content="{{DESCRIPTION}}">
   <link rel="canonical" href="{{URL}}">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="fanaticalnerd">
   <meta property="og:title" content="{{TITLE}}">
@@ -299,6 +302,7 @@ def post_jsonld(folder: str, meta: dict, image: str) -> str:
                 "headline": meta.get("title", folder),
                 "description": meta.get("excerpt", ""),
                 "datePublished": meta.get("date", ""),
+                "dateModified": lastmod(ROOT / "BLOGS" / folder / "blog.md"),
                 "image": image,
                 "url": url,
                 "mainEntityOfPage": url,
@@ -423,6 +427,52 @@ def sync_listings(blogs: list):
         listing.write_text(text, encoding="utf-8")
 
 
+
+# ── Headline word split ──────────────────────────────────────────────────────
+# Headings marked data-split are split into word spans here rather than in the
+# browser, so the page never re-wraps after first paint (no layout shift).
+SPLIT_RE = re.compile(r'<(h1|h2|p)(\s[^>]*\bdata-split\b[^>]*)>(.*?)</\1>', re.S)
+
+
+def split_words(inner: str) -> str:
+    out, i = [], 0
+    tokens = re.split(r"(<[^>]+>)", inner)
+    k = 0
+    while k < len(tokens):
+        tok = tokens[k]
+        if tok.startswith("<") and re.match(r'<span\b[^>]*class="[^"]*\b(redact)\b', tok) or re.match(r"<[^>]*\bdata-nosplit\b", tok or ""):
+            unit = tok
+            k += 1
+            while k < len(tokens) and tokens[k] != "</span>":
+                unit += tokens[k]; k += 1
+            unit += "</span>"
+            out.append(f'<span class="w" aria-hidden="true"><span style="--i:{i}">{unit}</span></span>'); i += 1
+        elif tok.startswith("<"):
+            out.append(tok)
+        else:
+            for part in re.split(r"(\s+)", tok):
+                if not part:
+                    continue
+                if part.isspace():
+                    out.append(part)
+                else:
+                    out.append(f'<span class="w" aria-hidden="true"><span style="--i:{i}">{part}</span></span>'); i += 1
+        k += 1
+    return "".join(out)
+
+
+def static_split(text: str) -> str:
+    def one(m):
+        tag, attrs, inner = m.groups()
+        if 'data-split="static"' in attrs:
+            return m.group(0)
+        label = " ".join(html.unescape(re.sub(r"<[^>]+>", " ", inner)).split())
+        attrs = re.sub(r'\bdata-split(="[^"]*")?', 'data-split="static"', attrs, count=1)
+        attrs = re.sub(r'\saria-label="[^"]*"', "", attrs)
+        return f'<{tag}{attrs} aria-label="{html.escape(label, quote=True)}">{split_words(inner)}</{tag}>'
+    return SPLIT_RE.sub(one, text)
+
+
 # ── Site chrome ───────────────────────────────────────────────────────────────
 
 def render_partial(name: str, nav: str = "") -> str:
@@ -443,7 +493,7 @@ def sync_chrome():
         for name in ("head", "header", "footer"):
             pattern = re.compile(rf"(<!-- partial:{name} -->\n)(.*?)([ \t]*<!-- /partial:{name} -->)", re.S)
             text = pattern.sub(lambda mm: mm.group(1) + render_partial(name, nav) + mm.group(3), text)
-        path.write_text(text, encoding="utf-8")
+        path.write_text(static_split(text), encoding="utf-8")
     print(f"  chrome → {len(CHROME_PAGES)} pages")
 
 
@@ -500,7 +550,7 @@ def build(folder: str, blogs: list | None = None) -> Path:
 
     POSTS_DIR.mkdir(exist_ok=True)
     out_path = POSTS_DIR / f"{folder}.html"
-    out_path.write_text(output, encoding="utf-8")
+    out_path.write_text(static_split(output), encoding="utf-8")
     print(f"  built  → posts/{folder}.html")
     return out_path
 
@@ -582,6 +632,123 @@ def write_feed(blogs: list):
     print(f"  feed   → {len(items)} posts")
 
 
+# ── AI answer engines (llms.txt) ─────────────────────────────────────────────
+# Plain, quotable facts for ChatGPT, Perplexity, Claude, Google AI Overviews etc.
+# Keep in step with the Record section of index.html.
+LLMS_SUMMARY = (
+    "Rishabh Yadav, known online as fanaticalnerd, is a cloud and SaaS security research analyst at "
+    "Bulwarkers WebSecurity. He researches SaaS security posture management (SSPM), writes API-driven "
+    "detection logic mapped to CIS and SOC 2, builds open-source security tools and publishes free "
+    "certification study hubs."
+)
+
+LLMS_PROFILE = """## Experience
+
+- **Security Research Analyst, Bulwarkers WebSecurity** (Jul 2025 – present, remote). Researches and builds controls for an SSPM control library: deterministic, API-driven detection logic validated against live configurations. Platforms assessed include GitLab, Microsoft Entra ID, Google Cloud, Azure, Asana and Salesforce. Joined as a cloud security intern (Jul 2025 – Jan 2026).
+- **Security Analyst Intern, SafeYourWeb Infosec** (Mar – Jun 2025, remote). Cloud security assessments, Linux server hardening and thick-client penetration testing, with checklists, SOPs and remediation reports.
+- **Cloud Security Intern, Zerorisk Labs** (Dec 2024 – May 2025, remote). Cloud security architecture, identity management and data protection; company-sponsored Google Professional Cloud Security Engineer certification.
+
+## Certifications
+
+- Microsoft Certified: Cybersecurity Architect Expert (SC-100)
+- Microsoft Certified: Azure Security Engineer Associate (AZ-500)
+- Google Professional Cloud Security Engineer
+- EC-Council Certified Ethical Hacker (Practical)
+- EC-Council Certified Network Defender v2
+- Kubernetes and Cloud Native Associate (KCNA), The Linux Foundation
+- Certified API Security Analyst, APIsec University
+- Google Cybersecurity Professional Certificate
+
+## Recognition
+
+- CTF runner-up at CyberBytes 2.0 (JECRC University)
+- CTF runner-up at The Hackers Meetup, Jaipur Chapter
+- APIsec Ambassador, for contributions to the API security community
+- Technical coordinator and instructor, 7-day offensive security bootcamp by ZeroRisk Labs
+
+## Education
+
+- MCA, Cybersecurity, JECRC University, Jaipur (2023 – 2025)
+- BCA, Delhi Global Institute of Technology (2020 – 2023)
+
+## Skills
+
+SSPM and CSPM research, detection logic, cloud security (Google Cloud, Azure), Microsoft Entra ID (Conditional Access, PIM, RBAC), Defender for Cloud, Microsoft Sentinel, Azure Policy, Key Vault, Zero Trust, API security, application security, attack path analysis, penetration testing, security automation, OSINT, threat detection, Kubernetes and container security, Terraform, Python.
+"""
+
+LLMS_PROJECTS = [
+    ("Spectra", f"{BASE_URL}/Spectra.html", "Open-source, AI-native API client for macOS and Windows with a Rust core and a built-in MCP server (60+ tools). Tauri v2, React 19, MIT licensed."),
+    ("Secure Picks", "https://github.com/rishabhyadavm07/Secure-Picks", "View-once, end-to-end encrypted photo sharing for iOS and Android with a Go relay server; photos never touch disk (X25519 + XSalsa20-Poly1305)."),
+    ("Secure CI/CD", "https://github.com/rishabhyadavm07/Secure-CI-CD-Project", "DevSecOps pipeline with Semgrep, Checkov and TruffleHog scans, Cosign-signed images and a hardened Kubernetes deployment."),
+    ("Email Security Gateway", f"{BASE_URL}/#work", "Mail gateway with SPF/DKIM/DMARC validation, YARA rules and VirusTotal lookups, quarantine routing and a DMARC dashboard."),
+    ("Screen BreakTimer", "https://github.com/rishabhyadavm07/Screen-boundaries", "Native macOS and Windows break timer (25 minutes on, 3 off)."),
+]
+
+LLMS_TOOLS = [
+    ("AZ-500 study hub", f"{BASE_URL}/az500/index.html", "369 practice questions with rationales, study notes, revision sheets, architecture decks and flashcards."),
+    ("KCNA prep hub", f"{BASE_URL}/kcna/KCNA.html", "Notes, flashcards, diagrams, cheat sheet and exam simulator for the Kubernetes and Cloud Native Associate."),
+    ("Cloud security interview prep", f"{BASE_URL}/interview_ques.html", "Searchable cloud security interview questions with optional AI hints."),
+    ("Report library", f"{BASE_URL}/Disclosed-Reports/reports_index.html", "4,059 top public HackerOne reports on access control, authentication and injection."),
+    ("Resudit", f"{BASE_URL}/resudit.html", "Tailors the skills section of a LaTeX résumé to a job description and scores ATS fit."),
+    ("Intel feed", f"{BASE_URL}/intel.html", "Security and world headlines from four sources."),
+    ("Job radar", f"{BASE_URL}/jobs.html", "Saved searches for cloud security, AppSec and VAPT roles."),
+]
+
+LLMS_CONTACT = """## Contact
+
+- Email: rishabhyadav.inbox@gmail.com
+- LinkedIn: https://www.linkedin.com/in/rishabhyadavm07
+- GitHub: https://github.com/rishabhyadavm07
+- X / Twitter: https://twitter.com/fanaticalnerd
+"""
+
+
+def homepage_faq() -> list:
+    """Questions and answers from the FAQPage structured data on the homepage."""
+    text = (ROOT / "index.html").read_text(encoding="utf-8")
+    for block in re.findall(r'<script type="application/ld\+json">(.*?)</script>', text, re.S):
+        try:
+            data = json.loads(block)
+        except ValueError:
+            continue
+        if data.get("@type") == "FAQPage":
+            return [(q["name"], q["acceptedAnswer"]["text"]) for q in data.get("mainEntity", [])]
+    return []
+
+
+def write_llms(blogs: list):
+    links = lambda items: "\n".join(f"- [{n}]({u}): {d}" for n, u, d in items)
+    posts = [(b["title"], f"{BASE_URL}/posts/{b['folder']}.html", b.get("excerpt", "")) for b in blogs]
+    head = f"# Rishabh Yadav (fanaticalnerd)\n\n> {LLMS_SUMMARY}\n\n"
+    index = (head
+             + f"- [Home and profile]({BASE_URL}/): experience, credentials, projects, writing and contact\n"
+             + f"- [Full profile and every post as plain text]({BASE_URL}/llms-full.txt)\n\n"
+             + "## Projects\n\n" + links(LLMS_PROJECTS) + "\n\n"
+             + "## Writing\n\n" + links(posts) + "\n\n"
+             + "## Free tools\n\n" + links(LLMS_TOOLS) + "\n\n" + LLMS_CONTACT)
+    (ROOT / "llms.txt").write_text(index, encoding="utf-8")
+
+    faq = homepage_faq()
+    full = [head, LLMS_PROFILE, "\n## Projects\n\n" + links(LLMS_PROJECTS) + "\n",
+            "\n## Free tools\n\n" + links(LLMS_TOOLS) + "\n"]
+    if faq:
+        full.append("\n## Frequently asked questions\n\n" + "\n\n".join(f"### {q}\n\n{a}" for q, a in faq) + "\n")
+    full.append("\n" + LLMS_CONTACT)
+    for b in blogs:
+        md = ROOT / "BLOGS" / b["folder"] / "blog.md"
+        if not md.exists():
+            continue
+        _, body = parse_frontmatter(md.read_text(encoding="utf-8"))
+        body = re.sub(r"^#\s+.*\n", "", body.strip(), count=1).strip()
+        body = re.sub(r"!\[([^\]]*)\]\(([^)]+)\)", r"[Image: \1]", body)
+        body = re.sub(r"(?m)^(#{1,5}) ", r"#\1 ", body)  # nest post headings under the post title
+        if len(body.split()) < 30:
+            continue
+        full.append(f"\n---\n\n## Post: {b['title']}\n\nPublished {b.get('date', '')} · {BASE_URL}/posts/{b['folder']}.html\n\n{body}\n")
+    (ROOT / "llms-full.txt").write_text("".join(full), encoding="utf-8")
+    print(f"  llms   → llms.txt + llms-full.txt ({len(faq)} FAQs, {len(posts)} posts)")
+
+
 def refresh():
     blogs = load_blogs()
     sync_listings(blogs)
@@ -589,6 +756,7 @@ def refresh():
     sync_chrome()
     write_sitemap(blogs)
     write_feed(blogs)
+    write_llms(blogs)
 
 
 if __name__ == "__main__":

@@ -6,6 +6,7 @@
   <title>Broken access control reports — Rishabh Yadav</title>
   <meta name="description" content="Authorization bypasses, privilege escalation and IDORs from top public HackerOne disclosures, searchable by program and bounty.">
   <link rel="canonical" href="https://fanaticalnerd.com/Disclosed-Reports/BAC-hackerone.html">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="fanaticalnerd">
   <meta property="og:locale" content="en_US">
@@ -70,9 +71,9 @@
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon_io/favicon-32x32.png">
   <link rel="apple-touch-icon" href="/assets/favicon_io/apple-touch-icon.png">
   <link rel="manifest" href="/assets/favicon_io/site.webmanifest">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Martian+Mono:wdth,wght@75..112.5,300..600&family=Schibsted+Grotesk:ital,wght@0,400..800;1,400..800&display=swap" rel="stylesheet">
+  <link rel="preload" href="/assets/fonts/instrument-serif-regular.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/assets/fonts/instrument-serif-italic.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/assets/fonts/schibsted-grotesk-var.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="/assets/site.css">
   <script>(function(){var d=document.documentElement;d.classList.add('js');try{var t=localStorage.getItem('fn-theme');if(t)d.dataset.theme=t}catch(e){}})()</script>
   <!-- /partial:head -->
@@ -123,7 +124,7 @@
   <main id="main" data-source="BAC-Hackerone.txt">
     <header class="wrap grid mast">
       <div class="mast__crumb"><a class="label u" href="/Disclosed-Reports/reports_index.html">← Report library</a></div>
-      <h1 class="mast__title d1" data-split>Broken access <em>control.</em></h1>
+      <h1 class="mast__title d1" data-split="static" aria-label="Broken access control."><span class="w" aria-hidden="true"><span style="--i:0">Broken</span></span> <span class="w" aria-hidden="true"><span style="--i:1">access</span></span> <em><span class="w" aria-hidden="true"><span style="--i:2">control.</span></span></em></h1>
       <p class="mast__intro intro reveal" style="--d:250ms">Authorization bypasses, privilege escalation and IDORs: the bugs that happen when an app asks “who are you?” and forgets to ask “should you?”</p>
       <div class="filters reveal" style="--d:350ms">
         <label class="search-field">

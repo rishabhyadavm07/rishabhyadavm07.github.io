@@ -6,6 +6,7 @@
   <title>Spectra, the AI-native API client — Rishabh Yadav</title>
   <meta name="description" content="Spectra is an open-source, AI-native API client for macOS and Windows with a Rust core and a built-in MCP server with 60+ tools. MIT licensed.">
   <link rel="canonical" href="https://fanaticalnerd.com/Spectra.html">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="fanaticalnerd">
   <meta property="og:locale" content="en_US">
@@ -81,9 +82,9 @@
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon_io/favicon-32x32.png">
   <link rel="apple-touch-icon" href="/assets/favicon_io/apple-touch-icon.png">
   <link rel="manifest" href="/assets/favicon_io/site.webmanifest">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Martian+Mono:wdth,wght@75..112.5,300..600&family=Schibsted+Grotesk:ital,wght@0,400..800;1,400..800&display=swap" rel="stylesheet">
+  <link rel="preload" href="/assets/fonts/instrument-serif-regular.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/assets/fonts/instrument-serif-italic.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/assets/fonts/schibsted-grotesk-var.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="/assets/site.css">
   <script>(function(){var d=document.documentElement;d.classList.add('js');try{var t=localStorage.getItem('fn-theme');if(t)d.dataset.theme=t}catch(e){}})()</script>
   <!-- /partial:head -->
@@ -158,7 +159,7 @@
   <main id="main">
     <header class="wrap grid mast">
       <div class="mast__crumb"><a class="label u" href="/#work">← Work</a></div>
-      <h1 class="mast__title d1" data-split>Spec<em>tra.</em></h1>
+      <h1 class="mast__title d1" data-split="static" aria-label="Spec tra."><span class="w" aria-hidden="true"><span style="--i:0">Spec</span></span><em><span class="w" aria-hidden="true"><span style="--i:1">tra.</span></span></em></h1>
       <img class="sp-logo" data-tilt src="/assets/img/spectra.webp" alt="Spectra logo" width="120" height="120">
       <p class="mast__intro intro reveal" style="--d:250ms">An API client for the agentic era. A native desktop app for macOS and Windows with a Rust core and an MCP server built in, so you and your AI agent work the same requests, in the same workspace, with zero telemetry.</p>
       <div class="mast__tools reveal" style="--d:350ms">
@@ -173,7 +174,7 @@
     <section class="wrap grid sec" aria-labelledby="cap-title">
       <div class="sec__head">
         <span class="sec__label label">(01) Capabilities</span>
-        <h2 class="sec__title d2" id="cap-title" data-split>Everything an API client does, <em>plus an agent.</em></h2>
+        <h2 class="sec__title d2" id="cap-title" data-split="static" aria-label="Everything an API client does, plus an agent."><span class="w" aria-hidden="true"><span style="--i:0">Everything</span></span> <span class="w" aria-hidden="true"><span style="--i:1">an</span></span> <span class="w" aria-hidden="true"><span style="--i:2">API</span></span> <span class="w" aria-hidden="true"><span style="--i:3">client</span></span> <span class="w" aria-hidden="true"><span style="--i:4">does,</span></span> <em><span class="w" aria-hidden="true"><span style="--i:5">plus</span></span> <span class="w" aria-hidden="true"><span style="--i:6">an</span></span> <span class="w" aria-hidden="true"><span style="--i:7">agent.</span></span></em></h2>
       </div>
       <div class="tiles sec__body">
         <div class="tile reveal" style="--d:0ms">
@@ -212,7 +213,7 @@
     <section class="wrap grid sec" aria-labelledby="stack-title">
       <div class="sec__head">
         <span class="sec__label label">(02) Stack</span>
-        <h2 class="sec__title d2" id="stack-title" data-split>Under <em>the hood.</em></h2>
+        <h2 class="sec__title d2" id="stack-title" data-split="static" aria-label="Under the hood."><span class="w" aria-hidden="true"><span style="--i:0">Under</span></span> <em><span class="w" aria-hidden="true"><span style="--i:1">the</span></span> <span class="w" aria-hidden="true"><span style="--i:2">hood.</span></span></em></h2>
       </div>
       <div class="sec__body tbl reveal">
         <table>
@@ -234,7 +235,7 @@
     <section class="wrap grid sec" aria-labelledby="cmp-title">
       <div class="sec__head">
         <span class="sec__label label">(03) Honest comparison</span>
-        <h2 class="sec__title d2" id="cmp-title" data-split>Spectra, Postman, <em>Insomnia.</em></h2>
+        <h2 class="sec__title d2" id="cmp-title" data-split="static" aria-label="Spectra, Postman, Insomnia."><span class="w" aria-hidden="true"><span style="--i:0">Spectra,</span></span> <span class="w" aria-hidden="true"><span style="--i:1">Postman,</span></span> <em><span class="w" aria-hidden="true"><span style="--i:2">Insomnia.</span></span></em></h2>
       </div>
       <div class="sec__body tbl reveal">
         <p class="label scroll-hint">Swipe to compare →</p>
@@ -267,7 +268,7 @@
     <section class="wrap grid sec last" aria-labelledby="src-title">
       <div class="sec__head">
         <span class="sec__label label">(04) Build</span>
-        <h2 class="sec__title d2" id="src-title" data-split>Four commands <em>to your own copy.</em></h2>
+        <h2 class="sec__title d2" id="src-title" data-split="static" aria-label="Four commands to your own copy."><span class="w" aria-hidden="true"><span style="--i:0">Four</span></span> <span class="w" aria-hidden="true"><span style="--i:1">commands</span></span> <em><span class="w" aria-hidden="true"><span style="--i:2">to</span></span> <span class="w" aria-hidden="true"><span style="--i:3">your</span></span> <span class="w" aria-hidden="true"><span style="--i:4">own</span></span> <span class="w" aria-hidden="true"><span style="--i:5">copy.</span></span></em></h2>
       </div>
       <pre class="code sec__body reveal"><span class="c"># 1. Clone the repository</span>
 <span class="k">git</span> clone https://github.com/rishabhyadavm07/Spectra.git

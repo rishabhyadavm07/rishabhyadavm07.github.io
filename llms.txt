@@ -1,0 +1,37 @@
+# Rishabh Yadav (fanaticalnerd)
+
+> Rishabh Yadav, known online as fanaticalnerd, is a cloud and SaaS security research analyst at Bulwarkers WebSecurity. He researches SaaS security posture management (SSPM), writes API-driven detection logic mapped to CIS and SOC 2, builds open-source security tools and publishes free certification study hubs.
+
+- [Home and profile](https://fanaticalnerd.com/): experience, credentials, projects, writing and contact
+- [Full profile and every post as plain text](https://fanaticalnerd.com/llms-full.txt)
+
+## Projects
+
+- [Spectra](https://fanaticalnerd.com/Spectra.html): Open-source, AI-native API client for macOS and Windows with a Rust core and a built-in MCP server (60+ tools). Tauri v2, React 19, MIT licensed.
+- [Secure Picks](https://github.com/rishabhyadavm07/Secure-Picks): View-once, end-to-end encrypted photo sharing for iOS and Android with a Go relay server; photos never touch disk (X25519 + XSalsa20-Poly1305).
+- [Secure CI/CD](https://github.com/rishabhyadavm07/Secure-CI-CD-Project): DevSecOps pipeline with Semgrep, Checkov and TruffleHog scans, Cosign-signed images and a hardened Kubernetes deployment.
+- [Email Security Gateway](https://fanaticalnerd.com/#work): Mail gateway with SPF/DKIM/DMARC validation, YARA rules and VirusTotal lookups, quarantine routing and a DMARC dashboard.
+- [Screen BreakTimer](https://github.com/rishabhyadavm07/Screen-boundaries): Native macOS and Windows break timer (25 minutes on, 3 off).
+
+## Writing
+
+- [My Adventures in AI Red Teaming: What I Learned This Week](https://fanaticalnerd.com/posts/My-Adventures-in-AI-Red-Teaming-What-I-Learned-This-Week.html): AI Red Teaming: Uncovering AI's sneaky flaws, from prompt injection to hidden attacks. Learn how!
+- [I Tried to Teach an AI Agent Security… Now It Corrects My Grammar](https://fanaticalnerd.com/posts/i-tried-to-teach-an-ai-agent-security-now-it-corrects-my-grammar.html): This is a living journal of my experiments with AI agents and security automation.
+- [How to Beat the Warden in Minecraft](https://fanaticalnerd.com/posts/how-to-roast-a-warden.html): A completely serious and not-at-all chaotic guide to defeating the Warden using pure panic, questionable logic, and maybe some wool.
+
+## Free tools
+
+- [AZ-500 study hub](https://fanaticalnerd.com/az500/index.html): 369 practice questions with rationales, study notes, revision sheets, architecture decks and flashcards.
+- [KCNA prep hub](https://fanaticalnerd.com/kcna/KCNA.html): Notes, flashcards, diagrams, cheat sheet and exam simulator for the Kubernetes and Cloud Native Associate.
+- [Cloud security interview prep](https://fanaticalnerd.com/interview_ques.html): Searchable cloud security interview questions with optional AI hints.
+- [Report library](https://fanaticalnerd.com/Disclosed-Reports/reports_index.html): 4,059 top public HackerOne reports on access control, authentication and injection.
+- [Resudit](https://fanaticalnerd.com/resudit.html): Tailors the skills section of a LaTeX résumé to a job description and scores ATS fit.
+- [Intel feed](https://fanaticalnerd.com/intel.html): Security and world headlines from four sources.
+- [Job radar](https://fanaticalnerd.com/jobs.html): Saved searches for cloud security, AppSec and VAPT roles.
+
+## Contact
+
+- Email: rishabhyadav.inbox@gmail.com
+- LinkedIn: https://www.linkedin.com/in/rishabhyadavm07
+- GitHub: https://github.com/rishabhyadavm07
+- X / Twitter: https://twitter.com/fanaticalnerd

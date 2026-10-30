@@ -26,7 +26,7 @@
   const hdr = document.querySelector('.hdr');
   if (hdr) {
     const onScroll = () => hdr.classList.toggle('is-scrolled', window.scrollY > 8);
-    onScroll();
+    requestAnimationFrame(onScroll);  // read after first layout, not mid-update
     addEventListener('scroll', onScroll, { passive: true });
   }
 
@@ -45,6 +45,7 @@
 
   // ── Split headings into words for the line-mask reveal ──
   function split(el) {
+    if (el.dataset.split === 'static') return;  // already split by build.py
     const label = el.textContent.replace(/\s+/g, ' ').trim();
     let i = 0;
     const wrap = (content) => {

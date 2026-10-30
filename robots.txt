@@ -1,3 +1,7 @@
+# Search engines and AI answer engines (GPTBot, OAI-SearchBot, ChatGPT-User, PerplexityBot,
+# ClaudeBot, Claude-SearchBot, Google-Extended, Applebot-Extended and others) are all welcome.
+# Plain-text profile for language models: https://fanaticalnerd.com/llms.txt
+
 User-agent: *
 Allow: /
 Disallow: /auto/
