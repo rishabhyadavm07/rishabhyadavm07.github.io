@@ -623,7 +623,7 @@ def write_feed(blogs: list):
         '<?xml version="1.0" encoding="UTF-8"?>\n'
         '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">\n'
         "  <channel>\n"
-        "    <title>The notebook — Rishabh Yadav</title>\n"
+        "    <title>Writing — Rishabh Yadav</title>\n"
         f"    <link>{BASE_URL}/blogs.html</link>\n"
         "    <description>Field notes on AI red teaming, security automation and cloud security.</description>\n"
         "    <language>en</language>\n"
@@ -685,13 +685,13 @@ LLMS_PROJECTS = [
 ]
 
 LLMS_TOOLS = [
-    ("AZ-500 study hub", f"{BASE_URL}/az500/index.html", "369 practice questions with rationales, study notes, revision sheets, architecture decks and flashcards."),
-    ("KCNA prep hub", f"{BASE_URL}/kcna/KCNA.html", "Notes, flashcards, diagrams, cheat sheet and exam simulator for the Kubernetes and Cloud Native Associate."),
-    ("Cloud security interview prep", f"{BASE_URL}/interview_ques.html", "Searchable cloud security interview questions with optional AI hints."),
-    ("Report library", f"{BASE_URL}/Disclosed-Reports/reports_index.html", "4,059 top public HackerOne reports on access control, authentication and injection."),
-    ("Resudit", f"{BASE_URL}/resudit.html", "Tailors the skills section of a LaTeX résumé to a job description and scores ATS fit."),
-    ("Intel feed", f"{BASE_URL}/intel.html", "Security and world headlines from four sources."),
-    ("Job radar", f"{BASE_URL}/jobs.html", "Saved searches for cloud security, AppSec and VAPT roles."),
+    ("AZ-500 Practice Questions & Study Guide", f"{BASE_URL}/az500/index.html", "369 practice questions with rationales, study notes, revision sheets, architecture decks and flashcards."),
+    ("KCNA Practice Exam & Study Guide", f"{BASE_URL}/kcna/KCNA.html", "Notes, flashcards, diagrams, cheat sheet and exam simulator for the Kubernetes and Cloud Native Associate."),
+    ("Cloud Security Interview Questions", f"{BASE_URL}/interview_ques.html", "Searchable cloud security interview questions with optional AI hints."),
+    ("HackerOne Report Library", f"{BASE_URL}/Disclosed-Reports/reports_index.html", "4,059 top public HackerOne reports on access control, authentication and injection."),
+    ("Resudit — LaTeX Résumé ATS Optimizer", f"{BASE_URL}/resudit.html", "Tailors the skills section of a LaTeX résumé to a job description and scores ATS fit."),
+    ("Security News Feed", f"{BASE_URL}/intel.html", "Security and world headlines from four sources."),
+    ("Cloud Security Jobs", f"{BASE_URL}/jobs.html", "Saved searches for cloud security, AppSec and VAPT roles."),
 ]
 
 LLMS_CONTACT = """## Contact
